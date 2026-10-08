@@ -1,0 +1,3 @@
+PASS wifi-loss protocol=2 mode=1
+Socket error (IOException). Check Wi-Fi, local network permissions, VPN policy, and whether another sender occupies the reply port.
+

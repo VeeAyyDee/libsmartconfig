@@ -1,0 +1,3 @@
+PASS background protocol=2 mode=1
+Canceled because the app left the foreground
+

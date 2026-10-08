@@ -1,0 +1,6 @@
+PASS success protocol=0 mode=1
+ESP-Touch v2 acknowledgement received
+Device MAC: 64:E8:33:43:FF:5C
+Source IP: 192.168.4.3
+This reply is not cryptographic device authentication.
+

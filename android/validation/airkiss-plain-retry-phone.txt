@@ -1,0 +1,6 @@
+PASS success protocol=2 mode=0
+AirKiss acknowledgement received
+Token matched Â· device MAC unavailable in AirKiss replies
+Source IP: 192.168.4.3
+This reply is not cryptographic device authentication.
+

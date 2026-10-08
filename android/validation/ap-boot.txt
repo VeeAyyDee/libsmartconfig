@@ -1,0 +1,90 @@
+ršj
+I (ÿESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x158c
+load:0x403c8700,len:0xd24
+load:0x403cb700,len:0x2f34
+entry 0x403c8924
+I (24) boot: ESP-IDF v5.5.2 2nd stage bootloader
+I (25) boot: compile time Oct  8 2026 08:56:25
+I (25) boot: Multicore bootloader
+I (25) boot: chip revision: v0.2
+I (28) boot: efuse block revision: v1.3
+I (31) boot.esp32s3: Boot SPI Speed : 80MHz
+I (35) boot.esp32s3: SPI Mode       : DIO
+I (39) boot.esp32s3: SPI Flash Size : 16MB
+I (43) boot: Enabling RNG early entropy source...
+I (47) boot: Partition Table:
+I (50) boot: ## Label            Usage          Type ST Offset   Length
+I (56) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (63) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (69) boot:  2 factory          factory app      00 00 00010000 00100000
+I (76) boot: End of partition table
+I (79) esp_image: segment 0: paddr=00010020 vaddr=3c090020 size=18fe8h (102376) map
+I (104) esp_image: segment 1: paddr=00029010 vaddr=3fc9a500 size=04a1ch ( 18972) load
+I (109) esp_image: segment 2: paddr=0002da34 vaddr=40374000 size=025e4h (  9700) load
+I (111) esp_image: segment 3: paddr=00030020 vaddr=42000020 size=8016ch (524652) map
+I (208) esp_image: segment 4: paddr=000b0194 vaddr=403765e4 size=13e84h ( 81540) load
+I (226) esp_image: segment 5: paddr=000c4020 vaddr=50000000 size=00020h (    32) load
+I (235) boot: Loaded app from partition at offset 0x10000
+I (236) boot: Disabling RNG early entropy source...
+I (246) cpu_start: Multicore app
+I (254) cpu_start: GPIO 44 and 43 are used as console UART I/O pins
+I (255) cpu_start: Pro cpu start user code
+I (255) cpu_start: cpu freq: 160000000 Hz
+I (256) app_init: Application information:
+I (260) app_init: Project name:     smartconfig_test_ap
+I (265) app_init: App version:      ad3aa67
+I (269) app_init: Compile time:     Oct  8 2026 08:56:06
+I (274) app_init: ELF file SHA256:  00af003cd...
+I (278) app_init: ESP-IDF:          v5.5.2
+I (282) efuse_init: Min chip rev:     v0.0
+I (286) efuse_init: Max chip rev:     v0.99 
+I (290) efuse_init: Chip rev:         v0.2
+I (294) heap_init: Initializing. RAM available for dynamic allocation:
+I (300) heap_init: At 3FCA2BF8 len 00046B18 (282 KiB): RAM
+I (305) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM
+I (310) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM
+I (316) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM
+I (322) spi_flash: detected chip: gd
+I (324) spi_flash: flash io: dio
+I (328) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (334) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (341) main_task: Started on CPU0
+I (381) main_task: Calling app_main()
+I (401) pp: pp rom version: e7ae62f
+I (401) net80211: net80211 rom version: e7ae62f
+I (411) wifi:wifi driver task: 3fca7ba8, prio:23, stack:6656, core=0
+I (411) wifi:wifi firmware version: ee91c8c
+I (411) wifi:wifi certification version: v7.0
+I (411) wifi:config NVS flash: enabled
+I (411) wifi:config nano formatting: disabled
+I (421) wifi:Init data frame dynamic rx buffer num: 32
+I (421) wifi:Init static rx mgmt buffer num: 5
+I (431) wifi:Init management short buffer num: 32
+I (431) wifi:Init dynamic tx buffer num: 32
+I (431) wifi:Init static tx FG buffer num: 2
+I (441) wifi:Init static rx buffer size: 1600
+I (441) wifi:Init static rx buffer num: 10
+I (451) wifi:Init dynamic rx buffer num: 32
+I (451) wifi_init: rx ba win: 6
+I (451) wifi_init: accept mbox: 6
+I (461) wifi_init: tcpip mbox: 32
+I (461) wifi_init: udp mbox: 6
+I (461) wifi_init: tcp mbox: 6
+I (461) wifi_init: tcp tx win: 5760
+I (471) wifi_init: tcp rx win: 5760
+I (471) wifi_init: tcp mss: 1440
+I (471) wifi_init: WiFi IRAM OP enabled
+I (481) wifi_init: WiFi RX IRAM OP enabled
+I (571) phy_init: phy_version 711,97bcf0a2,Aug 25 2025,19:04:10
+I (611) wifi:mode : softAP (80:65:99:df:56:81)
+I (611) wifi:Total power save buffer number: 16
+I (611) wifi:Init max length of beacon: 752/752
+I (611) wifi:Init max length of beacon: 752/752
+I (621) test-ap: Ready, channel 6, BSSID 80:65:99:df:56:81
+I (621) esp_netif_lwip: DHCP server started on interface WIFI_AP_DEF with IP: 192.168.4.1
+I (631) main_task: Returned from app_main()

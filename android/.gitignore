@@ -1,0 +1,14 @@
+.gradle/
+**/build/
+local.properties
+.idea/
+*.iml
+validation/firmware/
+validation/phone-window.xml
+validation/local-originals/
+dist/
+*.jks
+*.keystore
+*.p12
+keystore.properties
+signing.properties

@@ -4,7 +4,9 @@ Build a small, usable Android sender for this receiver component. Start with
 ESP-Touch v2 plaintext, then add security version 2 with a user-supplied key.
 Use the repository's behavioral specifications and public Android APIs. Keep
 the encoder separate from the UI and socket transport so it can be tested
-without a phone. No Android app or APK is included in this release.
+without a phone. The original release contained no Android app. The new
+[Android test app](../android/README.md) implements all listed sender modes;
+see its validation record for current phone/hardware evidence.
 
 ## Read first
 

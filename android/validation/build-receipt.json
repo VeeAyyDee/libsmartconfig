@@ -1,0 +1,15 @@
+{
+  "apk": "android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+  "sha256": "09d41de91f061ad9ce4dd9cf7fc19234bc0c3de3b4258340c32ca64810990274",
+  "target_sdk": 37,
+  "min_sdk": 26,
+  "phone_model": "POCO X3 NFC / M2007J20CG",
+  "phone_android": "11",
+  "phone_api": 30,
+  "ap_band": "2.4 GHz",
+  "ap_channel": 6,
+  "ap_security": "WPA2-PSK",
+  "idf": "5.5.2",
+  "codec_assertions": 330,
+  "compatibility_vectors": 2100
+}

@@ -1,0 +1,9 @@
+{
+  "protocol": 2,
+  "mode": 1,
+  "scenario": "wifi-loss",
+  "passed": true,
+  "elapsed_seconds": 6.78,
+  "reviewed_result": "failed_error_classification",
+  "superseded_by": "wifi-loss-retry.json"
+}

@@ -1,0 +1,55 @@
+plugins { id 'com.android.application' }
+
+// Passwords are supplied only by the invoking process, never by a checked-in file.
+def releaseStore = providers.environmentVariable('SMARTCONFIG_KEYSTORE')
+    .orElse(new File(System.getProperty('user.home'), '.android/libsmartconfig-release.jks').absolutePath).get()
+def releaseAlias = providers.environmentVariable('SMARTCONFIG_KEY_ALIAS').orElse('libsmartconfig').get()
+def releaseStorePassword = providers.environmentVariable('SMARTCONFIG_STORE_PASSWORD').orNull
+def releaseKeyPassword = providers.environmentVariable('SMARTCONFIG_KEY_PASSWORD').orElse(releaseStorePassword ?: '').get()
+def canSignRelease = releaseStorePassword && releaseKeyPassword
+
+android {
+    namespace 'dev.libsmartconfig.testapp'
+    compileSdk { version = release(37) }
+    defaultConfig {
+        applicationId 'dev.libsmartconfig.testapp'
+        minSdk 26
+        targetSdk 37
+        versionCode 1
+        versionName '0.1.0'
+        testInstrumentationRunner 'dev.libsmartconfig.testapp.LabInstrumentation'
+    }
+    signingConfigs {
+        if (canSignRelease) {
+            release {
+                storeFile file(releaseStore)
+                storePassword releaseStorePassword
+                keyAlias releaseAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+    buildTypes {
+        release {
+            debuggable false
+            if (canSignRelease) signingConfig signingConfigs.release
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies { implementation project(':codec') }
+
+def verifyReleaseSigning = tasks.register('verifyReleaseSigning') {
+    doLast {
+        if (!canSignRelease) {
+            throw new GradleException('Release signing requires SMARTCONFIG_STORE_PASSWORD (and SMARTCONFIG_KEY_PASSWORD if different). Use tools/build_release.ps1 for a local password prompt.')
+        }
+        if (!file(releaseStore).isFile()) {
+            throw new GradleException('Release keystore was not found. Set SMARTCONFIG_KEYSTORE to its absolute path.')
+        }
+    }
+}
+// AGP registers variant tasks after the build script has been evaluated.
+tasks.configureEach {
+    if (name == 'preReleaseBuild') dependsOn verifyReleaseSigning
+}

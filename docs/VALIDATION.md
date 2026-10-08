@@ -1,5 +1,15 @@
 # Validation and release scope
 
+## Android sender added after the release handoff
+
+The new [Android test app](../android/README.md) has a separate
+[validation record](../android/VALIDATION.md). All six sender modes passed with
+a POCO X3 NFC running Android 11 and two ESP32-S3 boards (WPA2 AP plus receiver)
+using ESP-IDF 5.5.2. This new phone evidence does not expand the older raw-frame
+comparisons or establish compatibility with every Android version or router.
+
+## Original receiver and example release evidence
+
 The runtime source implements ESP-Touch v1, full-message plaintext/keyed AirKiss and
 ESP-Touch v2 plaintext/security1/security2. Validation has two separate scopes:
 the original receiver code tested in lab harnesses, and the newly packaged

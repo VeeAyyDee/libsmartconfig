@@ -1,0 +1,41 @@
+{
+  "inputs": [
+    {
+      "path": "spec/ESPTOUCH-V1.txt",
+      "sha256": "2d1727ba72eb892b9510da58e94897b2f6a5cbd11a3e3ce52a6f208435723c5d"
+    },
+    {
+      "path": "spec/CAPTURE-V1.txt",
+      "sha256": "16043d8d5994099a0cc121bdf6e82f741220d98b7c9df28a910e69b7d17577cc"
+    },
+    {
+      "path": "spec/ESPTOUCH-V2.txt",
+      "sha256": "09a983c1319f8c80c9d4731fe7e7113286cdf1074c3ae492ce5c2826ccedc4ef"
+    },
+    {
+      "path": "spec/AIRKISS-V1.txt",
+      "sha256": "6e55a0698737dd06d73faff42f73f02b49f8981da3fab12e7eb25ae46fa065ff"
+    },
+    {
+      "path": "spec/AIRKISS-ENCRYPTED-01.txt",
+      "sha256": "d60461e1e18147dfbc37e82097b303b195d4226860c234866dbf2ede9ae8fa99"
+    },
+    {
+      "path": "docs/ANDROID-HANDOFF.md",
+      "sha256": "a1ebd1db1f608ea5c03970a2dd787a05af48543a4ed59331ea2141a59588f01f"
+    },
+    {
+      "path": "include/sc_touch2.h",
+      "sha256": "75259c160144be34095cbd291106ddf2e721ef99d064a002aefd4a07cf5f51bc"
+    },
+    {
+      "path": "include/sc_airkiss.h",
+      "sha256": "f8eb866592587817a9ac99d6403d80275e230b572f6b242ecb0989dafcacc02c"
+    }
+  ],
+  "license": "0BSD",
+  "implementation": "Original sender from repository behavioral specifications; no third-party SmartConfig sender source copied",
+  "receiver_tests": "Portable C receiver implementations compiled as black-box compatibility oracles",
+  "third_party": "Official Gradle wrapper, Apache-2.0; platform Java/Android crypto APIs",
+  "base_revision": "ad3aa67cdaafba2732f6971f4bf3ecd43f75cb84"
+}

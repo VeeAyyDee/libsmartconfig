@@ -17,12 +17,14 @@ replacement for `esp_smartconfig_*`.
 | ESP-Touch v2 | Plaintext and AES-CBC security1/security2, reserved data, PSA Crypto adapter |
 | AirKiss | Full-message plaintext or keyed AES-128-CBC reception, PSA adapter and basic token ACK |
 | ESP-IDF component | ESP32-S3, IDF 6.x; build validation uses IDF 6.0.3 |
-| Android sender app | Not included; [handoff for app development](docs/ANDROID-HANDOFF.md) |
+| Android sender app | [Test app](android/README.md): v1, all v2 modes, plaintext/encrypted AirKiss; tested on Android 11 with two S3 boards |
 
 Controlled two-board comparisons against the original receiver passed for
 v1, plaintext AirKiss and all three v2 modes. Host tests cover framing, CRCs, bounds,
-loss/repetition, capture state and lifecycle errors. **Actual-phone and
-encrypted AP-forwarded provisioning interoperability remain unverified.**
+loss/repetition, capture state and lifecycle errors. The new Android sender also
+passed all six provisioning modes on a POCO X3 NFC running Android 11, through
+an ESP32-S3 WPA2 AP. This is one phone/AP setup, not general Android/AP coverage;
+see the [phone validation record](android/VALIDATION.md).
 See [validation and limitations](docs/VALIDATION.md) for the precise scope.
 
 Version 0.1.1 adds encrypted AirKiss. See the [behavioral contract](spec/AIRKISS-ENCRYPTED-01.txt)

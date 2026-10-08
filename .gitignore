@@ -9,3 +9,10 @@ __pycache__/
 /examples/*/sdkconfig.*.local
 /examples/*/managed_components/
 /examples/*/dependencies.lock
+
+# Local signing material must never be committed.
+*.jks
+*.keystore
+*.p12
+keystore.properties
+signing.properties

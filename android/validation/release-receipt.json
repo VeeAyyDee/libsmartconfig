@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-08",
+  "apk": "SmartConfig-Test-0.1.0.apk",
+  "application_id": "dev.libsmartconfig.testapp",
+  "version_name": "0.1.0",
+  "version_code": 1,
+  "sha256": "0bcee82d451c518bac40d704af18c2991d310353d5ddf5c471115bd70a794648",
+  "signer_certificate_sha256": "1fdd43df525eda1c4c49e8bd19b334b202abd9aa03d63405aa4244d4462a386f",
+  "signature_verified": true,
+  "debuggable": false,
+  "release_lint": "passed",
+  "codec_assertions": 330,
+  "phone_testing": "Debug build tested; signed release not installed"
+}
