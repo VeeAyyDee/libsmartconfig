@@ -24,64 +24,64 @@
     "sha256": "73bed7679d6ef812d21dbeb2df0080f073828e69651370ceb917b55f86219ea9"
   },
   "Makefile": {
-    "bytes": 8555,
-    "sha256": "7e7939583b24781a6edd640c2cedf813700d0094630b727415eda19967517615"
+    "bytes": 9442,
+    "sha256": "70d41402236a14353006f9f41893f81b4e3960da61a4bfa232a117a99711f585"
   },
   "PROVENANCE.json": {
-    "bytes": 15614,
-    "sha256": "3bab911a6b9f2a786a7b869db58ce4de80579fc5766918745f18dc12c00813b7"
+    "bytes": 21157,
+    "sha256": "38011b8b42848aaabc5e00d6f7b922c2ac8d1c3e631ef57b8c3699527ccae28c"
   },
   "README.md": {
-    "bytes": 5782,
-    "sha256": "b3b8deda04c05f783b2e41babe63a082476818586845a0d538cfa8b9ef894edf"
+    "bytes": 6579,
+    "sha256": "a90691a81a10819cc0286a5193335a5333a475f361ae7316782cdacfcfcc6894"
   },
   "README.txt": {
-    "bytes": 23504,
-    "sha256": "87d48d594399c9ec408902f4fdbe6341cd93b2263e8cd1477ed3cb9315453656"
+    "bytes": 27546,
+    "sha256": "65033ea560ae74cac998b1212d9f059bcaf2dc4731334d448d99c1f0327b5faf"
   },
   "docs/ANDROID-HANDOFF.md": {
-    "bytes": 6570,
-    "sha256": "1d08514735db886008d17513840db0adc49b97ff656e07c539cc2fed403d0e81"
+    "bytes": 8381,
+    "sha256": "a1ebd1db1f608ea5c03970a2dd787a05af48543a4ed59331ea2141a59588f01f"
   },
   "docs/IMPLEMENTATION-BOUNDARY.txt": {
     "bytes": 699,
     "sha256": "63d449f206bb91de9afc232d85d34acebe758d91189003ac9f47f951fdef5472"
   },
   "docs/VALIDATION.md": {
-    "bytes": 3430,
-    "sha256": "188185dfc7558239bebd675894270263898b85421aa1f387af614cdab63706c3"
+    "bytes": 5287,
+    "sha256": "d3c86a43fc865e4d29d665c0d2891f77aad805baa08832e4430a5a09d86e1fa8"
   },
   "examples/provision/CMakeLists.txt": {
     "bytes": 237,
     "sha256": "f8d3b0ec14a861ebeb2af0425767044b6647c5aace7f895456359fac0518140c"
   },
   "examples/provision/README.txt": {
-    "bytes": 5191,
-    "sha256": "9d6806d57091fa67709db050e4a79f1076f292b010961c3fdb093154e16f0ed7"
+    "bytes": 5891,
+    "sha256": "5f13cbd187e5f44c75a90c09757f62e13a0d8fc409d90a988d72703e295303cd"
   },
   "examples/provision/main/CMakeLists.txt": {
     "bytes": 445,
     "sha256": "dc8d5d7e9941f03edb2afcc8e509d2be2457bbd375ef5b22e1482f1daf66861b"
   },
   "examples/provision/main/Kconfig.projbuild": {
-    "bytes": 803,
-    "sha256": "5c569570c35e485e6abc982d59085a94e487acb94288878dbd2ef04b65387b05"
+    "bytes": 1337,
+    "sha256": "8c8b2b1b1cce7f53ad2c3a5b04d8bee2dc50113cc2913a1086975d199b1eae0e"
   },
   "examples/provision/main/provision_example.c": {
-    "bytes": 19235,
-    "sha256": "d0f3e17b9b59ce0150fa9fb8b1ad66954e671f59a01cf1493f477ae1831019fa"
+    "bytes": 19472,
+    "sha256": "b3d784709aebae98076a4ee154706cf38e3569810a0f4d381d512a1ccb8c2869"
   },
   "examples/provision/sdkconfig.defaults": {
     "bytes": 145,
     "sha256": "11c1c649ae73333c6e372e35eca14032ab94b09da8e46808f711ce8df420e7ea"
   },
   "idf/sc_airkiss_idf.c": {
-    "bytes": 9460,
-    "sha256": "72424e09c795087807665abe327201f2d6bdc277990789c4f95085dcddba003b"
+    "bytes": 10157,
+    "sha256": "8cdc87bae964a348d22420b77ec197a4c43d6e1318b91f14176e610430325c6c"
   },
   "idf/sc_airkiss_idf.h": {
-    "bytes": 508,
-    "sha256": "c5567f62970873989858ed54aed88581c9e17647d70abbdfee999ff3278431a4"
+    "bytes": 661,
+    "sha256": "1269f1210beec422ed2f551d6018c72f0129342b568c3d54ae709a324e15dec6"
   },
   "idf/sc_touch2_idf.c": {
     "bytes": 9724,
@@ -92,8 +92,8 @@
     "sha256": "1e88b3f46506463ec88727a9aaffd53ff1e91d954548942ad24712c4417a2b64"
   },
   "idf/sc_touch2_psa.c": {
-    "bytes": 2085,
-    "sha256": "8bb2e8086c2d7a8fe0d7a96f898d5176d20180519c3108ff5790cfb0bd1a1de3"
+    "bytes": 2177,
+    "sha256": "67ce85b1af296e388b785bee4eec329025ca53019d17f13e285c770c91e0b343"
   },
   "idf/sc_touch2_psa.h": {
     "bytes": 363,
@@ -109,15 +109,15 @@
   },
   "idf_component.yml": {
     "bytes": 215,
-    "sha256": "e7f68311200c147528be0a6dd29240cd46ad13ed50cab5e01f83080ce191b02a"
+    "sha256": "10cf880d855b702f327f3b1fb0a2a341560858e2c2ec313f16f592e0fdcc713e"
   },
   "include/sc_airkiss.h": {
-    "bytes": 701,
-    "sha256": "bbc6c82180c19660ca4b56aad743d8540ce5befb904aea9fdf0eb7337db50587"
+    "bytes": 1318,
+    "sha256": "f8eb866592587817a9ac99d6403d80275e230b572f6b242ecb0989dafcacc02c"
   },
   "include/sc_airkiss_capture.h": {
-    "bytes": 908,
-    "sha256": "869b36dbc1e1c970d4ea50cf335620aa08dce9bc56b8c374cf0054b2210b1584"
+    "bytes": 1000,
+    "sha256": "d07c3b0be2e72a0cbd2f8fd6265a8c564988d2ba3919a5daac68831929ebd24a"
   },
   "include/sc_capture.h": {
     "bytes": 1003,
@@ -134,6 +134,10 @@
   "include/sc_touch2_capture.h": {
     "bytes": 912,
     "sha256": "ff46056f5f88b7ccbcad91f71eec020e439d1d5cdd0f27c8e8907661aacc6f47"
+  },
+  "spec/AIRKISS-ENCRYPTED-01.txt": {
+    "bytes": 4378,
+    "sha256": "d60461e1e18147dfbc37e82097b303b195d4226860c234866dbf2ede9ae8fa99"
   },
   "spec/AIRKISS-V1.txt": {
     "bytes": 6930,
@@ -195,13 +199,29 @@
     "bytes": 2490,
     "sha256": "b436623d6d372c3a3917e0043645011f561d5d404b6f3a8018a50bf5a78ca1b8"
   },
+  "spec/SUPERVISOR-FEEDBACK-08.txt": {
+    "bytes": 1402,
+    "sha256": "04b936bbd16b5afaa4d56c9d8717535f70bfb0aa6434455a551a77062a1e17be"
+  },
+  "spec/SUPERVISOR-FEEDBACK-09.txt": {
+    "bytes": 2118,
+    "sha256": "157f6ec43ec6c1360e4d3f25b4dc5052e15c876066744173cd482e7e86e71112"
+  },
+  "spec/airkiss-crypto-vectors.json": {
+    "bytes": 8169,
+    "sha256": "c12337b6452ec1418272a18806d6cfc010f0991d3f63bcd69cea740327d7c378"
+  },
+  "spec/airkiss-native-sender-sample.json": {
+    "bytes": 13271,
+    "sha256": "2b855f95ae5c4248f1fc8a3cb339a9c7452009e702e3e474fc911dffde14c307"
+  },
   "src/sc_airkiss.c": {
-    "bytes": 5541,
-    "sha256": "8e0912c018cdd50c164395faaa29a0ce86662151089954c5ef2e14607e861988"
+    "bytes": 7639,
+    "sha256": "65ea449a88da16a2293d1ea0a07814a197adba87d2d84517e1d012750054bf42"
   },
   "src/sc_airkiss_capture.c": {
-    "bytes": 7534,
-    "sha256": "acb5d8abd0fa7369b5cd0e4233063dcd0e4456701a32f3401342697cbae0e48c"
+    "bytes": 7704,
+    "sha256": "57472e478c3e9a18295c5d5f02f7c528f5edc813a8e41adadaffce910bf2084f"
   },
   "src/sc_capture.c": {
     "bytes": 8021,
@@ -219,9 +239,13 @@
     "bytes": 8210,
     "sha256": "6c75d3476b02dca13b9a4e62bdb139f1e541e5351f32900c7705cf0d5e77987d"
   },
+  "tests/airkiss_crypto_fixtures.h": {
+    "bytes": 15497,
+    "sha256": "ddba83fabcfbc56ce8c79887c8ebc826e9cb07b062695231d22242a1600cf061"
+  },
   "tests/idf_stubs/esp_err.h": {
-    "bytes": 221,
-    "sha256": "9badc46275d5282c0b76b45bba0f3fde37e08951782978ebab2606e0963577f1"
+    "bytes": 254,
+    "sha256": "c35b2351b83f50f0a0130b3b49fb4c2342c44dc12395a8e9549d14418d93c1e8"
   },
   "tests/idf_stubs/esp_event.h": {
     "bytes": 426,
@@ -247,13 +271,21 @@
     "bytes": 2956,
     "sha256": "9748725546038a980d14e6b7fd0f0131ad815cc0983dd4a036ba50904aca71d8"
   },
+  "tests/test_airkiss_crypto.py": {
+    "bytes": 5342,
+    "sha256": "029c8da466ff78c3ba8c92cf0e96c78d321654e449aba3274506b960c1122238"
+  },
   "tests/test_sc_airkiss.c": {
     "bytes": 13286,
     "sha256": "9b9c83d33628569d6c35cdba172462f68e42446059cde1af900786a3188313d9"
   },
+  "tests/test_sc_airkiss_encrypted.c": {
+    "bytes": 8742,
+    "sha256": "c0ade9c0009c005100b4af64575c439c882a2000ee8ae47aea0c65c324b01c94"
+  },
   "tests/test_sc_airkiss_idf.c": {
-    "bytes": 9437,
-    "sha256": "69a7b510c1a991eb81f6a4ccd3b5cf7f3d4548204a66c3af0df965c7b2dbbf46"
+    "bytes": 12549,
+    "sha256": "e1e86364a6e1c467200f785f3fbecba2e0c78ac16709e837fb357b91594b9527"
   },
   "tests/test_sc_capture.c": {
     "bytes": 9394,
@@ -280,27 +312,47 @@
     "sha256": "aa57f9e7d5cad5981ec43a2655b5a7cce47a4fe86098095c09e59c58298ba05f"
   },
   "tools/check_no_smartconfig_blob.py": {
-    "bytes": 1928,
-    "sha256": "f8c8c70754675e3f58824f4980016496d78277f22e2e89c949ef5fbf4bfdc6f5"
+    "bytes": 2177,
+    "sha256": "f4beb31151f172844c51377d66aa039da7aa4c3df794e198aa39f3667137441b"
+  },
+  "validation/airkiss-encrypted-link-audit.json": {
+    "bytes": 428,
+    "sha256": "37143bee2f3936a35340edfdc803163017fe1dbe9aa296db0bc24b63775a548f"
+  },
+  "validation/airkiss-encrypted-ota.json": {
+    "bytes": 4952,
+    "sha256": "96bc37f505012df2c3263da320d610c60376224f8ae879153cab748d32bec8d8"
   },
   "validation/airkiss-link-audit.json": {
     "bytes": 418,
-    "sha256": "0fbe9c6ad082a8979b4809929315fc1436aa76ded98f56723e7b8b0e4a84df04"
+    "sha256": "59e9a4206fe52d0961ae84141cc13723e2b403778cb1e6aca4d14b3508a0d557"
+  },
+  "validation/capture-validation.json": {
+    "bytes": 424,
+    "sha256": "b103ad3507a8e83145b919b09eb11f785136024642c9757df29e64919fb66314"
+  },
+  "validation/decoder-validation.json": {
+    "bytes": 588,
+    "sha256": "7b27916457c3143d34c1a2e2bf23f0425e0c8a3bb830ca96a95d4426e9bb5587"
   },
   "validation/host-tests.txt": {
-    "bytes": 2540,
-    "sha256": "65cd1780f14349bec7853f1fd85ae850fa45dbdb58e6ad18084c3ab9bccead48"
+    "bytes": 2863,
+    "sha256": "83c65d3caf942ecafed3164dfe932d0b799801002c1ca4458ce9a7eb04be65d5"
   },
-  "validation/package-checks.json": {
-    "bytes": 3711,
-    "sha256": "886a4a64b5b9f292c32c44ab6a0da1fc082765ae355b77802e5473c85ed77608"
+  "validation/native-sender-receipt.json": {
+    "bytes": 487,
+    "sha256": "af40dcc45a5f59af9b310c6e72a9f92731ccbb6b98c6bb89bc69c7f646a3d2f1"
+  },
+  "validation/negative-link-audit.json": {
+    "bytes": 545,
+    "sha256": "a70d2bf85f2fbdad7a84ae9d5b62398392cea05978de5f12c985dc8ccf35c905"
   },
   "validation/v1-link-audit.json": {
     "bytes": 413,
-    "sha256": "0e62e60071bd84b0b33e6fcfd13e78e004ffe06bd8d784edc4d2c09873448f12"
+    "sha256": "c847a95c9019ab323342994d4612db9f5544efc3ecd1b0a5399d1d5339be51c7"
   },
   "validation/v2-link-audit.json": {
     "bytes": 413,
-    "sha256": "94bd2998ebcb95760e831cc2179030a9edcf62aa92eb586ad3b0eeeec85a30c0"
+    "sha256": "51e993076c572573a18e9de1e4403e80554a860c5e6ab7e2e5d313a95bd0f319"
   }
 }

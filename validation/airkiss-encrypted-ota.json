@@ -1,0 +1,159 @@
+{
+  "status": "pass",
+  "checked_utc": "2026-10-08T08:13:25.011746+00:00",
+  "scope": "Two ESP32-S3 boards; native ARM sender-derived packet lengths sent as controlled raw nonQoS FromDS frames; new keyed receiver uses real ESP-IDF PSA CBC; not phone/app or encrypted802.11-envelope test, not stock encrypted-receiver A/B",
+  "rounds": [
+    {
+      "case": 0,
+      "variant": "wrongkey",
+      "password_bytes": 8,
+      "key_bytes": 16,
+      "key_case": "16ASCIIbytes",
+      "result": {
+        "variant": "wrongkey",
+        "credentials": "0",
+        "ip": "0",
+        "echo": "0",
+        "ack": "0",
+        "bad": "0",
+        "stop": "0"
+      },
+      "captured_channel": 6,
+      "captured_overhead": 64,
+      "calibration_loaded_from_nvs_both_boards": true,
+      "negative_before_send_seconds": 8,
+      "tx_errors": 0,
+      "console_sha256": {
+        "a": "162d9ce1ed24d86fde0798174fd14b112577cd160b99c40d3713c32430bd9704",
+        "b": "42e7e3f8f94f527d84b5328a0a7331d7c4376a79a83ea1f50cbc42a1b53cb4c4"
+      }
+    },
+    {
+      "case": 0,
+      "variant": "cleanroom",
+      "password_bytes": 8,
+      "key_bytes": 16,
+      "key_case": "16ASCIIbytes",
+      "result": {
+        "variant": "cleanroom",
+        "credentials": "1",
+        "ip": "1",
+        "echo": "1",
+        "ack": "1",
+        "bad": "0",
+        "stop": "0"
+      },
+      "captured_channel": 6,
+      "captured_overhead": 64,
+      "calibration_loaded_from_nvs_both_boards": true,
+      "negative_before_send_seconds": 8,
+      "tx_errors": 0,
+      "console_sha256": {
+        "a": "63da7baa38ad991f49e661a090d8082b6c16a20b78122946167ccbc770cb4ddc",
+        "b": "8d792fe23c8b7edbe8c46b5803ad9ede888628603928146a723d02e33defba69"
+      }
+    },
+    {
+      "case": 1,
+      "variant": "cleanroom",
+      "password_bytes": 16,
+      "key_bytes": 8,
+      "key_case": "8bytes+zero-padding",
+      "result": {
+        "variant": "cleanroom",
+        "credentials": "1",
+        "ip": "1",
+        "echo": "1",
+        "ack": "1",
+        "bad": "0",
+        "stop": "0"
+      },
+      "captured_channel": 6,
+      "captured_overhead": 64,
+      "calibration_loaded_from_nvs_both_boards": true,
+      "negative_before_send_seconds": 8,
+      "tx_errors": 0,
+      "console_sha256": {
+        "a": "3dac5343648cada520bc6aa3ca34053232ce5e76f634348fdb5e21b889de9624",
+        "b": "a9015163138be7184e3bea04bd6826a89257c940f6d07c7971ea1c9aee0b8d86"
+      }
+    },
+    {
+      "case": 2,
+      "variant": "cleanroom",
+      "password_bytes": 32,
+      "key_bytes": 16,
+      "key_case": "16zero-bytes",
+      "result": {
+        "variant": "cleanroom",
+        "credentials": "1",
+        "ip": "1",
+        "echo": "1",
+        "ack": "1",
+        "bad": "0",
+        "stop": "0"
+      },
+      "captured_channel": 6,
+      "captured_overhead": 64,
+      "calibration_loaded_from_nvs_both_boards": true,
+      "negative_before_send_seconds": 8,
+      "tx_errors": 0,
+      "console_sha256": {
+        "a": "4d3686630c1647cff3187f982e35a2a746e77a78a1ab50ead2817e7ed8def4c9",
+        "b": "220c5c35c7cce56e56519c11c09b9eba8198c69a6a24e0b70a0ff01d0e40a5d2"
+      }
+    },
+    {
+      "case": 3,
+      "variant": "cleanroom",
+      "password_bytes": 0,
+      "key_bytes": 16,
+      "key_case": "16ASCIIbytes/open-network",
+      "result": {
+        "variant": "cleanroom",
+        "credentials": "1",
+        "ip": "1",
+        "echo": "1",
+        "ack": "1",
+        "bad": "0",
+        "stop": "0"
+      },
+      "captured_channel": 6,
+      "captured_overhead": 64,
+      "calibration_loaded_from_nvs_both_boards": true,
+      "negative_before_send_seconds": 8,
+      "tx_errors": 0,
+      "console_sha256": {
+        "a": "41ae1a64012e26f8d7286a0735415404e3317abf407beda0b2ffefa8e01cea52",
+        "b": "84e9d275283536cb57214e3898cdfb18d31284d1eb606279c04d05bb1f5515c5"
+      }
+    }
+  ],
+  "full_flash_restored_and_verified": {
+    "a": {
+      "full_flash_verified": true,
+      "reset": true
+    },
+    "b": {
+      "full_flash_verified": true,
+      "reset": true
+    }
+  },
+  "calibrated_test_nvs": "Saved locally in private trial folder; excluded from release",
+  "firmware": {
+    "sender": {
+      "elf_sha256": "77bea3f47f9bc529c2979ede6638407c5cb294615267c8947808c3f87c4bfcfd",
+      "map_sha256": "f3e8be0a2caf10741f35e9013add274c8910fb7cc89681d29d9adb5778d203f9"
+    },
+    "cleanroom": {
+      "elf_sha256": "a2a555d707a296300db774276bfd765a607f53077cdef96590ab9fc510cbb7f6",
+      "map_sha256": "72ad6dbbb84917359654117a86bd51d1c9a933090166e57f1764a5c6c1018da5"
+    },
+    "wrongkey": {
+      "elf_sha256": "1bfff8798f1eaaab05345d81700608faedbf6f818763379007bfca7b0911d696",
+      "map_sha256": "29c272fcc16fb8210e769035fd5982596e44e750c6c509610d114e0c45f902ae"
+    }
+  },
+  "original_smartconfig_blob": "No members linked in any test variant",
+  "private_trial_record_sha256": "d5d668c6fe7c229bfe128de504a4b5eafde5c45036fa82e132a8f9a436f237b6"
+}

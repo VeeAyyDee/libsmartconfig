@@ -1,7 +1,8 @@
 sc_touch: portable C11 ESP-Touch v1/v2 and full-message AirKiss decoders
 
 This library implements the behavioral contracts in spec/ESPTOUCH-V1.txt and
-spec/CAPTURE-V1.txt, spec/AIRKISS-V1.txt and spec/ESPTOUCH-V2.txt.
+spec/CAPTURE-V1.txt, spec/AIRKISS-V1.txt, spec/AIRKISS-ENCRYPTED-01.txt
+and spec/ESPTOUCH-V2.txt.
 Its sc_touch API is original and is not a vendor private ABI or an
 ABI-compatible replacement for libsmartconfig.a. No full SmartConfig
 compatibility claim is made. The user selected 0BSD on 2026-10-08 for this
@@ -14,6 +15,7 @@ Build and test
   make test            Build/run strict warnings-as-errors unit tests.
   make sanitize        Run tests with AddressSanitizer and UBSan.
   make test-idf        Run owned IDF lifecycle and PSA wrapper mocks.
+  make test-crypto     Run real host AES tests (Python cryptography required).
   make sanitize-idf    Run those mocks with ASAN and UBSan.
   make clean           Remove local build products.
 
@@ -29,7 +31,7 @@ ESP-IDF component and example
 -----------------------------
 The root CMakeLists.txt registers all six portable and four IDF source files
 with public include/ and idf/ directories. idf_component.yml declares version
-0.1.0, license 0BSD, ESP-IDF >=6.0,<7.0 and ESP32-S3, the tested SDK family and target.
+0.1.1, license 0BSD, ESP-IDF >=6.0,<7.0 and ESP32-S3, the tested SDK family and target.
 Required SDK components are esp_wifi, esp_event, esp_timer and mbedtls.
 Use this directory as a local project component, or add it through your
 project's EXTRA_COMPONENT_DIRS. The host Makefile remains independent of IDF.
@@ -50,7 +52,7 @@ dependency is needed. Optional user-operated flashing is:
   idf.py -p PORT flash monitor
 
 See examples/provision/README.txt for Kconfig symbols, optional 32-hex-digit
-v2 AES key, bounded session/retry behavior and protocol-specific replies.
+v2 and AirKiss AES keys, bounded session/retry behavior and protocol-specific replies.
 A key stored in sdkconfig is embedded in firmware; it is not secure key
 storage. This example uses IPv4 DHCP/UDP and rejects IPv6-marked v2 messages.
 It stops capture before association, uses RAM-only credential configuration,
@@ -222,8 +224,9 @@ conflicting block or established metadata poisons the context until reset.
 Malformed metadata, indices and CRCs do not commit partial credentials.
 Completion requires every block and the SSID CRC, then freezes until reset.
 Returns are 0 incomplete, 1 complete, -1 NULL and -2 poisoned; getters leave
-outputs untouched on failure. Reset/destroy use ordinary portable clearing,
-with the same secure-erasure limitation as the ESP-Touch context.
+outputs untouched on failure. Reset clears results and preserves key configuration.
+AirKiss context destruction and temporary plaintext clearing use volatile byte
+writes; this does not guarantee erasure of caller copies or platform internals.
 
 sc_airkiss_capture.h uses the same frame filtering, bounded four candidates,
 source keys, retransmission policy, deadlines and lock type as sc_capture.h.
@@ -259,6 +262,63 @@ hardware report: two controlled ASCII cases passed exact credentials, WPA2,
 DHCP, UDP and token delivery. It documents different reference/new reply
 lifecycles and limits the result to the tested frames and cases. This file
 was not an earlier implementation input or an actual-phone conformance test.
+
+Encrypted AirKiss (added in 0.1.1)
+----------------------------------
+The existing no-argument sc_airkiss_create/sc_airkiss_capture_create and
+sc_airkiss_idf_start entry points remain plaintext. The additive
+sc_airkiss_create_with_config/sc_airkiss_capture_create_with_config APIs
+accept NULL for plaintext, or sc_airkiss_config with key[16], key_len (1..16),
+decrypt and caller-owned user pointer. Configuration/key bytes are copied;
+only the user pointer is borrowed and must remain valid through destruction.
+Invalid non-NULL config returns NULL. Short raw keys are padded with zero
+bytes to 16. The padded key is also the CBC IV, exactly as the supplied
+behavioral contract specifies. This differs from both ESP-Touch v2 IV modes.
+
+The callback returns 1 only after writing length decrypted bytes to the
+separate output buffer, without removing padding. Length is a multiple of
+16 from 16 through 80. The core checks every PKCS#7 suffix byte and publishes
+only a password of 1..64 bytes. Strict sender policy rejects a padding-only
+ciphertext; an empty password is represented by zero ciphertext bytes and
+does not invoke decryption. Keyed message storage is bounded to 113 bytes
+and 29 blocks; plaintext retains its previous 97-byte bound. Token/SSID stay
+clear and their wire offsets count ciphertext bytes. Reset retains config;
+a crypto failure stays incomplete until reset or capture timeout recovery.
+
+sc_airkiss_idf_start_with_key(key, key_len) validates/copies 1..16 raw bytes
+and uses the existing sc_touch2_psa_decrypt public-API CBC primitive. The
+primitive handles up to 144 bytes for v2 and is also sufficient for AirKiss.
+No AES implementation was added to the portable core. The example's distinct
+CONFIG_SC_EXAMPLE_AIRKISS_KEY is 32 hex digits decoded to 16 raw bytes;
+an empty setting invokes the original plaintext start. No wire encryption
+flag exists, so both sides must explicitly select the same mode and key.
+There is no plaintext fallback, authentication, or reliable wrong-key test:
+a wrong key can accidentally produce accepted padding.
+
+Owned tests cover 36 supplied native-crypto fixtures, callback failures,
+all padding suffix checks, copied configuration, independent contexts,
+metadata bounds, reordered blocks, empty/max fields, capture reset, and
+keyed IDF failure/timeout/reacquisition behavior. make test-crypto separately
+uses the standard Python cryptography AES implementation, verifies the 36
+ciphertexts, decodes 12 supplied native sender sequences unchanged, and
+checks binary/zero-key/padding/reset cases (262 actual decrypt calls). These
+are host checks. The C spies and IDF/PSA mocks do not validate AES themselves.
+The observed vintage sender wrapper allows passwords up to 32 bytes; 33..64
+and binary strings are byte-codec extensions, not demonstrated phone support.
+The earlier AirKiss hardware report covered cleartext only. Feedback09 now
+records three encrypted-AirKiss cases, one keyed open-network case and one
+wrong-key negative on two S3 boards. Actual-phone interoperability is untested.
+The archived 0.1.0 release is unchanged.
+
+Separately, spec/SUPERVISOR-FEEDBACK-08.txt reports 1056 independently
+executed native sender sequences passed core decoding/reset/config-copy
+checks using real AES; 192 longer-password policy cases, 140 invalid cases,
+and 8448 synthetic capture/header combinations also passed. These are host
+simulations. All four selectable example configurations built on ESP-IDF
+6.0.3 for ESP32-S3 and passed SmartConfig blob-exclusion link audits. The
+supervisor completed the separate authorized hardware test, as recorded in
+spec/SUPERVISOR-FEEDBACK-09.txt. Both original flash images were restored and
+fully verified. The standalone example itself was not flashed.
 
 ESP-Touch v2
 ------------
@@ -373,8 +433,8 @@ text and recorded hash remain unchanged.
 Remaining gaps
 --------------
 Scanning/AP matching, automatic association, acknowledgment transmission,
-phone orchestration, AirKiss AES and discovery/control protocols, and crypto
-beyond the specified v2 callback/PSA path remain outside this library. Fixed ring overflow may lose
+phone orchestration, AirKiss discovery/control protocols, and crypto beyond
+the specified v2/AirKiss callback/PSA paths remain outside this library. Fixed ring overflow may lose
 packets. Guide/source filtering is a chosen bounded policy, not authentication
 or guaranteed session separation. No proprietary receiver heuristics, private
 layouts, symbols, or internal API compatibility are implemented.
@@ -382,7 +442,8 @@ layouts, symbols, or internal API compatibility are implemented.
 Provenance
 ----------
 PROVENANCE.json records the implementation's knowledge inputs. Only the local
-AGENTS.md, the permitted behavioral specifications, and recorded supervisor feedback were
+AGENTS.md, permitted behavioral specifications and synthetic execution vectors,
+recorded supervisor feedback, and permitted packaging documentation/tools were
 read, along with the explicitly permitted public PSA Crypto API header and
 files created by this implementation. No sender source,
 proprietary implementation, parent

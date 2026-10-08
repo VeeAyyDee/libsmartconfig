@@ -1,6 +1,7 @@
 /* Behavioral mocks authored from the capture contract, not SDK source/ABI. */
 #include "sc_airkiss_idf.h"
 #include "sc_touch.h"
+#include "sc_touch2_psa.h"
 #include "esp_wifi.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
@@ -25,6 +26,21 @@ static struct {
     sc_capture_lock lock;
 } mock;
 
+static unsigned int crypto_calls;
+static bool crypto_fail;
+/* Validates adapter wiring only: actual AES is tested separately. */
+int sc_touch2_psa_decrypt(void *user, const uint8_t key[16], const uint8_t iv[16],
+                        const uint8_t *cipher, size_t length, uint8_t *plain)
+{
+    size_t i;
+    (void)user;
+    ++crypto_calls;
+    CHECK(length == 16 && key[0] == 0x2a && memcmp(key, iv, 16) == 0);
+    for (i = 1; i < 16; ++i) CHECK(key[i] == 0);
+    for (i = 0; i < 16; ++i) CHECK(cipher[i] == 0x80U + i);
+    memset(plain, 15, length); plain[0] = 255;
+    return crypto_fail ? 0 : 1;
+}
 static esp_err_t api(unsigned int operation)
 {
     ++mock.calls[operation];
@@ -153,6 +169,53 @@ static void queue_credentials(void)
     queue_length(128);
     for (i = 1; i < 4; ++i) queue_length((uint16_t)(256U + bytes[i]));
 }
+static void queue_encrypted_credentials(void)
+{
+    uint8_t password_length = 16, data[18], block[5];
+    unsigned int crc = sc_touch_crc8(&password_length, 1);
+    uint16_t metadata[8] = {1, 18, 32, 48, 65, 80, 0, 0};
+    size_t i, index;
+    for (i = 0; i < 16; ++i) data[i] = (uint8_t)(0x80U + i);
+    data[16] = 0x93; data[17] = 0;
+    metadata[6] = (uint16_t)(96U + (crc >> 4));
+    metadata[7] = (uint16_t)(112U + (crc & 15U));
+    for (i = 0; i < 8; ++i) queue_length(metadata[i]);
+    for (index = 0; index < 5; ++index) {
+        size_t count = index == 4 ? 2 : 4;
+        block[0] = (uint8_t)index; memcpy(block + 1, data + 4 * index, count);
+        queue_length((uint16_t)(128U + (sc_touch_crc8(block, count + 1) & 127U)));
+        queue_length((uint16_t)(128U + index));
+        for (i = 0; i < count; ++i) queue_length((uint16_t)(256U + block[i + 1]));
+    }
+}
+static void test_keyed_lifecycle(void)
+{
+    uint8_t key[17] = {0x2a};
+    reset_mock(); crypto_calls = 0; crypto_fail = true;
+    CHECK(sc_airkiss_idf_start_with_key(NULL, 1) == ESP_ERR_INVALID_ARG);
+    CHECK(sc_airkiss_idf_start_with_key(key, 0) == ESP_ERR_INVALID_ARG);
+    CHECK(sc_airkiss_idf_start_with_key(key, 17) == ESP_ERR_INVALID_ARG);
+    CHECK(sc_airkiss_idf_start_with_key(key, 1) == ESP_OK);
+    CHECK(sc_airkiss_idf_start() == ESP_ERR_INVALID_STATE);
+    memset(key, 0xff, sizeof(key));
+    queue_guides(); queue_encrypted_credentials(); CHECK(sc_airkiss_idf_poll() == ESP_OK);
+    CHECK(crypto_calls == 1 && mock.delivered[1] == 0);
+    crypto_fail = false;
+    queue_encrypted_credentials(); CHECK(sc_airkiss_idf_poll() == ESP_OK);
+    CHECK(crypto_calls == 1 && mock.delivered[1] == 0);
+    /* Idle expiry discards failed message but preserves copied key/config. */
+    mock.microseconds += 4000000;
+    CHECK(sc_airkiss_idf_poll() == ESP_OK);
+    queue_guides(); queue_encrypted_credentials(); CHECK(sc_airkiss_idf_poll() == ESP_OK);
+    CHECK(crypto_calls == 2 && mock.delivered[1] == 1);
+    CHECK(mock.result.password_len == 1 && mock.result.password[0] == 255);
+    CHECK(sc_airkiss_idf_poll() == ESP_OK && mock.delivered[1] == 1);
+    CHECK(sc_airkiss_idf_stop() == ESP_OK); check_restored();
+    reset_mock(); CHECK(sc_airkiss_idf_start() == ESP_OK);
+    queue_guides(); queue_credentials(); CHECK(sc_airkiss_idf_poll() == ESP_OK);
+    CHECK(crypto_calls == 2 && mock.delivered[1] == 1);
+    CHECK(sc_airkiss_idf_stop() == ESP_OK); check_restored();
+}
 static void test_events_stop_and_association(void)
 {
     wifi_promiscuous_cb_t old_callback;
@@ -204,6 +267,7 @@ static void test_hop_and_stop_retry(void)
 }
 int main(void)
 {
+    test_keyed_lifecycle();
     test_start_and_rollback();
     test_events_stop_and_association();
     test_hop_and_stop_retry();

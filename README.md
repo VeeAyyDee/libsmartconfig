@@ -15,15 +15,23 @@ replacement for `esp_smartconfig_*`.
 | --- | --- |
 | ESP-Touch v1 | Decoder, capture adapter, IDF polling adapter, ACK formatter |
 | ESP-Touch v2 | Plaintext and AES-CBC security1/security2, reserved data, PSA Crypto adapter |
-| AirKiss | Full-message cleartext reception and basic token ACK |
+| AirKiss | Full-message plaintext or keyed AES-128-CBC reception, PSA adapter and basic token ACK |
 | ESP-IDF component | ESP32-S3, IDF 6.x; build validation uses IDF 6.0.3 |
 | Android sender app | Not included; [handoff for app development](docs/ANDROID-HANDOFF.md) |
 
 Controlled two-board comparisons against the original receiver passed for
-v1, AirKiss and all three v2 modes. Host tests cover framing, CRCs, bounds,
+v1, plaintext AirKiss and all three v2 modes. Host tests cover framing, CRCs, bounds,
 loss/repetition, capture state and lifecycle errors. **Actual-phone and
 encrypted AP-forwarded provisioning interoperability remain unverified.**
 See [validation and limitations](docs/VALIDATION.md) for the precise scope.
+
+Version 0.1.1 adds encrypted AirKiss. See the [behavioral contract](spec/AIRKISS-ENCRYPTED-01.txt)
+and validation record for its test coverage. Three encrypted credential cases,
+an open-network case and a wrong-key negative passed on two ESP32-S3 boards;
+positive cases completed association, DHCP, UDP echo and token acknowledgement. The no-argument AirKiss APIs retain
+plaintext behavior; use `sc_airkiss_idf_start_with_key(key, key_len)` for keyed
+reception, or set the example's AirKiss key to the hexadecimal encoding of the
+sender's raw key bytes. The key is not inferred from the incoming message.
 
 ## Build the example
 
@@ -38,7 +46,7 @@ idf.py build
 ```
 
 The example defaults to ESP-Touch v2 plaintext. Its configuration menu also
-selects v1, AirKiss or a v2 AES key. It receives credentials, stops the decoder,
+selects v1, AirKiss and separate v2/AirKiss AES key settings. It receives credentials, stops the decoder,
 joins the network, waits for DHCP and sends the selected acknowledgement.
 Credentials are kept in RAM for this one-session demo; PHY calibration uses NVS.
 
@@ -122,8 +130,9 @@ shared filesystem, not enforced isolation or legal certification.
 - [Contribution and testing guidance](CONTRIBUTING.md)
 
 CRC fields, AirKiss tokens and AES-CBC padding do not authenticate a device or
-sender. The AirKiss implementation has no AES, scan-assisted SSID recovery or
-complete vendor discovery lifecycle. One v2 lab run reported capture channel
+sender. Keyed AirKiss is explicitly selected by the caller and uses the protocol's
+key-as-IV AES-CBC convention; it provides no authentication. Scan-assisted SSID
+recovery and the complete vendor discovery lifecycle are not implemented. One v2 lab run reported capture channel
 10 before association on AP primary channel 6 (40U); its cause is unproven.
 Treat the capture channel as an observation and let association find the AP.
 

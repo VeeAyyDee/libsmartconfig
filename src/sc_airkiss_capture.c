@@ -77,9 +77,14 @@ static int same_key(const frame_key *a, const frame_key *b)
 
 sc_airkiss_capture *sc_airkiss_capture_create(void)
 {
+    return sc_airkiss_capture_create_with_config(NULL);
+}
+
+sc_airkiss_capture *sc_airkiss_capture_create_with_config(const sc_airkiss_config *config)
+{
     sc_airkiss_capture *ctx = calloc(1, sizeof(*ctx));
     if (ctx == NULL) return NULL;
-    ctx->decoder = sc_airkiss_create();
+    ctx->decoder = sc_airkiss_create_with_config(config);
     if (ctx->decoder == NULL) { free(ctx); return NULL; }
     return ctx;
 }

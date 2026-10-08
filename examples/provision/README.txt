@@ -28,7 +28,17 @@ enabling unrelated optional SDK components.
 
 ESP-Touch v2 optionally accepts CONFIG_SC_EXAMPLE_V2_KEY: exactly 32
 hexadecimal digits, or empty for plaintext. Invalid lengths/characters are
-rejected without logging the key. A key in sdkconfig is also embedded in
+rejected without logging the key. AirKiss independently accepts
+CONFIG_SC_EXAMPLE_AIRKISS_KEY with the same 32-hex-digit UI, or empty for
+plaintext. Each hex pair is decoded into one raw key byte, not passed as
+ASCII. To match a shorter raw AirKiss key, append zero-byte pairs to reach
+16 bytes: raw bytes 01 02 become 01020000000000000000000000000000.
+The padded AirKiss key is also its IV. ESP-Touch v2 has different IV rules.
+Both sender and receiver must explicitly choose the same mode; AirKiss has
+no encryption flag, no plaintext fallback and no authentication. The encrypted
+AirKiss extension was added in 0.1.1 and has host validation only.
+
+A key in sdkconfig is also embedded in
 firmware; this is not secure key storage. Use a separate key-management
 design for production. The public PSA Crypto wrapper supplies CBC decryption;
 no private AES implementation is included here.
@@ -91,7 +101,8 @@ Mapping the workflow
 Replace vendor provisioning start/stop calls with exactly one of:
   sc_touch_idf_start/poll/stop
   sc_touch2_idf_start/poll/stop
-  sc_airkiss_idf_start/poll/stop
+  sc_airkiss_idf_start/poll/stop (plaintext)
+  sc_airkiss_idf_start_with_key, then sc_airkiss_idf_poll/stop (keyed)
 
 Use the matching SC_TOUCH_EVENT, SC_TOUCH2_EVENT or SC_AIRKISS_EVENT base.
 FOUND_CHANNEL supplies sc_capture_lock; GOT_CREDENTIALS supplies that

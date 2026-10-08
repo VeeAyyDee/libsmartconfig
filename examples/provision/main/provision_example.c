@@ -36,7 +36,8 @@ typedef sc_airkiss_result decoded_result;
 #define SELECTED_EVENT SC_AIRKISS_EVENT
 #define SELECTED_FOUND SC_AIRKISS_FOUND_CHANNEL
 #define SELECTED_CREDENTIALS SC_AIRKISS_GOT_CREDENTIALS
-static esp_err_t adapter_start(const uint8_t *key) { (void)key; return sc_airkiss_idf_start(); }
+static esp_err_t adapter_start(const uint8_t *key)
+{ return key != NULL ? sc_airkiss_idf_start_with_key(key, 16) : sc_airkiss_idf_start(); }
 static esp_err_t adapter_poll(void) { return sc_airkiss_idf_poll(); }
 static esp_err_t adapter_stop(void) { return sc_airkiss_idf_stop(); }
 #else
@@ -124,7 +125,7 @@ static void copy_event(void *argument, esp_event_base_t base, int32_t id, void *
         atomic_store(&context->overflow, true);
 }
 
-#if CONFIG_SC_EXAMPLE_PROTOCOL_V2
+#if CONFIG_SC_EXAMPLE_PROTOCOL_V2 || CONFIG_SC_EXAMPLE_PROTOCOL_AIRKISS
 static int hex_digit(char c)
 {
     if (c >= '0' && c <= '9') return c - '0';
@@ -137,19 +138,23 @@ static bool configured_key(uint8_t key[16], bool *present)
 {
     *present = false;
     memset(key, 0, 16);
-#if CONFIG_SC_EXAMPLE_PROTOCOL_V2
+#if CONFIG_SC_EXAMPLE_PROTOCOL_V2 || CONFIG_SC_EXAMPLE_PROTOCOL_AIRKISS
+#if CONFIG_SC_EXAMPLE_PROTOCOL_AIRKISS
+    const char *hex = CONFIG_SC_EXAMPLE_AIRKISS_KEY;
+#else
     const char *hex = CONFIG_SC_EXAMPLE_V2_KEY;
+#endif
     size_t length = strlen(hex), i;
     if (length == 0) return true;
     if (length != 32) {
-        ESP_LOGE(TAG, "Configured v2 key must contain exactly 32 hexadecimal digits");
+        ESP_LOGE(TAG, "Configured protocol key must contain exactly 32 hexadecimal digits");
         return false;
     }
     for (i = 0; i < 16; ++i) {
         int high = hex_digit(hex[2 * i]), low = hex_digit(hex[2 * i + 1]);
         if (high < 0 || low < 0) {
             memset(key, 0, 16);
-            ESP_LOGE(TAG, "Configured v2 key contains a non-hexadecimal character");
+            ESP_LOGE(TAG, "Configured protocol key contains a non-hexadecimal character");
             return false;
         }
         key[i] = (uint8_t)((high << 4) | low);

@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "native_sender_cases": 1056,
+  "native_cases_replayed_after_reset": true,
+  "extended_policy_cases": 192,
+  "invalid_padding_and_oversize_cases": 140,
+  "decrypt_calls": 2572,
+  "validation_scope": "Host decoder + real AES callback; no radio/phone claim",
+  "source_hashes": {
+    "src/sc_airkiss.c": "65ea449a88da16a2293d1ea0a07814a197adba87d2d84517e1d012750054bf42",
+    "include/sc_airkiss.h": "f8eb866592587817a9ac99d6403d80275e230b572f6b242ecb0989dafcacc02c"
+  },
+  "native_corpus_sha256": "961fdab9e9d7b619baa41c4f49ac71c8b60053e006308775a64410821fdc28a0"
+}

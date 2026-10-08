@@ -1,10 +1,10 @@
 {
   "status": "pass",
-  "protocol": "v1",
+  "protocol": "airkiss-encrypted",
   "vendor_smartconfig_archive_members": [],
   "vendor_smartconfig_defined_symbols": [],
   "missing_our_adapter_symbols": [],
-  "elf_sha256": "222cb1b0faa39ceaeae53cb0510c2d4f065995041940fa31923d876c2619edf0",
-  "map_sha256": "55fa9f27ce3352d17c0e47d28920554af55170e92e9d2b5247baa35dcc95bdd9",
+  "elf_sha256": "ac767408eea0897b48ca20da7450c0d263e0fe6ebb738b6f35b4d73c999a8a98",
+  "map_sha256": "e697c31cddafbb35688d1d65904c59deb77f97711db7eafce00fba0563fd373f",
   "scope": "SmartConfig only; Wi-Fi/PHY proprietary code may remain linked"
 }

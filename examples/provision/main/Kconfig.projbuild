@@ -26,4 +26,15 @@ config SC_EXAMPLE_V2_KEY
         It is not secure key storage. Never use this setting for production
         secrets without a separate key-management design.
 
+config SC_EXAMPLE_AIRKISS_KEY
+    string "AirKiss AES key (32 hex digits, empty for plaintext)"
+    depends on SC_EXAMPLE_PROTOCOL_AIRKISS
+    default ""
+    help
+        Explicitly selects encrypted-password AirKiss. This UI passes 16 raw
+        key bytes; a shorter sender key must be zero-padded in this setting.
+        The padded key is also the CBC IV. There is no on-wire mode flag or
+        fallback to plaintext. The key is embedded in sdkconfig and firmware;
+        this demonstration setting is not secure key storage.
+
 endmenu

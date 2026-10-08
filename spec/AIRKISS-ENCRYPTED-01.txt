@@ -1,0 +1,67 @@
+Encrypted AirKiss extension: behavioral contract, 2026-10-08
+
+BOUNDARY
+This document and supplied crypto vectors are permitted new inputs. Continue
+existing implementation separation. Do not inspect parent research, downloaded
+APK/library, decompiler output, or reference execution harness. Supervisor has
+inspected a publicly distributed AirKiss debugger and executed its native ARM
+crypto routine offline. This is an observed compatibility contract, not an
+assertion of a published official protocol specification. Update provenance.
+Implement independently from this behavior. Preserve existing APIs and tests.
+
+BEHAVIOR
+Encrypted full-message AirKiss encrypts ONLY the password. Token and SSID stay
+clear. Metadata password length is ciphertext length; total length likewise
+counts ciphertext, one token, SSID. Block framing, CRCs and acknowledgment are
+unchanged. No on-wire encryption flag: caller explicitly chooses keyed mode.
+A configured receiver must not silently fall back to plaintext on failure.
+Key length API accepts 1..16 raw bytes, pads with zero bytes to16. CBC IV is
+exactly that padded16-byte key, NOT all zero. Algorithm AES-128-CBC. Password
+padding is PKCS#7, including a full16-byte padding block for a nonempty password
+already divisible by16. Empty password is transmitted as zero bytes even when
+keyed mode is selected (no ciphertext). A receiver with key can thus accept
+an open-network empty password. SSID CRC still covers clear SSID.
+
+Bounds/policy: preserve byte-codec SSID0..32,password0..64. Ciphertext can be
+16,32,48,64,80 bytes, or zero for empty. Total up to113. Allow magic high nibble7
+only as needed for configured keyed mode, retaining plaintext bounds. Before
+publishing result, check every PKCS#7 suffix byte, pad1..16, unpadded length<=64.
+Reject encrypted zero-length plaintext represented as a padding-only block
+if you choose strict sender policy; document and test choice. Wrong-key data
+may happen to pass padding: this protocol has no authentication. Do not promise
+wrong-key detection or integrity. On valid framing but crypto failure produce
+no credential event/result; require reset or existing capture recovery policy.
+
+EVIDENCE LIMIT
+Supplied 36 vectors execute the sender's native crypto helper and match an
+independent standard AES library, covering key lengths1,8,16 and password
+lengths1,8,15,16,17,31,32,33,47,48,63,64. The vintage sender's high-level wrapper
+accepts password length<=32; longer lengths are our byte-codec extension unless
+supervisor obtains an independent sender with larger range. Supervisor will
+validate complete emitted framing separately. Do not claim phone/hardware
+interoperability or upstream drop-in API compatibility from host tests.
+
+API/IMPLEMENTATION
+Add original additive config and create-with-config interfaces for core and
+capture; retain old no-argument create functions as plaintext wrappers. Provide
+explicit keyed IDF start variant while preserving sc_airkiss_idf_start(void).
+Use caller-supplied AES-CBC decrypt callback in portable core, analogous to own
+sc_touch2 API; key/config owned by context, no retained key buffer pointers.
+The existing own PSA CBC primitive can be reused through an adapter or factored
+with regression preservation. Keep external header/API dependency attribution.
+Wipe transient plaintext and stored keys on destruction, preserve key config
+through reset, clear results on reset. Fail closed on bad config, missing crypto,
+allocation or PSA failures. All state bounded, no logging credentials/key.
+Extend standalone example with distinct AirKiss key setting (hex encoding is
+our UI choice; raw16 bytes passed to new API); keep empty setting plaintext.
+Make provenance/docs clear that encrypted AirKiss was added after0.1.0.
+
+TESTS
+Preserve all original tests. Add valid encrypted vectors, empty password,
+block boundaries/max sizes, keys containingzero bytes, wrong-key/badpadding,
+callbackfailure/missingcallback, metadata/ciphertext mismatch, reorderedblocks,
+reset retainingkey, independentcontexts and capture/IDF keyed lifecycle tests.
+Test full padding suffix, not last byte alone. Include cleartext regression.
+Report precisely what is tested. No hardware use, no network, no publishing.
+Runtime code is unfrozen for this bounded extension only. Do not change the
+already archived public0.1.0 ZIP; supervisor will stage a new release later.

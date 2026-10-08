@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "cases": 1056,
+  "source_sha256": "296cd33ef8382304e61d22301dbcea555c9c5fad01d1dc623801241dc0427935",
+  "oracle": "Original ARM constructor, crypto, metadata and data encoding executed in Unicorn; only logger/runtime allocation stubs and fixed random token. No network.",
+  "crosscheck": "Independent Python framing and cryptography AES CBC key-as-IV PKCS7",
+  "password_lengths": "0..32",
+  "ssid_lengths": "1..32",
+  "key_lengths": [
+    1,
+    8,
+    16
+  ]
+}

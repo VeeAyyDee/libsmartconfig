@@ -4,7 +4,7 @@
   "vendor_smartconfig_archive_members": [],
   "vendor_smartconfig_defined_symbols": [],
   "missing_our_adapter_symbols": [],
-  "elf_sha256": "091dd57bf3db7a3f2785a7cea62794b0f3c57d7953ccea5868d1212235528a0d",
-  "map_sha256": "bfd4913ff7d35ae40551de9a4abe85e295b0b5929f7c223a31f0eeb78ab79520",
+  "elf_sha256": "b979355786f6da5ad6a58490530b4ae9c0b7889b5cac78be00e34079d6048365",
+  "map_sha256": "54251ea120f03716857759e283605a1940f52a4ad346524e621148f7d93207df",
   "scope": "SmartConfig only; Wi-Fi/PHY proprietary code may remain linked"
 }

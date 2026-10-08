@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "scope": "Portable C11 ESP-Touch v1/v2 and full-message AirKiss normalized-length decoders, capture adapters, acknowledgment formatters, IDF polling adapters and separate public-API PSA Crypto v2 wrapper",
+  "scope": "Portable C11 ESP-Touch v1/v2 and full-message AirKiss normalized-length decoders, capture adapters, acknowledgment formatters, IDF polling adapters and separate public-API PSA Crypto v2/keyed-AirKiss wrapper",
   "implementation_boundary": "Only permitted specifications and supervisor feedback stored in this directory, implementation-owned outputs, and expressly allowed public SDK API headers may be read for task knowledge. The v2 contract and supervisor explicitly permitted the recorded PSA Crypto API header for declarations and semantics. No network, parent project research, public protocol sender source, proprietary binary, disassembly, generated reconstruction, receiver code, or credentials were used.",
   "knowledge_inputs": [
     {
@@ -90,6 +90,37 @@
       "path": "spec/PACKAGING-01.txt",
       "sha256": "b08f437c7202db7b702b9cfc8cf990361db630fa52f8273870736a8b4baa12a3",
       "role": "User-authorized 0BSD component/example packaging contract dated 2026-10-08: local ESP-IDF metadata, selectable task-owned provisioning workflow, bounded lifecycle, RAM-only credentials and explicit no-hardware-test/no-publication limits for the new example."
+    },
+    {
+      "path": "spec/AIRKISS-ENCRYPTED-01.txt",
+      "sha256": "d60461e1e18147dfbc37e82097b303b195d4226860c234866dbf2ede9ae8fa99",
+      "role": "Explicitly permitted encrypted AirKiss behavioral contract, observed native crypto behavior and strict scope limits; no sender/research artifacts inspected."
+    },
+    {
+      "path": "spec/airkiss-crypto-vectors.json",
+      "sha256": "c12337b6452ec1418272a18806d6cfc010f0991d3f63bcd69cea740327d7c378",
+      "role": "Explicitly permitted 36 synthetic native-crypto execution fixtures; input bytes and outputs only. Used for C callback fixtures and independent standard host AES checks."
+    },
+    {
+      "path": "spec/airkiss-native-sender-sample.json",
+      "sha256": "2b855f95ae5c4248f1fc8a3cb339a9c7452009e702e3e474fc911dffde14c307",
+      "role": "Explicitly permitted 12 synthetic complete native sender output sequences and expected credentials/key; source and private full corpus not inspected."
+    },
+    {
+      "path": "docs/ANDROID-HANDOFF.md",
+      "sha256": "a1ebd1db1f608ea5c03970a2dd787a05af48543a4ed59331ea2141a59588f01f",
+      "role": "Supervisor-authored packaging handoff, explicitly authorized for bounded encrypted-AirKiss and bytes-to-hex documentation updates. Both original-input and current edited-file hashes recorded.",
+      "sha256_at_first_read": "1d08514735db886008d17513840db0adc49b97ff656e07c539cc2fed403d0e81"
+    },
+    {
+      "path": "tools/check_no_smartconfig_blob.py",
+      "sha256": "f4beb31151f172844c51377d66aa039da7aa4c3df794e198aa39f3667137441b",
+      "role": "Supervisor-authored validation tool explicitly authorized for additive airkiss-encrypted audit mode. Hash records updated tool after edit, not original source hash; no firmware/map/ELF was inspected."
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-08.txt",
+      "sha256": "04b936bbd16b5afaa4d56c9d8717535f70bfb0aa6434455a551a77062a1e17be",
+      "role": "Explicitly permitted supervisor summary of independent encrypted-AirKiss native/AES/core/capture checks, four real-IDF6.0.3 example builds and blob exclusion audits. Host simulation and build evidence only; hardware preparation is not a completed result."
     }
   ],
   "implementation_owned_files": [
@@ -141,9 +172,12 @@
     "examples/provision/README.txt",
     "Makefile",
     "README.txt",
-    "PROVENANCE.json"
+    "PROVENANCE.json",
+    "tests/airkiss_crypto_fixtures.h",
+    "tests/test_sc_airkiss_encrypted.c",
+    "tests/test_airkiss_crypto.py"
   ],
-  "build_inputs": "Standard installed C compiler, system headers, C library, linker, archiver, and sanitizer runtime. Host builds read implementation-owned Makefile, headers, sources, tests, behavioral IDF/PSA stubs and local objects. The implementation agent inspected only the expressly permitted public PSA API header, not SDK implementation source or the supervisor's real-IDF project.",
+  "build_inputs": "Standard installed C compiler, system headers, C library, linker, archiver, and sanitizer runtime. Host builds read implementation-owned Makefile, headers, sources, tests, behavioral IDF/PSA stubs and local objects. The implementation agent inspected only the expressly permitted public PSA API header, not SDK implementation source or the supervisor's real-IDF project. Encrypted AirKiss host AES tests additionally use installed Python cryptography 41.0.7 through its public Cipher/AES/CBC API; no cryptography implementation source inspected.",
   "validation": [
     {
       "command": "make all test",
@@ -176,6 +210,10 @@
     {
       "command": "make all test sanitize test-idf sanitize-idf ASAN_OPTIONS=detect_leaks=0 (v2 guide-overlap repair)",
       "result": "All suites passed after the authorized bounded four-length-window repair. Preserved regression checks successful acquisition after all 65536 single-length prefixes, each missing guide position, duplicate sequences and changed lengths on the same sequence. The pre-repair failure remains documented separately. No hardware repair success is asserted from host tests."
+    },
+    {
+      "command": "make all test test-crypto sanitize test-idf sanitize-idf ASAN_OPTIONS=detect_leaks=0",
+      "result": "Passed strict warnings-as-errors and ASAN/UBSan across preserved v1/plain-AirKiss/v2 suites and new keyed AirKiss callback/config/padding/capture cases. IDF mocks cover copied key, invalid key, crypto failure without events, timeout reacquisition retaining key, single delivery and subsequent plaintext start. Real host AES independently checks 36 supplied ciphertext fixtures, 12 supplied native emitted sequences, binary/zero-key/padding/reset cases (262 decrypt calls). Leak detection disabled; no hardware/phone claim."
     }
   ],
   "packaging_validation": {
@@ -207,8 +245,41 @@
     "historical_records": "Prior feedback/specification hashes and statements about their earlier no-license status remain unchanged"
   },
   "legal_certification": false,
+  "encrypted_airkiss_extension": {
+    "version": "0.1.1",
+    "date": "2026-10-08",
+    "license": "0BSD",
+    "legacy_apis_preserved": true,
+    "archived_0_1_0_changed": false,
+    "policy": "Explicit keyed mode, 1..16 raw key bytes zero-padded to16; padded key also IV; only password encrypted; ciphertext0 or16..80, total<=113. PKCS7 every suffix byte checked, decoded password<=64, padding-only blocks rejected; empty password requires zero ciphertext. No fallback/authentication or reliable wrong-key detection. Configuration/key copied and retained across reset; callback user pointer borrowed. Volatile clear of AirKiss context/transient plaintext and PSA temporary output; not a universal secure-erasure claim.",
+    "evidence_scope": "Own host/mocked tests only. Vintage high-level sender password<=32; longer/binary byte-codec extensions. Earlier AirKiss hardware evidence is cleartext only. Supervisor target builds/independent tests recorded separately when supplied.",
+    "hardware_performed": false,
+    "network_accessed": false,
+    "source_freeze": "Runtime/include/idf/example sources frozen after extension; no changes during supervisor target build.",
+    "supervisor_reported_validation": {
+      "source": "spec/SUPERVISOR-FEEDBACK-08.txt",
+      "native_sequences": 1056,
+      "capture_simulations": 8448,
+      "extended_policy_cases": 192,
+      "invalid_padding_length_cases": 140,
+      "target_example_builds": 4,
+      "target": "ESP-IDF6.0.3 ESP32-S3",
+      "blob_audits": "All four passed; deliberately contaminated vendor archive rejected.",
+      "hardware_status": "Completed; see supervisor_post_freeze_validation and feedback09. Earlier feedback08 remains historical."
+    }
+  },
+  "supervisor_post_freeze_validation": {
+    "author": "supervisor",
+    "implementation_agent_read_this_report": false,
+    "report": "spec/SUPERVISOR-FEEDBACK-09.txt",
+    "sha256": "157f6ec43ec6c1360e4d3f25b4dc5052e15c876066744173cd482e7e86e71112",
+    "hardware": "5runs passed on2ESP32-S3 boards;3encrypted,1open-network,1wrong-key-negative",
+    "restoration": "Both full16MiB original flash images restored and verified",
+    "scope": "Separate lab harness; no phone or original-encrypted-receiver A/B claim; runtime unchanged",
+    "documentation_updates": "Supervisor updated packaging README.md,README.txt,docs/VALIDATION.md after hardware result."
+  },
   "export": {
-    "source_record_sha256": "baa5db733aa5737713a93c646ad57e66f237f618f6412b7cc57f3dc4db7d97ca",
+    "source_record_sha256": "74faf76cd4bbb3dbc4fd33df28db4304e085a3ccbc76646b3c851adc6ffa9b0e",
     "path_changes": "Boundary instructions archived as documentation; local SDK prefix replaced with ESP-IDF/. Input content hashes retained.",
     "runtime_source_changes": false,
     "scope": "Original source/tests/specs/docs only, no reference sender or proprietary artifacts"

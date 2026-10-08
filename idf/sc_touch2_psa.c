@@ -40,6 +40,10 @@ cleanup:
     destroyed = imported ? psa_destroy_key(key_id) : PSA_SUCCESS;
     if (aborted != PSA_SUCCESS || destroyed != PSA_SUCCESS) success = 0;
     if (success) memcpy(plain, output, length);
-    memset(output, 0, sizeof(output));
+    {
+        volatile uint8_t *bytes = output;
+        size_t i;
+        for (i = 0; i < sizeof(output); ++i) bytes[i] = 0;
+    }
     return success;
 }

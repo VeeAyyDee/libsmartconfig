@@ -7,7 +7,7 @@ ASAN_OPTIONS ?= detect_leaks=1
 WARNINGS = -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror
 INCLUDES = -Iinclude
 
-.PHONY: all test test-idf sanitize sanitize-idf clean
+.PHONY: all test test-crypto test-idf sanitize sanitize-idf clean
 
 all: libsc_touch.a libsc_touch.so
 
@@ -49,6 +49,16 @@ AIRKISS_TEST_HEADERS = include/sc_airkiss.h include/sc_airkiss_capture.h include
 build/test_sc_airkiss: $(AIRKISS_TEST_INPUTS) $(AIRKISS_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) $(WARNINGS) $(AIRKISS_TEST_INPUTS) $(LDFLAGS) -o $@
 
+AIRKISS_ENCRYPTED_INPUTS = tests/test_sc_airkiss_encrypted.c src/sc_airkiss.c src/sc_airkiss_capture.c src/sc_touch.c
+build/test_sc_airkiss_encrypted: $(AIRKISS_ENCRYPTED_INPUTS) $(AIRKISS_TEST_HEADERS) tests/airkiss_crypto_fixtures.h | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) $(WARNINGS) $(AIRKISS_ENCRYPTED_INPUTS) $(LDFLAGS) -o $@
+
+build/test_sc_airkiss_encrypted_sanitize: $(AIRKISS_ENCRYPTED_INPUTS) $(AIRKISS_TEST_HEADERS) tests/airkiss_crypto_fixtures.h | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) -O1 -g $(WARNINGS) -fno-omit-frame-pointer -fsanitize=address,undefined $(AIRKISS_ENCRYPTED_INPUTS) $(LDFLAGS) -o $@
+
+test-crypto: libsc_touch.so
+	python3 tests/test_airkiss_crypto.py
+
 TOUCH2_TEST_INPUTS = tests/test_sc_touch2.c src/sc_touch2.c src/sc_touch2_capture.c src/sc_touch.c
 TOUCH2_TEST_HEADERS = include/sc_touch2.h include/sc_touch2_capture.h include/sc_capture.h include/sc_touch.h
 build/test_sc_touch2: $(TOUCH2_TEST_INPUTS) $(TOUCH2_TEST_HEADERS) | build
@@ -58,7 +68,8 @@ TOUCH2_GUIDE_TEST_INPUTS = tests/probe_touch2_guide_overlap.c src/sc_touch2_capt
 build/probe_touch2_guide_overlap: $(TOUCH2_GUIDE_TEST_INPUTS) $(TOUCH2_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) $(WARNINGS) $(TOUCH2_GUIDE_TEST_INPUTS) $(LDFLAGS) -o $@
 
-test: build/test_sc_touch build/test_sc_capture build/test_sc_airkiss build/test_sc_touch2 build/probe_touch2_guide_overlap
+test: build/test_sc_airkiss_encrypted build/test_sc_touch build/test_sc_capture build/test_sc_airkiss build/test_sc_touch2 build/probe_touch2_guide_overlap
+	./build/test_sc_airkiss_encrypted
 	./build/test_sc_touch
 	./build/test_sc_capture
 	./build/test_sc_airkiss
@@ -122,7 +133,8 @@ build/test_sc_touch2_sanitize: $(TOUCH2_TEST_INPUTS) $(TOUCH2_TEST_HEADERS) | bu
 build/probe_touch2_guide_overlap_sanitize: $(TOUCH2_GUIDE_TEST_INPUTS) $(TOUCH2_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) -O1 -g $(WARNINGS) -fno-omit-frame-pointer -fsanitize=address,undefined $(TOUCH2_GUIDE_TEST_INPUTS) $(LDFLAGS) -o $@
 
-sanitize: build/test_sc_touch_sanitize build/test_sc_capture_sanitize build/test_sc_airkiss_sanitize build/test_sc_touch2_sanitize build/probe_touch2_guide_overlap_sanitize
+sanitize: build/test_sc_airkiss_encrypted_sanitize build/test_sc_touch_sanitize build/test_sc_capture_sanitize build/test_sc_airkiss_sanitize build/test_sc_touch2_sanitize build/probe_touch2_guide_overlap_sanitize
+	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_airkiss_encrypted_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_touch_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_capture_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_airkiss_sanitize

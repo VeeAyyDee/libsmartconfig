@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "expected_rejection": {
+    "status": "fail",
+    "protocol": "airkiss-encrypted",
+    "vendor_smartconfig_archive_members": [
+      "libsmartconfig.a(forbidden_fixture.o)"
+    ],
+    "vendor_smartconfig_defined_symbols": [],
+    "missing_our_adapter_symbols": [],
+    "elf_sha256": "ac767408eea0897b48ca20da7450c0d263e0fe6ebb738b6f35b4d73c999a8a98",
+    "map_sha256": "15742813ba269de0c33d58cdc6317a655989de5414adc057ec0763703a535301",
+    "scope": "SmartConfig only; Wi-Fi/PHY proprietary code may remain linked"
+  }
+}

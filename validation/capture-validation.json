@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "capture_cases": 8448,
+  "native_vectors": 1056,
+  "directions": [
+    1,
+    2
+  ],
+  "qos": [
+    false,
+    true
+  ],
+  "protected": [
+    false,
+    true
+  ],
+  "overhead": 64,
+  "scope": "Synthetic valid802.11 headers + original sender lengths, host capture-to-credentials with real AES callback; not OTA",
+  "source_sha256": "57472e478c3e9a18295c5d5f02f7c528f5edc813a8e41adadaffce910bf2084f"
+}

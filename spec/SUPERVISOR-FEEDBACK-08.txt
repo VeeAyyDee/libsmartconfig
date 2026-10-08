@@ -1,0 +1,18 @@
+Supervisor validation of encrypted AirKiss,2026-10-08
+Permitted implementation-side evidence input; no reference source is supplied.
+Independent execution of original ARM sender generated1,056 complete sequences:
+password lengths0..32 crossed with SSID lengths1..32, keys1/8/16bytes. All matched
+independent AES-CBC and framing checks. The new decoder passed all1,056 cases,
+each replayed after reset and caller-config memory overwrite, using real AES.
+Additional192policy cases(password33..64, selected SSID lengths0..32) and140
+invalid-padding/length cases passed. The capture adapter passed8,448 cases:
+all1,056 native sequences crossed with ToDS/FromDS,QoS/nonQoS,protected/unprotected
+synthetic802.11 headers. These are host simulations, not on-air measurements.
+All four example configurations built underESP-IDF6.0.3 forESP32-S3 and passed
+linked-image audits excluding original SmartConfig archive members and API
+symbols: v1,v2,AirKiss plaintext,AirKiss encrypted. Encrypted audit requires keyed
+startup andPSA decrypt symbols. Deliberate vendor archive contamination rejected.
+User now explicitly requested on-hardware encrypted-AirKiss testing. Supervisor
+is preparing this separately. Do not assert OTA success unless new feedback
+reports actual completed runs. Freeze runtime; complete existing documentation
+andprovenance without waiting for hardware results. Public0.1.1 not sealed yet.

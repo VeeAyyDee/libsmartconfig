@@ -4,23 +4,50 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum { MAX_TOTAL = 97, MAX_BLOCKS = 25 };
+enum { MAX_TOTAL = 113, MAX_BLOCKS = 29, MAX_CIPHER = 80 };
 struct sc_airkiss {
+    sc_airkiss_config config;
     uint8_t bytes[MAX_TOTAL], seen[MAX_BLOCKS];
     uint16_t metadata[4];
     size_t metadata_count, payload_count;
     unsigned int header_count;
     uint8_t block_crc, block_index, payload[4];
     uint8_t total, ssid_crc, password_length;
-    int have_magic, have_prefix, poisoned, complete;
+    int have_magic, have_prefix, poisoned, complete, crypto_failed;
     sc_airkiss_result result;
 };
 
-sc_airkiss *sc_airkiss_create(void) { return calloc(1, sizeof(sc_airkiss)); }
+static void clear_bytes(void *memory, size_t length)
+{
+    volatile uint8_t *bytes = memory;
+    while (length != 0) { *bytes++ = 0; --length; }
+}
+sc_airkiss *sc_airkiss_create_with_config(const sc_airkiss_config *config)
+{
+    sc_airkiss *ctx;
+    if (config != NULL && (config->key_len == 0 || config->key_len > 16 || config->decrypt == NULL))
+        return NULL;
+    ctx = calloc(1, sizeof(*ctx));
+    if (ctx != NULL && config != NULL) {
+        ctx->config.key_len = config->key_len;
+        memcpy(ctx->config.key, config->key, config->key_len);
+        ctx->config.decrypt = config->decrypt;
+        ctx->config.user = config->user;
+    }
+    return ctx;
+}
+sc_airkiss *sc_airkiss_create(void) { return sc_airkiss_create_with_config(NULL); }
 void sc_airkiss_reset(sc_airkiss *ctx)
-{ if (ctx != NULL) memset(ctx, 0, sizeof(*ctx)); }
+{
+    sc_airkiss_config config;
+    if (ctx == NULL) return;
+    config = ctx->config;
+    clear_bytes(ctx, sizeof(*ctx));
+    ctx->config = config;
+    clear_bytes(&config, sizeof(config));
+}
 void sc_airkiss_destroy(sc_airkiss *ctx)
-{ if (ctx != NULL) { sc_airkiss_reset(ctx); free(ctx); } }
+{ if (ctx != NULL) { clear_bytes(ctx, sizeof(*ctx)); free(ctx); } }
 
 static int quartet_is(const uint16_t symbols[4], unsigned int initial_tag)
 {
@@ -43,10 +70,10 @@ static void read_metadata(sc_airkiss *ctx, uint16_t length)
     if (quartet_is(ctx->metadata, 0)) {
         high = ctx->metadata[0];
         if (high == 8) high = 0;
-        else if (high < 1 || high > 6) return;
+        else if (high < 1 || high > (ctx->config.key_len != 0 ? 7U : 6U)) return;
         total = (high << 4) | (ctx->metadata[1] & 15U);
         checksum = ((ctx->metadata[2] & 15U) << 4) | (ctx->metadata[3] & 15U);
-        if (total < 1 || total > MAX_TOTAL) return;
+        if (total < 1 || total > (ctx->config.key_len != 0 ? MAX_TOTAL : 97U)) return;
         if (ctx->have_magic) {
             if (ctx->total != total || ctx->ssid_crc != checksum) ctx->poisoned = 1;
         } else {
@@ -58,7 +85,8 @@ static void read_metadata(sc_airkiss *ctx, uint16_t length)
         password = ((ctx->metadata[0] & 15U) << 4) | (ctx->metadata[1] & 15U);
         checksum = ((ctx->metadata[2] & 15U) << 4) | (ctx->metadata[3] & 15U);
         password_byte = (uint8_t)password;
-        if (password > 64 || password >= ctx->total ||
+        if (password > (ctx->config.key_len != 0 ? MAX_CIPHER : 64U) ||
+            (ctx->config.key_len != 0 && password % 16U != 0U) || password >= ctx->total ||
             ctx->total - password - 1U > 32U ||
             sc_touch_crc8(&password_byte, 1) != checksum) return;
         if (ctx->have_prefix && ctx->password_length != password) ctx->poisoned = 1;
@@ -71,14 +99,34 @@ static void try_complete(sc_airkiss *ctx)
     size_t i, blocks = ((size_t)ctx->total + 3U) / 4U;
     size_t password = ctx->password_length;
     size_t ssid = (size_t)ctx->total - password - 1U;
+    size_t decoded_length = password;
+    uint8_t plain[MAX_CIPHER] = {0};
+    if (ctx->crypto_failed) return;
     for (i = 0; i < blocks; ++i) if (!ctx->seen[i]) return;
     if (sc_touch_crc8(ctx->bytes + password + 1U, ssid) != ctx->ssid_crc) return;
-    memcpy(ctx->result.password, ctx->bytes, password);
+    if (ctx->config.key_len != 0 && password != 0) {
+        uint8_t padding;
+        if (ctx->config.decrypt(ctx->config.user, ctx->config.key, ctx->config.key,
+                                ctx->bytes, password, plain) != 1) goto crypto_failure;
+        padding = plain[password - 1U];
+        if (padding == 0 || padding > 16 || padding > password) goto crypto_failure;
+        decoded_length = password - padding;
+        /* Strict observed-sender policy: an empty password has no ciphertext. */
+        if (decoded_length == 0 || decoded_length > sizeof(ctx->result.password)) goto crypto_failure;
+        for (i = decoded_length; i < password; ++i)
+            if (plain[i] != padding) goto crypto_failure;
+        memcpy(ctx->result.password, plain, decoded_length);
+    } else memcpy(ctx->result.password, ctx->bytes, password);
     memcpy(ctx->result.ssid, ctx->bytes + password + 1U, ssid);
-    ctx->result.password_len = (uint8_t)password;
+    ctx->result.password_len = (uint8_t)decoded_length;
     ctx->result.ssid_len = (uint8_t)ssid;
     ctx->result.token = ctx->bytes[password];
     ctx->complete = 1;
+    clear_bytes(plain, sizeof(plain));
+    return;
+crypto_failure:
+    ctx->crypto_failed = 1;
+    clear_bytes(plain, sizeof(plain));
 }
 
 static void read_data(sc_airkiss *ctx, uint16_t length)

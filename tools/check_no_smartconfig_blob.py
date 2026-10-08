@@ -14,7 +14,7 @@ def main():
     p.add_argument("--map", type=Path, required=True)
     p.add_argument("--elf", type=Path, required=True)
     p.add_argument("--nm", default="xtensa-esp-elf-nm")
-    p.add_argument("--protocol", choices=("v1", "airkiss", "v2"), required=True)
+    p.add_argument("--protocol", choices=("v1", "airkiss", "airkiss-encrypted", "v2"), required=True)
     args = p.parse_args()
     linked = args.map.read_text(errors="replace")
     # An unused LOAD archive entry is harmless. An archive member is not.
@@ -24,8 +24,12 @@ def main():
         text=True, capture_output=True).stdout
     names = {line.split()[-1] for line in symbols.splitlines() if line.split()}
     vendor = sorted(s for s in names if s.startswith("esp_smartconfig_"))
-    prefix = {"v1": "sc_touch", "airkiss": "sc_airkiss", "v2": "sc_touch2"}[args.protocol]
+    prefix = {"v1": "sc_touch", "airkiss": "sc_airkiss", "airkiss-encrypted": "sc_airkiss", "v2": "sc_touch2"}[args.protocol]
     required = {prefix + "_idf_" + suffix for suffix in ("start", "poll", "stop")}
+    if args.protocol == "airkiss-encrypted":
+        required.remove("sc_airkiss_idf_start")
+        required.add("sc_airkiss_idf_start_with_key")
+        required.add("sc_touch2_psa_decrypt")
     missing = sorted(required - names)
     report = {
         "status": "fail" if members or vendor or missing else "pass",

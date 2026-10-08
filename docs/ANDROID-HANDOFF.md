@@ -9,6 +9,7 @@ without a phone. No Android app or APK is included in this release.
 ## Read first
 
 - [ESP-Touch v2 wire contract](../spec/ESPTOUCH-V2.txt)
+- [Encrypted AirKiss contract](../spec/AIRKISS-ENCRYPTED-01.txt)
 - [Receiver API and limits](../README.txt)
 - [Firmware example](../examples/provision/README.txt)
 - [Validation summary](VALIDATION.md)
@@ -70,7 +71,35 @@ Later options, each requiring its own end-to-end tests:
 | --- | --- | --- |
 | ESP-Touch v1 | 11 bytes to sender IPv4, UDP 18266 | See CAPTURE-V1.txt and sc_touch_make_ack |
 | ESP-Touch v2 | 7 bytes broadcast, port selected by mark | Plaintext and AES security1/2 receiver |
-| AirKiss | 1-byte token broadcast, UDP 10000 | Full-message cleartext only; no complete vendor discovery/ACK lifecycle |
+| AirKiss | 1-byte token broadcast, UDP 10000 | Full-message cleartext and explicit keyed AES mode (0.1.1); no complete vendor discovery/ACK lifecycle |
+
+## Encrypted AirKiss option in 0.1.1
+
+Use `CONFIG_SC_EXAMPLE_PROTOCOL_AIRKISS` and the separate
+`CONFIG_SC_EXAMPLE_AIRKISS_KEY` firmware setting. Empty selects plaintext;
+otherwise enter exactly 32 hexadecimal digits decoded as 16 raw key bytes.
+Hex is the example UI encoding, not the wire key representation. The core
+and keyed IDF API accept 1..16 raw bytes and zero-pad to 16. For example,
+raw bytes `01 02` map to firmware text `01020000000000000000000000000000`.
+Do not pass the 32 ASCII hex characters as the AES key. If an Android UI
+accepts text keys instead, specify its byte encoding and zero-padding
+explicitly, then show/use the equivalent raw bytes consistently.
+
+Only the password is AES-128-CBC encrypted with PKCS#7; its padded 16-byte
+key is also the IV. This is different from ESP-Touch v2. Token and SSID stay
+clear. Metadata counts ciphertext bytes. A nonempty password divisible by
+16 still adds a complete padding block. Empty passwords emit no ciphertext.
+The receiver rejects padding-only ciphertext, validates every suffix byte,
+and has no automatic plaintext fallback. There is no encryption flag or
+authentication; the sender and receiver must agree on mode and key.
+
+The observed native sender wrapper allows passwords up to 32 bytes. The
+receiver's 33..64-byte/binary policy is an extension, not evidence that an
+existing phone app accepts those inputs. The encrypted path has host/native
+execution-vector validation only; prior AirKiss two-board hardware results
+were cleartext. Add actual Android-to-S3 encrypted tests, cancellation,
+wrong-key/failed-padding cases and matched token replies before making phone
+interoperability claims. The archived 0.1.0 release remains unchanged.
 
 ## Current Android integration requirements
 

@@ -1,0 +1,32 @@
+Encrypted AirKiss hardware validation,2026-10-08
+Supervisor-authored after implementation freeze; no new implementation input.
+
+Two owned ESP32-S3 boards, ESP-IDF6.0.3. Sender emitted packet lengths obtained
+by executing the pinned original ARM sender, using controlled raw non-QoS
+From-DS802.11 frames. Receiver used the new keyed capture/IDF adapter and real
+on-device PSA AES-CBC decryption. No original SmartConfig archive was linked.
+
+PASS: password8bytes/key16bytes; password16bytes/key8bytes zero-padded; and
+password32bytes/key16all-zero bytes. These include full PKCS7 padding blocks.
+Each recovered exact SSID/password/token, associated, obtained DHCP, exchanged
+UDP echo and delivered a matching basic AirKiss token ACK to the other board.
+PASS: explicit keyed mode with empty on-wire password joined the open test AP,
+obtained DHCP, completed echo/ACK. It correctly needed no password decryption.
+PASS: known wrong-key case acquired channel6/overhead64 but emitted no credentials
+for the bounded45-second receive window, did not associate or acknowledge.
+This one negative test does not imply authenticated encryption or reliable
+rejection of every possible wrong key/corrupted ciphertext.
+
+Every run had an8-second no-transmission interval without credentials. Sender
+reported zero transmit errors. Both boards loaded newly generated calibration
+from test NVS; calibrated NVS snapshots are retained privately. Each flash
+started from the supplied empty test NVS. Both full original16MiB flash images
+matched their existing verified backups before testing and were restored and
+fully verified afterward, then both boards reset to their original firmware.
+
+Scope: controlled two-board on-air test, not a phone application test, not
+protected802.11-envelope/AP-forwarded traffic validation, and not an A/B against
+an original encrypted-AirKiss receiver. The standalone release example was
+compiled in all four configurations; hardware used a separate lab harness.
+Runtime remained unchanged throughout all tests. Public receipt:
+validation/airkiss-encrypted-ota.json. No private backups/keys/logs published.

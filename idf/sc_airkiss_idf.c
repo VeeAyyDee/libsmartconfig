@@ -1,4 +1,5 @@
 #include "sc_airkiss_idf.h"
+#include "sc_touch2_psa.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
@@ -134,7 +135,7 @@ esp_err_t sc_airkiss_idf_stop(void)
     return result;
 }
 
-esp_err_t sc_airkiss_idf_start(void)
+static esp_err_t start_with_config(const sc_airkiss_config *config)
 {
     esp_err_t error, rollback;
     wifi_mode_t mode;
@@ -168,7 +169,7 @@ esp_err_t sc_airkiss_idf_start(void)
     if (error != ESP_OK) return error;
     error = esp_wifi_get_promiscuous_filter(&saved_filter);
     if (error != ESP_OK) return error;
-    adapter.capture = sc_airkiss_capture_create();
+    adapter.capture = sc_airkiss_capture_create_with_config(config);
     if (adapter.capture == NULL) return ESP_ERR_NO_MEM;
     adapter.active = true;
     adapter.saved_channel = saved_channel;
@@ -197,6 +198,24 @@ esp_err_t sc_airkiss_idf_start(void)
 fail:
     rollback = sc_airkiss_idf_stop();
     return rollback != ESP_OK ? rollback : error;
+}
+
+esp_err_t sc_airkiss_idf_start(void) { return start_with_config(NULL); }
+
+esp_err_t sc_airkiss_idf_start_with_key(const uint8_t *key, size_t key_len)
+{
+    sc_airkiss_config config = {0};
+    esp_err_t result;
+    volatile uint8_t *bytes;
+    size_t i;
+    if (key == NULL || key_len == 0 || key_len > sizeof(config.key)) return ESP_ERR_INVALID_ARG;
+    memcpy(config.key, key, key_len);
+    config.key_len = key_len;
+    config.decrypt = sc_touch2_psa_decrypt;
+    result = start_with_config(&config);
+    bytes = (volatile uint8_t *)&config;
+    for (i = 0; i < sizeof(config); ++i) bytes[i] = 0;
+    return result;
 }
 
 static void observe_state(int state)
