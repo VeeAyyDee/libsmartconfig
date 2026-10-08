@@ -1,0 +1,57 @@
+Component/example packaging task, 2026-10-08
+
+User selected 0BSD for the new implementation and requested component format
+and an example using it instead of the default SmartConfig blob. Supervisor
+will add LICENSE and package an independent source-only export. Keep existing
+decoder/capture/IDF runtime .c/.h files unchanged. Own new build integration,
+example code and documentation only. Use existing permitted inputs and own
+APIs; do not inspect parent apps, research, sender source or vendor receiver.
+
+Add root CMakeLists.txt using idf_component_register for all six portable
+source files and four IDF .c files, public include/ and idf/ directories,
+dependencies esp_wifi, esp_event, esp_timer, mbedtls. Host Makefile remains.
+Add idf_component.yml with version 0.1.0, description, IDF >=6.0,<7.0 and
+esp32s3 target only (the actually tested SDK/target). Do not invent repository
+URL. Supervisor will test real IDF6.0.3, including dependency metadata. All
+new code/build files SPDX-License-Identifier: 0BSD, no invented author name.
+
+Add examples/provision with its own CMake project, sdkconfig.defaults and
+main component. EXTRA_COMPONENT_DIRS points ../.. to package root. Derive the
+component name from the root folder so renaming this package to sc_provision
+works as well as the current libsmartconfig name. No absolute local paths,
+network dependencies or proprietary esp_smartconfig calls/includes.
+
+Example should select one protocol via Kconfig choice (default ESP-Touch v2;
+other choices v1 and AirKiss). Optional v2 AES key as 32 hex digits, empty for
+plaintext; validate length/characters and never log it. Warn in example docs
+that putting a key in sdkconfig embeds it in firmware; not secure key storage.
+Initialize NVS without automatic erase on errors, default event loop/netif,
+Wi-Fi STA, calibration-storage defaults enabled. Use RAM Wi-Fi config storage
+for decoded credentials. Poll selected adapter from app task every10ms.
+Event callbacks must only copy bounded results into a FreeRTOS queue; task
+owns start/poll/stop, association, retries, sockets. Check event registration
+and queue send failures, handle timeout/retryable post/stop errors explicitly.
+Bound provisioning (e.g.120s), association (e.g.30s), ACK sends (e.g.30 sends
+100ms). Stop decoder before association, including partial-start cleanup;
+do not pin association to capture channel. Retain decoded BSSID for v1 or
+captured BSSID for v2, and optionally captured BSSID for AirKiss. Reject empty
+SSID at Wi-Fi boundary, copy counted arrays into zeroed wifi_config_t, never
+log credentials/reserved data. Log only progress/errors/IP and completion.
+
+After DHCP, use existing formatter: v1 11-byte reply to decoded sender IPv4
+UDP18266 (IPv4 local bytes must be network order); v2 7-byte reply broadcast
+UDP18266+10000*mark; AirKiss basic 1-byte token broadcast UDP10000. No claim of
+full vendor ACK/phone discovery compatibility. ACK send success is only local
+socket acceptance, not proof phone received it. Handle socket errors/close.
+One session per boot is adequate; don't add credential persistence or a new
+vendor ABI shim. Explain functions/events replacing the vendor workflow.
+
+Keep example README.txt and root component integration instructions practical:
+idf.py set-target esp32s3; menuconfig; build; optional flash monitor commands.
+Flashing is a user operation; supervisor will only build this packaging task.
+Clearly distinguish replacing libsmartconfig from replacing Wi-Fi/PHY blobs.
+Existing controlled hardware tests cover earlier harnesses, not this new
+example. Documentation must not claim this example itself was hardware tested.
+Record this spec hash and new owned files in provenance. Supervisor will run
+host suites, build all three choices and audit ELF/map absence of original
+libsmartconfig.a archive members and esp_smartconfig_* implementation symbols.

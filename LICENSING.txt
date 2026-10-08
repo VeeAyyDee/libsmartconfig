@@ -1,0 +1,17 @@
+Licensing decision, 2026-10-08
+
+The user selected Zero-Clause BSD (SPDX: 0BSD) for this project's newly
+written implementation, owned tests, examples, build files and documentation.
+The license text is in LICENSE. No attribution or source-sharing obligation
+is imposed by that license. This decision supersedes earlier "no license
+selected" statements in the preserved, dated feedback/provenance history.
+
+ESP-IDF, PSA Crypto and other dependencies retain their respective licenses.
+This package does not relicense them. Public sender source, proprietary
+archives, reconstructed receiver code, firmware and device backups are not
+part of the source package. Protocol/source references in the specifications
+are provenance references, not a grant of rights in those external materials.
+
+The implementation used a specification/implementation split documented in
+PROVENANCE.json. This is a record of development, not a legal certification.
+Third-party notices must be retained if third-party code is added in future.

@@ -1,0 +1,16 @@
+Supervisor feedback received after initial implementation and local tests:
+
+Independent Java-sender oracle passes: 67,081 assertions, all 32,768 triplets
+plus corrupted variants, 72 complete vectors, reorder/duplicate/noise/drop/
+retry, checksums and reset. Separate ASAN/UBSAN harness passes 1,000,000 feeds
+and 1,000,000 triplet probes (leaks disabled).
+
+One README wording correction: 'The decoder never merges sessions' is
+stronger than the API guarantees; it has no source identity and caller must
+segregate sessions. Say 'Conflicting indexed bytes poison the context;
+source/session separation remains the caller's responsibility.' Please record
+this feedback as a local input for provenance and make only that wording
+change before finalizing.
+
+The implementation agent received this report from the supervisor; it did
+not inspect the independent oracle, sender sources, or harness files.

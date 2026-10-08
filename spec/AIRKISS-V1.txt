@@ -1,0 +1,106 @@
+AirKiss full-message mode: behavioral contract revision 1
+
+BOUNDARY AND PROVENANCE
+Continue the same procedural implementation separation. This specification,
+previously permitted inputs, and your own implementation/tests are allowed.
+Do not open any public sender/receiver source, parent research, proprietary
+archive, disassembly or reconstruction. No network. Supervisor inspected a
+public community Android sender (zhchbin/WeChatAirKiss, commit
+4bc9683aeee73e35c2e8bcdc02f209eb7493c5e1), whose author describes deriving it
+from network packets. This is not an official Tencent specification. The
+supervisor will execute that unmodified sender offline and qualify synthetic
+vectors against the original S3 receiver. No sender code is supplied here.
+The existing reference sender has ASCII limitations; binary-byte codec tests
+are our explicit extension, not proof of compatibility with every phone.
+
+SCOPE
+Full unencrypted AirKiss provisioning message: password, one token byte, SSID.
+No AES, scan-assisted SSID lookup, vendor ABI, discovery/control protocol,
+automatic association, or socket ownership. Keep existing ESPTouch v1 behavior
+and API intact. Use original APIs and readable portable C11. CRC protects
+accidental corruption only. Never log credentials.
+
+WIRE OBSERVATIONS
+Input is normalized UDP payload length. Guide repeats 1,2,3,4.
+CRC8 has initial0, reflected polynomial0x8c, final XOR0; bytes processed in
+order, least-significant bit first (same mathematical CRC as existing core).
+The four magic symbols have upper nibbles0,1,2,3 respectively. Low nibbles
+encode total message length T high/low then SSID CRC high/low. Special first
+symbol8 means the high length nibble is ZERO (avoids zero-length datagrams).
+Other accepted high length nibbles are1..6 under the bounds below. Reject
+magic first symbol0 in this first policy; sender uses8 for T<16.
+Prefix symbols have upper nibbles4,5,6,7; low nibbles encode password length P
+high/low then CRC8([P]) high/low. Require that CRC match.
+Data block: two symbols in128..255 followed by up to4 symbols in256..511.
+First symbol low7bits = CRC8([block index, actual block data bytes]) &127.
+Second symbol low7bits = block index. Each payload symbol low8bits is one byte.
+Message bytes are password[P] || token[1] || SSID[T-P-1]. Index j means byte
+offset4*j. All blocks except last contain4 bytes. Final block contains exactly
+min(4,T-4*j), with CRC computed over that actual count (NO zero padding).
+CRC high bit is not transmitted. On-air index may be0..127 but only required
+indices0..ceil(T/4)-1 are accepted. SSID CRC checks the completed SSID bytes.
+After association, acknowledgment is the one token byte in a UDP datagram to
+broadcast port10000. Repetition/socket handling belongs to caller.
+
+CORE API include/sc_airkiss.h, src/sc_airkiss.c
+ opaque sc_airkiss;
+ result struct sc_airkiss_result { uint8_t ssid[32], password[64];
+                                 uint8_t ssid_len,password_len,token; };
+ sc_airkiss *sc_airkiss_create(void);
+ void sc_airkiss_destroy(sc_airkiss *);
+ void sc_airkiss_reset(sc_airkiss *);
+ int sc_airkiss_feed(sc_airkiss *,uint16_t normalized_length);
+ int sc_airkiss_get_result(const sc_airkiss *,sc_airkiss_result *);
+ int sc_airkiss_make_ack(const sc_airkiss_result *,uint8_t out[1]);
+Feed returns0 incomplete,1 complete,-1 NULL,-2 poisoned conflict. Getter1 only
+on complete else0 without changing output. NULLsafe destroy/reset, independent
+contexts, allocation failureNULL. Ack verifies pointers and length bounds.
+Bounds: P0..64, SSID0..32, T=P+1+SSID in1..97. Empty SSID is a byte-codec case,
+not proof a real AP can use it. No output until valid magic+prefix, all required
+blocks, finalSSIDCRC. Freeze completed result until reset. Counted byte arrays
+can contain zero/high bits. Bounded memory, no input pointers retained.
+Receive phases: acquire complete magic quartet, then complete valid prefix,
+then data. Repeated identical magic/prefix frames between blocks are harmless.
+An invalid/partial quartet, invalid symbol or CRC does not commit partial
+bytes. Permit reordering and identical repeats of data blocks. Any valid block
+conflicting with an already accepted block poisons until reset. A complete
+conflicting magic quartet or CRC-valid conflicting prefix after established
+metadata likewise poisons; malformed metadata ignored. Prefix received before
+magic may be ignored. Data before validated prefix ignored. Lost symbols must
+not permanently desynchronize: use bounded framing/sliding recovery, resync at
+metadata tags and data header symbols. Headers may be adjacent values in128..255;
+only first2 followed by correct count of256..511 can form a block. Out-of-range
+index ignored. Incomplete block can be restarted by next header pair. Invalid
+SSID CRC stays incomplete; do not fabricate or scan-guess SSID.
+
+CAPTURE API include/sc_airkiss_capture.h, src/sc_airkiss_capture.c
+Follow existing CAPTURE-V1.txt policy and API shape with names prefixed
+sc_airkiss_capture (opaque context). Reuse sc_capture_lock type. Getter result
+is sc_airkiss_result. Same filtering, 4 candidates, source key, retransmission
+handling, uint32 wrap-safe timeouts, header-only access, frozen completion.
+Difference: guide is TWO ascending cycles L,L+1,L+2,L+3 repeated, where
+normalization overhead=L-1 is0..256. Matching frames normalize by subtraction.
+There is NO decoded BSSID in message; lock BSSID comes from frame, NOT SSIDCRC.
+Caller obtains it through get_lock. Do not imply CRC authenticates BSSID.
+BSSID mismatch test from ESPTouch thus does not apply. Idle2500ms and absolute
+30000ms remain; conflict resets capture to search. Existing public frame parser
+may be factored for reuse if useful; retain v1 behavior/tests.
+
+IDF API idf/sc_airkiss_idf.h and .c
+Follow own existing ring/poll/lifecycle adapter with separate names:
+SC_AIRKISS_EVENT, SC_AIRKISS_FOUND_CHANNEL=0, SC_AIRKISS_GOT_CREDENTIALS=1,
+sc_airkiss_idf_start/poll/stop(). Channel event payload sc_capture_lock,
+credentials payload sc_airkiss_result. Caller retains channel event BSSID for
+association. Same exclusivity, disconnectedSTA precondition, ring128,
+channel350ms hops, restore/error checks, completion disables capture, retry
+failed event posts, no background task. Separate adapters cannot run together;
+existing promiscuous ownership check enforces sequential use. Supervisor will
+compile against actualIDF and build demo to associate and send ACKs.
+
+TEST AND DELIVERY
+Own test cases for lengths0/1/3/4/5/63/64, total1..97, all tail sizes, special
+short magic, CRC corruption, missing/reordered/duplicate/conflicting blocks,
+invalid metadata/index/length, interleaved sources, capture timeouts, lifecycle.
+ASAN/UBSan. Preserve v1 test passes. Update README/provenance with allowed input
+hash and limitations; don't claim official conformance. Signal core/header
+availability early so supervisor can prepare independent tests and IDF harness.

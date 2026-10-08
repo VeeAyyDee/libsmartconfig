@@ -1,0 +1,14 @@
+ESP-Touch v2 supervisor feedback,2026-10-06
+
+Independent core checks:14935 assertions,447 frozen unmodified public Java
+sender vectors,1698 actual AES decrypt calls using Python cryptography against
+Java JCE output. Covers plaintext/security1/security2, mixed7/8-bit segments,
+full-size bounds, reserved data, output metadata/ports, reorder/loss/CRC, valid
+conflicts, no/wrong key and failed/invalid-padding callbacks.
+Capture checks:6697 assertions,744 simulated header/length streams across
+DS directions,QoS,Protected, foreign-source rejection, BSSID CRC binding and
+completion freeze. These do not establish real RF interoperability.
+
+Actual IDF6.0.3 sender/reference/new receiver builds are being completed by
+supervisor; do not claim hardware before subsequent feedback. PSA wrapper is
+new actual target dependency; host callbacks do not validate its implementation.

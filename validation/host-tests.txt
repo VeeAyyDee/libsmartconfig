@@ -1,0 +1,21 @@
+Commands: make all test test-idf sanitize sanitize-idf ASAN_OPTIONS=detect_leaks=0
+Result: exit0; leak detection disabled in traced runtime.
+
+PASS: exhaustive triplets, all credential lengths, framing, integrity, conflicts, reset, independent contexts
+PASS: capture guides, phases, framing classes, bounds, interference, retransmissions, wraparound, deadlines, result binding and ack
+PASS: AirKiss all field lengths/tails, reorder/repeat/drop/recovery, integrity/conflicts, independent contexts, capture framing/sources/timeouts, ack
+PASS: v2 plaintext layouts/planes, callback plumbing/padding (not AES validation), CRC/conflict/recovery, capture and ack bounds
+PASS: v2 overlapping guide, all 65536 single-length prefixes, lost guide recovery and duplicate sequences
+PASS: IDF lifecycle mocks, start refusals/API rollback, event retries, completion disable, late callback, association-safe stop, hopping, cleanup retries
+PASS: AirKiss IDF lifecycle mocks, start refusals/API rollback, event retries, completion disable, late callback, association-safe stop, hopping, cleanup retries
+PASS: v2 IDF lifecycle mocks, start refusals/API rollback, event retries, completion disable, late callback, association-safe stop, hopping, cleanup retries
+PASS: PSA wrapper API/failure/cleanup/output-bound mocks; this is not AES cryptographic validation
+PASS: exhaustive triplets, all credential lengths, framing, integrity, conflicts, reset, independent contexts
+PASS: capture guides, phases, framing classes, bounds, interference, retransmissions, wraparound, deadlines, result binding and ack
+PASS: AirKiss all field lengths/tails, reorder/repeat/drop/recovery, integrity/conflicts, independent contexts, capture framing/sources/timeouts, ack
+PASS: v2 plaintext layouts/planes, callback plumbing/padding (not AES validation), CRC/conflict/recovery, capture and ack bounds
+PASS: v2 overlapping guide, all 65536 single-length prefixes, lost guide recovery and duplicate sequences
+PASS: IDF lifecycle mocks, start refusals/API rollback, event retries, completion disable, late callback, association-safe stop, hopping, cleanup retries
+PASS: AirKiss IDF lifecycle mocks, start refusals/API rollback, event retries, completion disable, late callback, association-safe stop, hopping, cleanup retries
+PASS: v2 IDF lifecycle mocks, start refusals/API rollback, event retries, completion disable, late callback, association-safe stop, hopping, cleanup retries
+PASS: PSA wrapper API/failure/cleanup/output-bound mocks; this is not AES cryptographic validation

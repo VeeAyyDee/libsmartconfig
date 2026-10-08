@@ -1,0 +1,10 @@
+{
+  "status": "pass",
+  "protocol": "v1",
+  "vendor_smartconfig_archive_members": [],
+  "vendor_smartconfig_defined_symbols": [],
+  "missing_our_adapter_symbols": [],
+  "elf_sha256": "a62188bb4a532d917ab419205367f72e26f8b33d2135b72d9ba173ca615e9f8e",
+  "map_sha256": "4cd32ebe128128a6ca2cc062316117a039290a93d43d720dc1e81b7059accfb3",
+  "scope": "SmartConfig only; Wi-Fi/PHY proprietary code may remain linked"
+}

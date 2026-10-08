@@ -1,0 +1,136 @@
+ESP-Touch v2 full-message behavioral contract revision1
+
+BOUNDARY
+Continue procedural clean implementation separation. This contract, prior
+permitted specs/feedback and your own code/tests only. No sender source,
+receiver source/disassembly, reconstructed C, archives or parent research.
+No network. Installed compiler/SDK public crypto/API headers are permitted
+build/API declarations; no SmartConfig receiver implementation. Supervisor
+read pinned public Espressif Android sender370face1de6f22bfd9fc70abfc9e31d13c228d56
+and will generate independent vectors from its unmodified Java classes.
+This describes observable packet formats, not receiver internals. Original
+APIs below and bounded rejection/timeouts are our chosen policy.
+
+FORMAT
+Lengths are UDP payload lengths (capture removes constant wire overhead).
+CRC8 initial0, reflected0x8c, no finalxor (existing sc_touch_crc8).
+The header sequence starts:1048,1071+N,1048,1071+N, then8 data-plane packets.
+N includes the header itself. Each body sequence j (0-based) begins with
+128+j repeated3 times, then8 data-plane packets. Our decoder need only one
+marker to select j; repeats before planes are harmless. N bounds1..41.
+A data-plane packet is64|(i<<7)|d, where i0..7, d0..63. Thus marker bit6=1,
+length64..1023. Decode six bytes B[0..5] by taking bit(5-k) of d_i as bit i
+of B[k]. Distinguish body markers128..167 (bit6=0), sync1048, count1072..1112.
+Packets outside these supported sets reset only partial framing, not collected
+validated sequences. Each8-plane group must have all indices0..7. Repeated
+same plane harmless, conflicting plane values discard current partial group
+(not entire session); next marker resynchronizes. Sequence marker switch clears
+partial planes, but consecutive same markers BEFORE data do not.
+
+Header is six full8-bit bytes H0..5. H0: SSID len low7bits, highbit means8-bit
+encoding. H1: password len low7, highbit encode. H2: reserved len low7, highbit
+encode. H3: CRC8(target6-byteBSSID). H4: bit0IPv4 flag (0IPv6), bits1..2
+security version0/1/2; bits3..4 reply port mark0..3; bit5reserved0; bits6..7
+protocol version0. H5 CRC8(H0..4). Bounds SSID0..32,password0..64,reserved0..64.
+Reject protocol!=0, reserved bit5, security3 or impossible sizes. A byte-codec
+emptySSID is allowed but not claimed provisionable. Header is always full8-bit.
+
+Body group encodings (not to be confused with AES security):
+- 7-bit group carries six bytes with all high bits0. Planes0..6 carry bit0..6
+  of all six. Plane7 low6bits is CRC8(the six bytes)&63, NOT their bit7 plane.
+- 8-bit group carries five arbitrary bytes plus full CRC8(those five bytes)
+  in byte B5; all eight planes encode these six full bytes.
+Random padding bytes fill each logical segment to a multiple of its group
+width (6 or5). Padding participates in per-group CRC; excluded from result.
+
+Layout after header:
+security0 with password-encode=0 AND reserved-encode=0: concatenate password
+and reserved into ONE7-bit segment, padded to multiple6. Then SSID segment.
+security0 otherwise: password segment with width5 if encodebit else6; separately
+reserved segment similarly; then SSID segment. Empty segment uses no groups.
+SSID segment always width5 if H0highbit else6, padded accordingly.
+security1/2: concatenate plaintextpassword||reserved, AES128-CBC encrypt with
+PKCS#7 padding to next16-byte boundary (always at least1 padding byte).
+Ciphertext length C=16*(floor((P+R)/16)+1). Transmit ciphertext as width5 groups
+(with random group-padding to multiple5). No separate reserved segment.
+security1 IV is16zero bytes. security2 inserts20 transmitted random IV bytes
+as four width5 groups between ciphertext andSSID; only first16 used as CBCIV,
+last4 are transported/checksummed but not cryptographic IV bytes.
+AES cipher's plaintext PKCS#7 must validate exactly: decrypted C bytes, expected
+plaintext length P+R, pad length C-(P+R) in1..16, EVERY pad byte equals padlength.
+Encrypted mode without decrypt callback/key stays unsupported/incomplete and
+must not expose credentials. Decryption failure or invalid padding must not
+expose partial output. Never claim CRC/padding authenticates sender or key.
+Sender actually chooses security0 if key supplied but P+R=0; don't generate
+security1/2 with zero P+R in own encoder tests except deliberate invalid input.
+Require computed group count+header==N, and all expected validated sequences.
+Seq CRC has no index binding; source/session separation is caller policy.
+Receive header before body; body before accepted header may be ignored. Permit
+reordered groups after header, identical repeats and repeated same header.
+Any CRC-valid changed header or CRC-valid changed committed sequence before
+completion poisons session until reset. Count changes after established header
+also poison if count is in bounds. Invalid CRC/framing never commits bytes.
+Frozen completion until reset. Output only after full validation and decryption.
+
+CORE API include/sc_touch2.h and src/sc_touch2.c
+ opaque sc_touch2;
+ typedef int (*sc_touch2_decrypt_fn)(void *user,const uint8_t key[16],
+   const uint8_t iv[16],const uint8_t *cipher,size_t length,uint8_t *plain);
+ callback returns1 only after writing exactly length decrypted bytes; no padding
+ removal in callback. Buffers disjoint; length bounded to144 and multiple16.
+ config: uint8_t key[16]; sc_touch2_decrypt_fn decrypt; void *user;
+ result: uint8_t ssid[32],password[64],reserved[64];
+         uint8_t ssid_len,password_len,reserved_len,port_mark,security_version,
+                 bssid_crc,ipv4;
+ sc_touch2 *sc_touch2_create(const sc_touch2_config *config); // NULL plaintext
+ destroy/reset/feed/get_result following existing APIs; reset preserves config.
+ feed(int ctx,uint16_t length) returns0 incomplete,1complete,-1NULL,-2conflict.
+ Bounded storage (max40body groups); validate offsets before copying; do not
+ retain caller packet/result pointers. Config copied; callback user lifetime
+ caller-owned. No globals or credential logs. Allocation failureNULL.
+ int sc_touch2_make_ack(const sc_touch2_result *,const uint8_t mac[6],
+                        uint8_t out[7],uint16_t *port);
+ returns1 valid else0 untouched. output[0]=port_mark,out[1..6]=MAC;
+ port=18266+10000*port_mark. Caller sends broadcast UDP after association.
+ Validate pointers, result length bounds, mark0..3, security0..2.
+
+CAPTURE include/sc_touch2_capture.h,src/sc_touch2_capture.c
+API shape follows sc_airkiss_capture but prefix sc_touch2_capture,
+create(const sc_touch2_config*), result type sc_touch2_result, lock type
+existing sc_capture_lock. Preserve existing frame filtering,4 candidates,
+key=(BSSID,sender,channel,direction,QoS,Protected), sequence dedup andtimeouts.
+Guide recognition: L,M,L,M on samekey, overheadO=L-1048 in0..256,
+N=M-L-23 in1..41. Acquire starting anywhere in repeated guide. Conflicts or
+mismatch restart with current length if a possible L. On lock, prime core by
+feeding1048,1071+N,1048,1071+N so immediately following header planes decode.
+Same1500ms candidate,2500ms idle,30000ms absolute deadlines; uint32wrapsafe.
+Locked frames normalize by subtracting O (guard underflow). Require decoded
+bssid_crc == CRC8(lock BSSID) before exposing result; mismatch clears session.
+CRC8 is not authentication. On conflict reset/search. Freeze completedresult.
+Keep stored crypto configuration across capture resets/reacquisition.
+
+IDF idf/sc_touch2_idf.h/.c plus idf/sc_touch2_psa.h/.c
+Use own existing ring128/poll/event adapter policy with new names
+SC_TOUCH2_EVENT,SC_TOUCH2_FOUND_CHANNEL=0,SC_TOUCH2_GOT_CREDENTIALS=1.
+sc_touch2_idf_start(const uint8_t *key16) (NULL plaintext), poll(),stop().
+Event payloads lock andsc_touch2_result. Caller must stop other adapters before
+starting this one, including a completed adapter. Same error/rollback, channel
+scan and event retry handling; no autoassociation/socket/credentialstorage.
+Use the installed IDF6 public PSA Crypto API from psa/crypto.h, not private AES
+implementation headers. Implement the callback via AES128 CBC NO_PADDING,
+psa_crypto_init/importkey/cipherdecrypt/destroykey or multipart API; check every
+return, cleanup all key/operation state. No hand-written AES. Keep wrapper
+separate so host tests can use a test callback and supervisor uses independent
+Python crypto against public Java JCE sender. Public SDK declarations for PSA
+may be inspected ONLY to confirm API semantics; no SmartConfig code. The
+supervisor will compile against realSDK and test both plaintext and AES onRF.
+
+TESTS AND DOCUMENTATION
+Own core/capture/lifecycle cases for checksums, bitplane indices, missing/repeated
+planes, reordered sequences, badheader/count, bounds, all7/8-bit segment layouts,
+BSSID binding, no-key/wrongcallback/padding and bothIVformats. Callback spies can
+check ciphertext/key/IV plumbing but must not be called cryptographic validation.
+Supervisor will supply actual independent AES known-answer/differential tests.
+Preserve v1/AirKiss tests. Own standardC tests/sanitizers. UpdateREADME/provenance
+with exact input hashes. Notify supervisor as soon as headers andcore are ready;
+stop source changes before hardware build once agreed.

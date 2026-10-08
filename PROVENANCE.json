@@ -1,0 +1,216 @@
+{
+  "format_version": 1,
+  "scope": "Portable C11 ESP-Touch v1/v2 and full-message AirKiss normalized-length decoders, capture adapters, acknowledgment formatters, IDF polling adapters and separate public-API PSA Crypto v2 wrapper",
+  "implementation_boundary": "Only permitted specifications and supervisor feedback stored in this directory, implementation-owned outputs, and expressly allowed public SDK API headers may be read for task knowledge. The v2 contract and supervisor explicitly permitted the recorded PSA Crypto API header for declarations and semantics. No network, parent project research, public protocol sender source, proprietary binary, disassembly, generated reconstruction, receiver code, or credentials were used.",
+  "knowledge_inputs": [
+    {
+      "path": "docs/IMPLEMENTATION-BOUNDARY.txt",
+      "sha256": "63d449f206bb91de9afc232d85d34acebe758d91189003ac9f47f951fdef5472",
+      "role": "Implementation boundary instructions",
+      "original_path": "AGENTS.md"
+    },
+    {
+      "path": "spec/ESPTOUCH-V1.txt",
+      "sha256": "2d1727ba72eb892b9510da58e94897b2f6a5cbd11a3e3ce52a6f208435723c5d",
+      "role": "Sole protocol/API behavioral specification, revision 1"
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-01.txt",
+      "sha256": "1a248a4e8809b755bcfbba0ffba89f65aabfd1b51955cf8bcecb476f9eda933b",
+      "role": "Supervisor-reported independent validation results and correction to README session-separation wording; no independent oracle or harness files were inspected."
+    },
+    {
+      "path": "spec/CAPTURE-V1.txt",
+      "sha256_at_first_read": "8c3a5ef0d25cd694e8a9d549cad14566eac0918040a32abbc1c4bcb567d34ad4",
+      "sha256": "16043d8d5994099a0cc121bdf6e82f741220d98b7c9df28a910e69b7d17577cc",
+      "role": "Capture/guide normalization, acknowledgment format, and IDF ring/poll contract; reread appended stop-after-association clarification."
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-02.txt",
+      "sha256": "a8af673d026af2bb30da308648980af3233dffbbf1b32b92fc662a25e38cf36c",
+      "role": "Supervisor report of 2341 passing independent capture assertions; implementation did not inspect external test/oracle inputs."
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-03.txt",
+      "sha256": "1b963f3cadfe634261ef66c21abc8fa6feae77bb6313887bb95fac794bf7515f",
+      "role": "Supervisor report of real IDF 6.0.3 builds and authorization for owned lifecycle mock tests while shipped implementation sources remain stable."
+    },
+    {
+      "path": "spec/AIRKISS-V1.txt",
+      "sha256": "6e55a0698737dd06d73faff42f73f02b49f8981da3fab12e7eb25ae46fa065ff",
+      "role": "Sole AirKiss protocol behavioral contract, core/capture/IDF APIs, bounds, integrity and lifecycle policy; no public sender or receiver source inspected."
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-04.txt",
+      "sha256": "cf2f2c1dcbfb01104823948e90d39dac22cdebffd42a8a621cccd4c67201eb0a",
+      "role": "Supervisor report of 71386 independent AirKiss assertions and million-probe sanitizer checks, plus caller requirement to stop either adapter before starting the other after completion."
+    },
+    {
+      "path": "spec/ESPTOUCH-V2.txt",
+      "sha256": "09a983c1319f8c80c9d4731fe7e7113286cdf1074c3ae492ce5c2826ccedc4ef",
+      "role": "Sole ESP-Touch v2 behavioral contract, bounded core/capture/IDF APIs, optional decryption callback and mandatory public PSA Crypto wrapper requirements."
+    },
+    {
+      "path": "ESP-IDF/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto.h",
+      "sha256": "8f0b7e1c227875076540809d19c4686b38a765f929caa1559df2babc418cdb85",
+      "role": "Explicitly permitted installed public PSA Crypto API declarations/semantics only: key import/destruction and multipart CBC setup/IV/update/finish/abort. Read targeted API documentation ranges; no private AES or SmartConfig source inspected.",
+      "external_dependency_not_bundled": true
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-06.txt",
+      "sha256": "bd125233492a1279e94d55289cd064df1713f6c748b2727e323573389358887d",
+      "role": "Supervisor report of 14935 independent v2 core assertions, 447 public-sender vectors, 1698 actual AES decrypt calls, and 6697 capture assertions. No private harness read."
+    },
+    {
+      "path": "spec/IMPLEMENTATION-NOTE-V2-CAST.txt",
+      "sha256": "9ea3dcf3116b4fcef79dec6b067a25a269f77062304ea332ebab47b5f6311192",
+      "role": "Owned record of supervisor-authorized one-line unsigned-cast correction before hardware testing; warning policy preserved."
+    },
+    {
+      "path": "spec/IMPLEMENTATION-REVIEW-V2-GUIDE-OVERLAP.txt",
+      "sha256": "024e0a1a8225c56babd573b4226eea32b58a16ccb78508bf5713c5220fdfca41",
+      "role": "Recorded supervisor-provided sender timing and hardware symptom plus owned-code review and exact host reproduction of an overlapping-guide acquisition hole; no outside log/source inspection."
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-05.txt",
+      "sha256": "4c021ff69da87cca3046867ef148e1a0a387564cf4faa2309af55410025fb4f2",
+      "role": "Newly supplied retrospective AirKiss hardware summary after supervisor discovered numbering skipped 05. First read during the v2 guide repair; not a recovered earlier file or prior AirKiss implementation input. Reports bounded two-case observations and acknowledgment lifecycle differences only."
+    },
+    {
+      "path": "spec/IMPLEMENTATION-REPAIR-V2-GUIDE-OVERLAP.txt",
+      "sha256": "b2081be16afc668b0cf58acade0d721506fb2fd12647859acb7474d75d645fc7",
+      "role": "Owned record of the explicitly authorized bounded guide-overlap repair, preserved failure-to-success regression and complete strict/sanitizer verification before renewing the source freeze."
+    },
+    {
+      "path": "spec/SUPERVISOR-FEEDBACK-07.txt",
+      "sha256": "b436623d6d372c3a3917e0043645011f561d5d404b6f3a8018a50bf5a78ca1b8",
+      "role": "Explicitly permitted final supervisor summary: independent patched checks, six controlled original/new plaintext/AES rounds, actual target PSA use and full flash restoration. Includes unexplained capture-channel10 versus associated AP-primary6(40U) observation and strict interoperability limits; no outside artifacts inspected."
+    },
+    {
+      "path": "spec/PACKAGING-01.txt",
+      "sha256": "b08f437c7202db7b702b9cfc8cf990361db630fa52f8273870736a8b4baa12a3",
+      "role": "User-authorized 0BSD component/example packaging contract dated 2026-10-08: local ESP-IDF metadata, selectable task-owned provisioning workflow, bounded lifecycle, RAM-only credentials and explicit no-hardware-test/no-publication limits for the new example."
+    }
+  ],
+  "implementation_owned_files": [
+    "include/sc_touch.h",
+    "src/sc_touch.c",
+    "tests/test_sc_touch.c",
+    "include/sc_capture.h",
+    "src/sc_capture.c",
+    "tests/test_sc_capture.c",
+    "idf/sc_touch_idf.h",
+    "idf/sc_touch_idf.c",
+    "tests/test_sc_touch_idf.c",
+    "tests/idf_stubs/esp_err.h",
+    "tests/idf_stubs/esp_event.h",
+    "tests/idf_stubs/esp_timer.h",
+    "tests/idf_stubs/esp_wifi.h",
+    "tests/idf_stubs/freertos/FreeRTOS.h",
+    "include/sc_airkiss.h",
+    "include/sc_airkiss_capture.h",
+    "src/sc_airkiss.c",
+    "src/sc_airkiss_capture.c",
+    "idf/sc_airkiss_idf.h",
+    "idf/sc_airkiss_idf.c",
+    "tests/test_sc_airkiss.c",
+    "tests/test_sc_airkiss_idf.c",
+    "include/sc_touch2.h",
+    "include/sc_touch2_capture.h",
+    "src/sc_touch2.c",
+    "src/sc_touch2_capture.c",
+    "idf/sc_touch2_idf.h",
+    "idf/sc_touch2_idf.c",
+    "idf/sc_touch2_psa.h",
+    "idf/sc_touch2_psa.c",
+    "tests/test_sc_touch2.c",
+    "tests/test_sc_touch2_idf.c",
+    "tests/test_sc_touch2_psa.c",
+    "tests/idf_stubs/psa/crypto.h",
+    "spec/IMPLEMENTATION-NOTE-V2-CAST.txt",
+    "spec/IMPLEMENTATION-REVIEW-V2-GUIDE-OVERLAP.txt",
+    "tests/probe_touch2_guide_overlap.c",
+    "spec/IMPLEMENTATION-REPAIR-V2-GUIDE-OVERLAP.txt",
+    "CMakeLists.txt",
+    "idf_component.yml",
+    "examples/provision/CMakeLists.txt",
+    "examples/provision/sdkconfig.defaults",
+    "examples/provision/main/CMakeLists.txt",
+    "examples/provision/main/Kconfig.projbuild",
+    "examples/provision/main/provision_example.c",
+    "examples/provision/README.txt",
+    "Makefile",
+    "README.txt",
+    "PROVENANCE.json"
+  ],
+  "build_inputs": "Standard installed C compiler, system headers, C library, linker, archiver, and sanitizer runtime. Host builds read implementation-owned Makefile, headers, sources, tests, behavioral IDF/PSA stubs and local objects. The implementation agent inspected only the expressly permitted public PSA API header, not SDK implementation source or the supervisor's real-IDF project.",
+  "validation": [
+    {
+      "command": "make all test",
+      "result": "Passed strict C11 warnings-as-errors build, exhaustive triplet and invalid-range tests, all 2145 permitted password/SSID length pairs, and focused state/integrity tests."
+    },
+    {
+      "command": "make sanitize",
+      "result": "ASAN/UBSan binary built. LeakSanitizer could not execute because the environment is traced (ptrace)."
+    },
+    {
+      "command": "make sanitize ASAN_OPTIONS=detect_leaks=0",
+      "result": "Passed AddressSanitizer and UBSan; leak detection was disabled."
+    },
+    {
+      "command": "make all; make test sanitize ASAN_OPTIONS=detect_leaks=0 (capture extension)",
+      "result": "Passed strict core and capture builds/tests and AddressSanitizer/UBSan. Capture tests cover 8224 acquisition combinations, invalid headers, four interleaved source keys and deterministic fifth-key replacement, guide expiry/retransmissions, idle/absolute wraparound deadlines, conflicts, BSSID result binding, binary credentials, acknowledgment bytes and invalid arguments. IDF compilation/hardware checks belong to the supervisor and are not claimed by these host tests."
+    },
+    {
+      "command": "make test-idf sanitize-idf ASAN_OPTIONS=detect_leaks=0",
+      "result": "Passed strict warnings-as-errors plus AddressSanitizer/UBSan for owned IDF behavior mocks: start refusals, each API failure rollback, event retries with no duplicate successful delivery, completion disables reception, late callback safety after stop, preservation of associated channel, country hopping/clamping and retryable stop failures. Shipped implementation sources remained unchanged during supervisor hardware tests."
+    },
+    {
+      "command": "make all; make test sanitize test-idf sanitize-idf ASAN_OPTIONS=detect_leaks=0 (AirKiss extension)",
+      "result": "AirKiss core/capture tests passed for all 2145 permitted length pairs, short-magic and tail sizes, reorder/duplicate/drop recovery, malformed metadata and block CRC, valid conflicts, frozen results, independent contexts, binary-byte policy, frame classes/source isolation, wraparound capture timeout and token ack. Both protocols' IDF lifecycle mocks and all existing ESP-Touch tests passed strict warnings, ASAN and UBSan. No official AirKiss conformance or actual-phone compatibility claim."
+    },
+    {
+      "command": "make all test sanitize ASAN_OPTIONS=detect_leaks=0; make test-idf sanitize-idf ASAN_OPTIONS=detect_leaks=0 (v2 extension)",
+      "result": "All protocol, capture and lifecycle suites passed strict warnings-as-errors plus ASAN/UBSan. V2 tests cover 6400 plaintext encoding/size layouts, 384 encrypted callback/padding cases with both IV modes, copied config/reset preservation, repeated/missing/conflicting planes, CRC/header/count bounds, capture and acknowledgments. New PSA mocks test each API failure/cleanup path, exact buffered output lengths and invalid arguments; these mocks and core callbacks are explicitly not cryptographic validation. One explicit unsigned cast fixed an O1 sanitizer compile warning without reducing warning policy."
+    },
+    {
+      "command": "make all test sanitize test-idf sanitize-idf ASAN_OPTIONS=detect_leaks=0 (v2 guide-overlap repair)",
+      "result": "All suites passed after the authorized bounded four-length-window repair. Preserved regression checks successful acquisition after all 65536 single-length prefixes, each missing guide position, duplicate sequences and changed lengths on the same sequence. The pre-repair failure remains documented separately. No hardware repair success is asserted from host tests."
+    }
+  ],
+  "packaging_validation": {
+    "date": "2026-10-08",
+    "owned_static_checks": "Passed SPDX 0BSD coverage for new code/build files, no workstation-absolute paths, exactly six portable plus four IDF component sources, no vendor esp_smartconfig calls/includes in the example, IPv4-only v2 guard, Wi-Fi info-log suppression, absence of automatic NVS erase, valid provenance JSON and current input hashes.",
+    "component": "Version 0.1.0, 0BSD, ESP-IDF >=6.0,<7.0, ESP32-S3; example derives component name from package folder and selects main plus its dependency closure.",
+    "runtime_changes": "Existing decoder/capture/IDF runtime source and header files were not edited for packaging.",
+    "real_sdk_build_owner": "Supervisor; real-IDF all-protocol build and ELF/archive audits are separate from implementation-owned static checks.",
+    "example_hardware_tested": false,
+    "publication_or_flashing_performed": false
+  },
+  "supervisor_reported_hardware": {
+    "source": "spec/SUPERVISOR-FEEDBACK-07.txt",
+    "execution_owner": "Supervisor; not performed or independently inspected by this implementation agent",
+    "result": "All six original/new receiver rounds across plaintext/security1/security2 passed exact synthetic credentials/reserved data, WPA2 association, DHCP, UDP echo and seven-byte acknowledgment; actual target PSA wrapper used for new AES modes. Both original flash images reported fully restored and verified.",
+    "channel_observation": "Security2 capture reported channel10 with overhead80, then associated to AP primary6 in40U mode; cause unproven. lock.channel means observed capture channel, not guaranteed AP primary; do not force association to it.",
+    "limits": "One synthetic ASCII vector per mode; controlled unencrypted non-QoS From-DS frames with added synthetic length padding. No actual-phone, encrypted AP-forwarded, full vendor ABI or authentication claim. Vendor Wi-Fi/PHY supplies radio/association. At the report's 2026-10-06 date, nothing had been published and no license selected; the later user license decision is recorded separately. The new packaging example was not used in those hardware tests."
+  },
+  "protocol_sender_receiver_source_read": false,
+  "explicitly_permitted_public_sdk_api_header_read": true,
+  "proprietary_or_reconstructed_receiver_read": false,
+  "network_accessed": false,
+  "license_selected": true,
+  "license": "0BSD",
+  "license_decision": {
+    "date": "2026-10-08",
+    "authority": "Explicit user choice, supplied by the supervisor and recorded in spec/PACKAGING-01.txt",
+    "scope": "The newly written implementation and original component/example code; does not relicense third-party SDK or other external software",
+    "historical_records": "Prior feedback/specification hashes and statements about their earlier no-license status remain unchanged"
+  },
+  "legal_certification": false,
+  "export": {
+    "source_record_sha256": "baa5db733aa5737713a93c646ad57e66f237f618f6412b7cc57f3dc4db7d97ca",
+    "path_changes": "Boundary instructions archived as documentation; local SDK prefix replaced with ESP-IDF/. Input content hashes retained.",
+    "runtime_source_changes": false,
+    "scope": "Original source/tests/specs/docs only, no reference sender or proprietary artifacts"
+  }
+}

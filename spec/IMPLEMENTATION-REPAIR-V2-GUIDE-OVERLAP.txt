@@ -1,0 +1,28 @@
+Authorized v2 guide-overlap repair
+
+After the owned reproduction documented in IMPLEMENTATION-REVIEW-V2-GUIDE-
+OVERLAP.txt, the supervisor explicitly lifted the source freeze for a bounded
+sliding-window capture fix and requested regressions for prefix/overlap,
+loss and duplicate sequence behavior. The original diagnostic was to be
+preserved and changed to require successful acquisition.
+
+Only shipped source src/sc_touch2_capture.c changed. Each of the existing
+four source-key candidates now retains at most four unique-sequence lengths.
+Each complete window is checked for L/M/L/M with unchanged overhead 0..256
+and count 1..41 bounds. Candidate replacement/expiry, header filtering,
+sequence deduplication, core priming, timeouts and BSSID binding are unchanged.
+
+tests/probe_touch2_guide_overlap.c preserves the original failing sequence
+and now requires lock. It also covers all 65536 single-wire-length prefixes,
+each missing guide position followed by a complete replacement guide,
+duplicate retransmissions, and a repeated sequence with a changed length.
+The diagnostic is now included in make test and make sanitize.
+
+Validation command:
+make all test sanitize test-idf sanitize-idf ASAN_OPTIONS=detect_leaks=0
+
+All suites passed with the existing C11 warnings-as-errors policy, ASAN and
+UBSan. LeakSanitizer remains disabled in the traced environment. Shipped
+sources were then frozen again for independent continuous-stream phase
+regressions and hardware testing. This note does not claim repaired RF
+interoperability before the supervisor's subsequent observations.

@@ -1,0 +1,16 @@
+Supervisor capture verification report:
+
+Independent capture checks pass 2,341 assertions: 72 Java-sender messages
+times both DS directions times QoS/non-QoS times protected/unprotected,
+duplicate MAC sequence suppression, source/BSSID/channel isolation, overhead
+boundaries 0/1/255/256, uint32 clock wrap, idle/session deadlines, invalid
+headers, BSSID mismatch, and acknowledgment format.
+
+One initial supervisor test was corrected because changing multicast
+destination is not a source-key change; no implementation defect was found.
+Real IDF build is underway. The implementer is to remain available for
+compiler/hardware feedback and finish provenance/tests documentation without
+reading sources outside the procedural boundary.
+
+The implementer received this summary from the supervisor and did not inspect
+the independent capture harness, oracle, public sender, or other directories.

@@ -1,0 +1,124 @@
+ESP-Touch v1 capture and IDF adapter contract, revision 1
+
+BOUNDARY
+Continue the same public-spec implementation separation. Use this contract,
+prior allowed inputs, your own code/tests, and installed build tools. Do not
+read existing proprietary receiver work or old reconstructed libraries. Public
+ESP-IDF declarations are permitted compiler inputs, but do not inspect its
+SmartConfig implementation. Supervisor will build IDF and test real boards.
+
+FACT SOURCES
+- Public Android sender at the earlier pinned commit emits guide lengths
+  515,514,513,512 and data triplets. Its client expects an 11-byte UDP reply:
+  byte0=9+SSID length+password length; bytes1..6=device MAC; bytes7..10=device
+  IPv4 in network order. Receiver port on the phone is18266.
+- Public 802.11 MAC framing: FC is little endian. Protocol bits0..1 must0,
+  type bits2..3 must2 (data). Supported subtype bits4..7 are0 (Data) and8
+  (QoS Data). DS bits8..9 select ToDS=1 or FromDS=2; reject0 and3. More
+  Fragments bit10, Retry bit11, Protected bit14, Order bit15. Reject More
+  Fragments and Order. Sequence control at offsets22..23: low4fragment,
+  high12sequence; reject nonzero fragment. Base header24 bytes; QoS adds2.
+  QoS bit7 at offset24 indicates A-MSDU: reject it in this first adapter.
+  Addr1 bytes4..9, Addr2 bytes10..15, Addr3 bytes16..21.
+  FromDS: BSSID=Addr2, original sender=Addr3, destination=Addr1.
+  ToDS: BSSID=Addr1, original sender=Addr2, destination=Addr3.
+  Require multicast/broadcast destination (first destination byte bit0 set),
+  unicast nonzero BSSID and sender. This is a chosen provisioning filter.
+- ESP-IDF esp_wifi_types_native.h public rx_ctrl.sig_len includes FCS.
+  rx_ctrl.rx_state==0 is the accepted no-error state; public metadata contains
+  channel. wifi_promiscuous_pkt_t payload begins at the MAC header. Do not
+  cast packet bytes to packed/native-endian protocol structs.
+
+NEW PORTABLE CAPTURE API (include/sc_capture.h and src/sc_capture.c)
+  typedef struct sc_capture sc_capture;
+  typedef struct {
+    uint8_t bssid[6], sender[6];
+    uint8_t channel;
+    uint16_t overhead;
+  } sc_capture_lock;
+  sc_capture *sc_capture_create(void);
+  void sc_capture_destroy(sc_capture *ctx);
+  void sc_capture_reset(sc_capture *ctx);
+  int sc_capture_feed(sc_capture *ctx, const uint8_t *header,
+      size_t header_bytes, uint16_t wire_length, uint8_t channel,
+      uint32_t now_ms);
+  int sc_capture_tick(sc_capture *ctx, uint32_t now_ms);
+  int sc_capture_get_state(const sc_capture *ctx);
+  int sc_capture_get_lock(const sc_capture *ctx, sc_capture_lock *out);
+  int sc_capture_get_result(const sc_capture *ctx, sc_touch_result *out);
+  int sc_touch_make_ack(const sc_touch_result *result,
+      const uint8_t device_mac[6], const uint8_t local_ip[4], uint8_t out[11]);
+States/returns:0 searching,1 locked,2 complete; feed/tick/get_state return-1
+forNULL ctx. get_lock/get_result return1 only when available else0 unchanged;
+NULLsafe create/destroy/reset semantics same as core. make_ack checks pointers,
+ssid_len<=32,password_len<=64; returns1 success else0, out unchanged on failure.
+
+CAPTURE POLICY (deliberately new; not claimed to match vendor internals)
+The captured wire length includes a constant unknown overhead relative to UDP
+payload length for a given key=(BSSID,sender,channel,DS direction,QoS,Protected).
+Use up to4 guide candidates, deterministic replacement, bounded storage. Ignore
+bad headers without touching candidate/selected data. Candidate expiry1500ms.
+Recognize TWO consecutive full guide cycles with the same key and overhead:
+L,L-1,L-2,L-3,L,L-1,L-2,L-3, with overhead=L-515 in [0,256]. Handle acquisition
+starting anywhere in a repeating cycle: a mismatching eligible guide length
+starts a fresh candidate sequence; skip consecutive same Sequence Control
+values for the same key as retransmissions. Candidate progress must not be
+reset by frames for other keys. Channel must be1..14; wire_length>=header_bytes
+and wire_length>=actual MAC header length+4 FCS. header_bytes is just available
+header prefix (typically24 or26), NOT claimed full frame buffer length.
+Once locked only feed matching-key frames and unique consecutive sequence
+numbers to the core. For matching frames normalize by subtracting measured
+overhead with an underflow guard. No protected-payload decryption or payload
+inspection needed. Normalize guides too; core ignores them. Reject other
+sources/BSSIDs/channels/framing classes while locked. Require decoded BSSID to
+match locked BSSID before exposing credentials; otherwise reset/search.
+
+Unlock and clear session if no accepted matching frame for2500ms, or elapsed
+since lock>=30000ms, or core reports conflict. Timer differences use uint32
+subtraction for wraparound. Completion freezes result until explicit reset;
+timeouts must not discard a completed result. Tick permits expiry without
+frames. Null/invalid header does not extend deadlines. Retransmissions do not
+extend progress deadlines. No pointer retained to caller packet storage.
+
+IDF ADAPTER (idf/sc_touch_idf.h and .c; independent of core host Makefile)
+Original API, not a replacement esp_smartconfig_start symbol:
+  ESP_EVENT_DECLARE_BASE(SC_TOUCH_EVENT);
+  enum { SC_TOUCH_FOUND_CHANNEL=0, SC_TOUCH_GOT_CREDENTIALS=1 };
+  esp_err_t sc_touch_idf_start(void);
+  esp_err_t sc_touch_idf_poll(void);
+  esp_err_t sc_touch_idf_stop(void);
+Start requires caller-initialized default event loop, started disconnected
+STA Wi-Fi; reject existing promiscuous mode and a running instance. Own
+promiscuous callback exclusively while active. Save channel and filter, restore
+on stop/error. No NVS modifications, no esp_wifi_init/start/stop, no storing
+credentials, no automatic association, no credentials in logs.
+Use esp_wifi_get_country's schan/nchan to determine allowed channel range,
+clamp to1..14, reject empty. Hop every350ms while searching, freeze when locked.
+Caller serializes start/poll/stop and polls every10ms. No adapter background
+worker is necessary: wifi callback ONLY checks type=WIFI_PKT_DATA,
+rx_state==0, copies up to26 header bytes plus sig_len/channel/time metadata into
+a fixed128-entry ring protected by portMUX_TYPE. No allocations, parsing,
+events or blocking calls in the callback. Drop frames if ring full. Ring memory
+lifetime is static; stop atomically disables ring acceptance before removing
+callback and freeing decoder. poll drains bounded work and calls capture
+feed/tick in application context. Ignore queued frames from prior hop channel.
+
+Post SC_TOUCH_FOUND_CHANNEL with sc_capture_lock and SC_TOUCH_GOT_CREDENTIALS
+with sc_touch_result (copied event data). Post with zero wait, retry a failed
+post on subsequent polls; mark delivered only on ESP_OK. On completion disable
+promiscuous reception before exposing credentials so caller can associate;
+retain context/result until stop. Channel-found can occur again after timeout
+and reacquisition. Stop safe when inactive; propagate real Wi-Fi errors. Ensure
+start failure rolls back enabled callback/promiscuous/filter/channel changes.
+Implement strict bounds and all return checks. Test portable capture on host;
+supervisor will independently wrap public sender vectors into MAC frames,
+compile against real IDF, and conduct hardware checks. No source copied from
+proprietary receiver or IDF's SmartConfig implementation.
+
+STOP AFTER ASSOCIATION CLARIFICATION
+The application may associate after the credentials event and before stop.
+Do not retune a connected STA to the saved pre-capture channel on stop: use
+esp_wifi_sta_get_ap_info to detect association and then restore filter/callback
+ownership only. Document this deliberate channel-restoration exception. If still
+disconnected, restore saved channel. Do not interfere with connection in progress;
+caller should stop before connecting or after completed association.

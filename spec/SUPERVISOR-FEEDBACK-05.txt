@@ -1,0 +1,28 @@
+AirKiss supervisor hardware feedback, 2026-10-06
+
+Record added after discovering that feedback numbering skipped 05. This is
+a newly recorded summary of existing validation, not a recovered original
+file or a claim that the implementation agent previously read this file.
+
+Controlled two-board A/B passed for both the original receiver and the new
+full-message AirKiss receiver on two ASCII cases: 30-byte and 13-byte messages.
+Each decoded exact credentials, associated with the lab WPA2 AP, obtained an
+IP address through DHCP, exchanged a UDP echo and delivered the expected
+token acknowledgement to the sender. New capture locked channel 6 with
+measured length overhead 64. Each round began with empty test NVS; PHY
+calibration was saved and read back. Both complete original flash images
+were restored and verified after testing.
+
+Acknowledgement scope differs: the reference integration responds with
+token plus receiver MAC (7 bytes) after a phone-role probe; the new demo sends
+the documented basic 1-byte token. The comparison validates token delivery,
+not identical vendor acknowledgement lifecycle or complete ABI compatibility.
+
+Limits: controlled unencrypted non-QoS From-DS frames on one channel, two
+ASCII messages, community public-sender wire output. No actual phone,
+official Tencent conformance, encrypted AirKiss, scan-assisted SSID inference
+or complete vendor API replacement is established. Existing Wi-Fi/PHY code
+still supplies the radio and network stack. No source change requested.
+
+This feedback conveys observed behavior only; implementation must not inspect
+the supervisor's research, sender sources or reference receiver artifacts.

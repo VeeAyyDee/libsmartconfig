@@ -1,0 +1,103 @@
+ESP-Touch v1 normalized-length receiver contract, revision 1
+
+PROVENANCE AND BOUNDARY
+This document describes observable encoding from the public Espressif Android
+sender, commit 370face1de6f22bfd9fc70abfc9e31d13c228d56:
+https://github.com/EspressifApp/EsptouchForAndroid
+Source paths under esptouch/src/main/java/com/espressif/iot/esptouch/:
+protocol/DataCode.java, DatumCode.java, GuideCode.java and util/CRC8.java.
+No disassembly, proprietary receiver source, generated reconstruction, internal
+receiver struct layout or function body is included or needed for this task.
+The supervisor has prior RE exposure; the implementer must not read that work.
+This is a documented implementation separation, not a legal certification.
+Public sender source has an Espressif-specific license; it is not unrestricted
+MIT. The implementation input is this independently worded behavioral contract,
+not source code copied from that project. No license for new code is chosen yet.
+
+FIRST DELIVERABLE
+Readable portable C11 decoder for ESP-Touch v1 at normalized UDP payload length
+level. This is an original API; it is NOT yet an ABI-compatible libsmartconfig.a.
+Do not implement channel selection, sniffed-frame length normalization, scan
+matching, acknowledgements, IDF events, AirKiss, v2, crypto, or phone integration.
+Do not guess proprietary receiver choices. Document these as pending adapters.
+
+WIRE FACTS
+The phone emits four guide UDP payload lengths: 515,514,513,512. This first
+normalized decoder may ignore them; synchronization/overhead inference belongs
+to a later adapter. A data byte is encoded by THREE ordered UDP lengths. Subtract
+40 from each to get symbols a,b,c. a and c are each 0..255; b is 256+index,
+where index is 0..127. Decode data=((a&15)<<4)|(c&15), and transmitted checksum
+=(a&240)|(c>>4). Accept iff checksum equals CRC8 over [data,index], in that order.
+CRC8 starts at zero with no final XOR. For each input byte XOR it into the CRC;
+repeat eight times: if the least-significant bit is one, shift right and XOR
+0x8c, otherwise shift right. Mask to eight bits. Bytes are unsigned.
+
+Indexed message bytes:
+0 = total length T, NOT including the additional six BSSID bytes
+1 = password length P
+2 = CRC8 of the SSID bytes
+3 = CRC8 of the six BSSID bytes
+4 = XOR of all bytes at indices 0..T-1 except index4
+5..8 = sender IPv4 bytes in network order
+9..9+P-1 = password bytes
+9+P..T-1 = SSID bytes; S=T-9-P
+T..T+5 = BSSID bytes
+BSSID triplets are interleaved with main data in the public sender, so no
+assumption about index arrival order is permitted. SSID and password are byte
+arrays, not C strings. Preserve embedded zeroes and high-bit bytes.
+
+PRODUCT POLICY FOR THIS FIRST SLICE (not claimed as vendor behavior)
+Accept T in [9,105], P in [0,64], S in [0,32], and require all T+6 indexed bytes.
+P must not exceed T-9. Require whole-message XOR, SSID CRC, and BSSID CRC before
+completion. Do not return partial credentials. A zero-length SSID is permitted
+at this byte codec layer, without a claim that it can provision a real AP.
+Receive valid triplets with a sliding 3-length window. Non-data lengths break
+the partial triplet window but do not destroy collected indexed bytes.
+Malformed triplets do not destroy good collected bytes. Repeated same-value
+indices are harmless. A CRC-valid conflicting value for an already seen index
+poisons the session: no result until explicit reset. This is deliberate policy,
+not a copied receiver heuristic. Do not try to merge different provisioning
+sessions. After completion, freeze the result and ignore further input until
+reset. Require caller separation of frame source/session and serialization.
+
+PUBLIC C ABI TO IMPLEMENT
+File include/sc_touch.h, with extern "C" guards:
+  typedef struct sc_touch sc_touch;
+  typedef struct {
+    uint8_t ssid[32];
+    uint8_t password[64];
+    uint8_t bssid[6];
+    uint8_t sender_ip[4];
+    uint8_t ssid_len;
+    uint8_t password_len;
+  } sc_touch_result;
+  uint8_t sc_touch_crc8(const uint8_t *bytes, size_t length);
+  int sc_touch_decode_triplet(const uint16_t lengths[3],
+                             uint8_t *index, uint8_t *value);
+  sc_touch *sc_touch_create(void);
+  void sc_touch_destroy(sc_touch *ctx);
+  void sc_touch_reset(sc_touch *ctx);
+  int sc_touch_feed(sc_touch *ctx, uint16_t udp_payload_length);
+  int sc_touch_get_result(const sc_touch *ctx, sc_touch_result *out);
+
+decode_triplet returns1 valid,0 malformed; only modifies outputs on success;
+NULL arguments return0. crc8(NULL,0)=0; NULL with nonzero length returns0 as
+an explicit API misuse fallback (not error-detecting). create returnsNULL on
+allocation failure. destroy(NULL),reset(NULL) are safe. feed returns1 once a
+valid result exists (including subsequent input),0 while incomplete or invalid
+triplet, -1 for NULL ctx, -2 for poisoned conflicting session (persists until
+reset). get_result returns1 and copies result only on completion, else0 with
+out unchanged (including NULL arguments). reset clears all retained credentials,
+error and framing state. destroy clears context before freeing it; document
+that ordinary portable C clearing is not a guaranteed secure erasure primitive.
+No globals holding a session; two contexts must operate independently.
+
+TESTING AND IMPLEMENTATION STYLE
+Use owned named fields, helper functions and conventional portable C. No
+register emulation, jumps copied from listings, opaque offsets or vendor private
+symbols. Add focused unit tests and a Makefile with strict warnings. Maintain
+fixed bounds and test malformed inputs; sanitize builds when available.
+The supervisor will run a separate oracle generated from the pinned public
+Java sender, exhaustive byte/index checks and stream/adversarial cases.
+Write README.txt with supported behavior and exact omissions. Record every
+input file read in PROVENANCE.json; do not claim full SmartConfig compatibility.

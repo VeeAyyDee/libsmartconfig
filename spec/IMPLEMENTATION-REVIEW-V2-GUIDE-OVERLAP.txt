@@ -1,0 +1,33 @@
+V2 capture review while shipped source is frozen
+
+Supervisor supplied context: a plaintext original/new hardware comparison
+completed successfully on the original receiver, while the new receiver did
+not post a channel lock before timeout. Restoration was underway. The sender
+repeats an 89-packet public-format list at 20 ms per packet, with expected
+constant captured overhead 80. The implementer was asked to inspect only its
+own capture/IDF code and permitted behavioral specification; no parent logs,
+reference implementation or external frame captures were inspected.
+
+Owned reproduction: tests/probe_touch2_guide_overlap.c constructs valid
+From-DS header prefixes with unique sequence values and feeds:
+  fresh guide: 1128,1159,1128,1159
+  prefixed:    1100,1128,1159,1128,1159
+Both contain the same valid guide for overhead 80 and sequence count 8.
+The prefix 1100 is a permitted plane-7 payload length 1020 plus overhead 80.
+
+Observed frozen-library result:
+  fresh guide state=1; same guide after eligible body-plane state=0
+
+Reason: a retained first-length candidate 1100 accepts true guide L=1128 as
+its own potential M, because their difference is 28. The next true M=1159
+mismatches that false candidate and starts a new sequence, losing the
+overlapping true L. Only the last L/M pair remains before header planes
+interrupt acquisition. A continuous data stream can create this prefix even
+though guide-first synthetic vectors lock successfully.
+
+Proposed bounded repair: retain the latest four unique-sequence lengths per
+source key and recognize each complete L/M/L/M window with the existing
+overhead/count bounds. Preserve source filtering, candidate capacity/expiry,
+duplicate suppression, lock priming and all timers. No shipped source was
+modified during this review. This is a confirmed host acceptance hole, not
+proof by itself of the sole cause of the observed RF failure.

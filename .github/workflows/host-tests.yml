@@ -1,0 +1,13 @@
+name: Host tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test portable code and IDF mocks
+        run: make all test test-idf
+      - name: Address and undefined behavior sanitizers
+        run: make sanitize sanitize-idf

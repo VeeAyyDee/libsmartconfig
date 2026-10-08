@@ -1,0 +1,15 @@
+Supervisor real-SDK build report and test authorization:
+
+All three firmware variants compile against real IDF 6.0.3. Link audit
+confirms the clean-room receiver excludes libsmartconfig.a. Physical A/B
+testing is underway. Keep implementation source stable during hardware test.
+
+The implementation agent may add host stub tests in its directory for the
+IDF adapter lifecycle: refusal when associated/promiscuous, rollback on start
+API failure, event-post timeout retry without duplicate credentials, callback
+stop/free safety, and retaining associated channel on stop. Do not edit
+shipped .c/.h until hardware testing completes; report defects first.
+Only the provided contract, current implementation and owned stubs are inputs.
+
+The implementer received this report from the supervisor. It did not inspect
+the external IDF application, build files, firmware artifacts, or SDK source.

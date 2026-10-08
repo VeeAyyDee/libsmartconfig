@@ -1,0 +1,65 @@
+{
+  "at": "2026-10-08T06:26:33.362432+00:00",
+  "status": "pass",
+  "sdk": "ESP-IDF6.0.3",
+  "target": "esp32s3",
+  "package_folder_tested": "sc_provision",
+  "variants": [
+    {
+      "protocol": "v1",
+      "status": "pass",
+      "app_bytes": 768576,
+      "selected_config_verified": true,
+      "link_receipt": "v1-link-audit.json"
+    },
+    {
+      "protocol": "v2",
+      "status": "pass",
+      "app_bytes": 776992,
+      "selected_config_verified": true,
+      "link_receipt": "v2-link-audit.json"
+    },
+    {
+      "protocol": "airkiss",
+      "status": "pass",
+      "app_bytes": 772176,
+      "selected_config_verified": true,
+      "link_receipt": "airkiss-link-audit.json"
+    }
+  ],
+  "host_tests_and_sanitizers": "pass",
+  "leak_detection": false,
+  "manifest_lint": "pass",
+  "negative_map_audit": "injected vendor archive member correctly rejected",
+  "hardware_flashing_performed_for_packaging": false,
+  "android_or_phone_tested": false,
+  "source_sha256": {
+    "src/sc_airkiss_capture.c": "acb5d8abd0fa7369b5cd0e4233063dcd0e4456701a32f3401342697cbae0e48c",
+    "src/sc_touch2_capture.c": "6c75d3476b02dca13b9a4e62bdb139f1e541e5351f32900c7705cf0d5e77987d",
+    "src/sc_airkiss.c": "8e0912c018cdd50c164395faaa29a0ce86662151089954c5ef2e14607e861988",
+    "src/sc_touch.c": "84a5f2ce7cead8b5dd0f520d0349b86b37d94f2419f112d3d951507e64240e83",
+    "src/sc_touch2.c": "ddd29868bbacb38cd8e3ecdf0e5adecbcb85a53666f687944498742bc98adc88",
+    "src/sc_capture.c": "5e07f4d4a12929b8ad3080fc87991f9f93d1085fdc320455f95d9e97709f96c7",
+    "include/sc_touch2.h": "75259c160144be34095cbd291106ddf2e721ef99d064a002aefd4a07cf5f51bc",
+    "include/sc_capture.h": "fd491b23eb8acb332a0720fe852bfbdd114a5eb4e60932d4c28994270fd8898a",
+    "include/sc_airkiss.h": "bbc6c82180c19660ca4b56aad743d8540ce5befb904aea9fdf0eb7337db50587",
+    "include/sc_touch.h": "c04477208a2237d78df3df539c2c9d41a656c431c4d6d18e4b5d434246e59a85",
+    "include/sc_airkiss_capture.h": "869b36dbc1e1c970d4ea50cf335620aa08dce9bc56b8c374cf0054b2210b1584",
+    "include/sc_touch2_capture.h": "ff46056f5f88b7ccbcad91f71eec020e439d1d5cdd0f27c8e8907661aacc6f47",
+    "idf/sc_airkiss_idf.c": "72424e09c795087807665abe327201f2d6bdc277990789c4f95085dcddba003b",
+    "idf/sc_touch2_idf.c": "c193f102277b0c2a8313d110d4bcc341a0d4f42ab39455e9ea15dae5af08f770",
+    "idf/sc_touch_idf.h": "d9d6fa41ea2fdac2c5b3d9476f6d1281bc2f9d5dd62db93eca658cd8ac06eabb",
+    "idf/sc_airkiss_idf.h": "c5567f62970873989858ed54aed88581c9e17647d70abbdfee999ff3278431a4",
+    "idf/sc_touch2_idf.h": "1e88b3f46506463ec88727a9aaffd53ff1e91d954548942ad24712c4417a2b64",
+    "idf/sc_touch2_psa.c": "8bb2e8086c2d7a8fe0d7a96f898d5176d20180519c3108ff5790cfb0bd1a1de3",
+    "idf/sc_touch_idf.c": "1a87f64d163ed7b6f33ba2fbd908a1d633f984158b374f4e5df92d0e4cb80f63",
+    "idf/sc_touch2_psa.h": "663addb0fe7f8e6bd2f5feed5c6754b9d43bfaabc393c1f2b263891bf0c68449",
+    "examples/provision/sdkconfig.defaults": "11c1c649ae73333c6e372e35eca14032ab94b09da8e46808f711ce8df420e7ea",
+    "examples/provision/CMakeLists.txt": "f8d3b0ec14a861ebeb2af0425767044b6647c5aace7f895456359fac0518140c",
+    "examples/provision/README.txt": "9d6806d57091fa67709db050e4a79f1076f292b010961c3fdb093154e16f0ed7",
+    "examples/provision/main/Kconfig.projbuild": "5c569570c35e485e6abc982d59085a94e487acb94288878dbd2ef04b65387b05",
+    "examples/provision/main/provision_example.c": "d0f3e17b9b59ce0150fa9fb8b1ad66954e671f59a01cf1493f477ae1831019fa",
+    "examples/provision/main/CMakeLists.txt": "dc8d5d7e9941f03edb2afcc8e509d2be2457bbd375ef5b22e1482f1daf66861b"
+  },
+  "note": "Earlier radio evidence is summarized separately; this receipt establishes standalone package build/linkage and host tests."
+}

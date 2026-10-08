@@ -1,0 +1,18 @@
+Implementation note: v2 strict sanitizer compilation
+
+After the first O2 warnings-as-errors build and local v2 tests passed, the
+O1 sanitizer compilation reported -Wsign-conversion at the bit-plane decoder
+expression, caused by integer promotion before a variable shift. The same
+warning also occurred in an owned test fixture expression.
+
+The implementer reported the shipped-source warning before editing while the
+supervisor's hardware freeze was active. The supervisor confirmed hardware
+had not started, explicitly allowed the behavior-preserving unsigned cast,
+and requested a fresh strict sanitizer build without weakening warnings.
+
+The source expression was changed to cast the uint8_t plane value to
+unsigned int before shifting. No algorithm or public API changed. The owned
+test expression was similarly made explicitly unsigned. All strict builds,
+protocol tests and ASAN/UBSan suites then passed with LeakSanitizer disabled
+because this environment is traced. Shipped source was frozen again before
+the supervisor rebuilt firmware for physical testing.

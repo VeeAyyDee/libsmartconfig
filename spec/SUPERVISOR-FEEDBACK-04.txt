@@ -1,0 +1,14 @@
+AirKiss independent host feedback, 2026-10-06
+
+71,386 assertions passed using 2,147 frozen vectors emitted offline by the
+unmodified public community sender described in AIRKISS-V1.txt. Additional
+256 binary-byte policy fixtures and576 frame/header simulations passed.
+These are not official Tencent conformance or actual phone RF tests.
+One million core plus one million malformed capture probes passed ASAN/UBSan
+with LeakSanitizer disabled because the environment is traced.
+
+Clarification: callers must stop one provisioning adapter before starting the
+other, including after completed reception. The promiscuous-mode precondition
+rejects simultaneous receiving, but does not express shared ownership while a
+completed adapter retains its result. Document this lifecycle constraint.
+No implementation source change requested during hardware test preparation.

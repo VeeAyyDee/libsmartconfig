@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: 0BSD
+version: "0.1.0"
+license: "0BSD"
+description: "Original bounded ESP-Touch v1/v2 and full-message AirKiss provisioning decoders"
+targets:
+  - esp32s3
+dependencies:
+  idf: ">=6.0,<7.0"

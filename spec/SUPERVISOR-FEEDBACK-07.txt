@@ -1,0 +1,39 @@
+ESP-Touch v2 final supervisor observations, 2026-10-06
+
+After the authorized guide-overlap repair, independent checks passed:
+14,935 core assertions on 447 frozen public-sender vectors; 6,697 capture
+assertions across 744 simulations; 1,508 new assertions across all 377 entry
+points of three repeating lab streams. The new acquisition check failed on
+the pre-repair library. One million core and one million malformed capture
+probes passed ASAN/UBSan with leak detection disabled in this traced runtime.
+
+Controlled two-board testing completed all six rounds: original/new receiver
+for plaintext, AES security version 1 and AES security version 2. Each round
+decoded the exact synthetic credentials and reserved data, associated with
+the WPA2 lab AP, obtained DHCP, exchanged a UDP echo and delivered the correct
+7-byte port-mark/receiver-MAC acknowledgement. Marks 0, 1 and 3 exercised ports
+18266, 28266 and 48266. New AES modes used the actual target PSA wrapper.
+No premature result appeared in the eight-second pre-transmission interval.
+Each round began with empty test NVS and verified saved PHY calibration.
+Both full original flash images were restored and verified after the run.
+
+The first hardware trial failed to acquire on the new plaintext receiver;
+the guide-overlap regression and fix preceded the successful second trial.
+The failed trial, pre-repair host failure and exact build/source snapshots
+remain on the supervisor side.
+
+Channel observation: new plaintext/security1 capture events reported channel
+6 with overhead 80. Security2 reported channel 10 with overhead 80, then
+associated successfully on AP primary channel 6 in 40U mode. Cause is not
+established. Describe lock.channel as the observed capture channel, not a
+guaranteed AP primary channel; do not force association to it. No code change
+is requested on the basis of this observation alone.
+
+Limits: one synthetic ASCII credentials/reserved vector per mode, controlled
+unencrypted non-QoS From-DS transmissions with extra synthetic length padding.
+AES protects the provisioning payload independently of this radio envelope.
+No actual phone or encrypted AP-forwarded interoperability claim, no complete
+vendor API/ABI replacement, and no authentication claim for CBC/CRC/padding.
+Existing vendor Wi-Fi/PHY still provide radio and association. Nothing was
+published and no license was selected. Implementation may read this feedback
+only, not supervisor-side sources, logs, binaries or research artifacts.

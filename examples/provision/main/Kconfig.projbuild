@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: 0BSD
+menu "Clean-room provisioning example"
+
+choice SC_EXAMPLE_PROTOCOL
+    prompt "Provisioning protocol"
+    default SC_EXAMPLE_PROTOCOL_V2
+
+config SC_EXAMPLE_PROTOCOL_V2
+    bool "ESP-Touch v2"
+
+config SC_EXAMPLE_PROTOCOL_V1
+    bool "ESP-Touch v1"
+
+config SC_EXAMPLE_PROTOCOL_AIRKISS
+    bool "AirKiss full-message mode"
+
+endchoice
+
+config SC_EXAMPLE_V2_KEY
+    string "ESP-Touch v2 AES key (32 hex digits, empty for plaintext)"
+    depends on SC_EXAMPLE_PROTOCOL_V2
+    default ""
+    help
+        A nonempty value must contain exactly 32 hexadecimal digits.
+        This demonstration embeds the key in sdkconfig and firmware.
+        It is not secure key storage. Never use this setting for production
+        secrets without a separate key-management design.
+
+endmenu

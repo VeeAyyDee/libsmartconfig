@@ -1,0 +1,11 @@
+/build*/
+*.o
+*.a
+*.so
+__pycache__/
+/examples/*/build*/
+/examples/*/sdkconfig
+/examples/*/sdkconfig.old
+/examples/*/sdkconfig.*.local
+/examples/*/managed_components/
+/examples/*/dependencies.lock

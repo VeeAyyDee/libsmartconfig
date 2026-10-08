@@ -1,0 +1,306 @@
+{
+  ".github/workflows/host-tests.yml": {
+    "bytes": 366,
+    "sha256": "0fb5fa08ec77cb7de545de2d4e6af0b58c0bfb124d40e2a8de4e8d74e755d003"
+  },
+  ".gitignore": {
+    "bytes": 195,
+    "sha256": "40f861b121f0df304bd56476843deaa06614f35c96695f67f4da67285e8fe9f7"
+  },
+  "CMakeLists.txt": {
+    "bytes": 502,
+    "sha256": "6a437e9b9aaa07f7e90f14d323445bf3456f62eb648a58caf4014ef20e9a1601"
+  },
+  "CONTRIBUTING.md": {
+    "bytes": 1367,
+    "sha256": "9c7ff1ceef3eaa7b97247c40909014f7e9d53886e56c59ce90cb377ba163fb5c"
+  },
+  "LICENSE": {
+    "bytes": 654,
+    "sha256": "38c68168db39067adfaf01751b5e2b3255a4a69184c727d9f312179b22eebcbf"
+  },
+  "LICENSING.txt": {
+    "bytes": 1015,
+    "sha256": "73bed7679d6ef812d21dbeb2df0080f073828e69651370ceb917b55f86219ea9"
+  },
+  "Makefile": {
+    "bytes": 8555,
+    "sha256": "7e7939583b24781a6edd640c2cedf813700d0094630b727415eda19967517615"
+  },
+  "PROVENANCE.json": {
+    "bytes": 15614,
+    "sha256": "3bab911a6b9f2a786a7b869db58ce4de80579fc5766918745f18dc12c00813b7"
+  },
+  "README.md": {
+    "bytes": 5782,
+    "sha256": "b3b8deda04c05f783b2e41babe63a082476818586845a0d538cfa8b9ef894edf"
+  },
+  "README.txt": {
+    "bytes": 23504,
+    "sha256": "87d48d594399c9ec408902f4fdbe6341cd93b2263e8cd1477ed3cb9315453656"
+  },
+  "docs/ANDROID-HANDOFF.md": {
+    "bytes": 6570,
+    "sha256": "1d08514735db886008d17513840db0adc49b97ff656e07c539cc2fed403d0e81"
+  },
+  "docs/IMPLEMENTATION-BOUNDARY.txt": {
+    "bytes": 699,
+    "sha256": "63d449f206bb91de9afc232d85d34acebe758d91189003ac9f47f951fdef5472"
+  },
+  "docs/VALIDATION.md": {
+    "bytes": 3430,
+    "sha256": "188185dfc7558239bebd675894270263898b85421aa1f387af614cdab63706c3"
+  },
+  "examples/provision/CMakeLists.txt": {
+    "bytes": 237,
+    "sha256": "f8d3b0ec14a861ebeb2af0425767044b6647c5aace7f895456359fac0518140c"
+  },
+  "examples/provision/README.txt": {
+    "bytes": 5191,
+    "sha256": "9d6806d57091fa67709db050e4a79f1076f292b010961c3fdb093154e16f0ed7"
+  },
+  "examples/provision/main/CMakeLists.txt": {
+    "bytes": 445,
+    "sha256": "dc8d5d7e9941f03edb2afcc8e509d2be2457bbd375ef5b22e1482f1daf66861b"
+  },
+  "examples/provision/main/Kconfig.projbuild": {
+    "bytes": 803,
+    "sha256": "5c569570c35e485e6abc982d59085a94e487acb94288878dbd2ef04b65387b05"
+  },
+  "examples/provision/main/provision_example.c": {
+    "bytes": 19235,
+    "sha256": "d0f3e17b9b59ce0150fa9fb8b1ad66954e671f59a01cf1493f477ae1831019fa"
+  },
+  "examples/provision/sdkconfig.defaults": {
+    "bytes": 145,
+    "sha256": "11c1c649ae73333c6e372e35eca14032ab94b09da8e46808f711ce8df420e7ea"
+  },
+  "idf/sc_airkiss_idf.c": {
+    "bytes": 9460,
+    "sha256": "72424e09c795087807665abe327201f2d6bdc277990789c4f95085dcddba003b"
+  },
+  "idf/sc_airkiss_idf.h": {
+    "bytes": 508,
+    "sha256": "c5567f62970873989858ed54aed88581c9e17647d70abbdfee999ff3278431a4"
+  },
+  "idf/sc_touch2_idf.c": {
+    "bytes": 9724,
+    "sha256": "c193f102277b0c2a8313d110d4bcc341a0d4f42ab39455e9ea15dae5af08f770"
+  },
+  "idf/sc_touch2_idf.h": {
+    "bytes": 515,
+    "sha256": "1e88b3f46506463ec88727a9aaffd53ff1e91d954548942ad24712c4417a2b64"
+  },
+  "idf/sc_touch2_psa.c": {
+    "bytes": 2085,
+    "sha256": "8bb2e8086c2d7a8fe0d7a96f898d5176d20180519c3108ff5790cfb0bd1a1de3"
+  },
+  "idf/sc_touch2_psa.h": {
+    "bytes": 363,
+    "sha256": "663addb0fe7f8e6bd2f5feed5c6754b9d43bfaabc393c1f2b263891bf0c68449"
+  },
+  "idf/sc_touch_idf.c": {
+    "bytes": 9382,
+    "sha256": "1a87f64d163ed7b6f33ba2fbd908a1d633f984158b374f4e5df92d0e4cb80f63"
+  },
+  "idf/sc_touch_idf.h": {
+    "bytes": 484,
+    "sha256": "d9d6fa41ea2fdac2c5b3d9476f6d1281bc2f9d5dd62db93eca658cd8ac06eabb"
+  },
+  "idf_component.yml": {
+    "bytes": 215,
+    "sha256": "e7f68311200c147528be0a6dd29240cd46ad13ed50cab5e01f83080ce191b02a"
+  },
+  "include/sc_airkiss.h": {
+    "bytes": 701,
+    "sha256": "bbc6c82180c19660ca4b56aad743d8540ce5befb904aea9fdf0eb7337db50587"
+  },
+  "include/sc_airkiss_capture.h": {
+    "bytes": 908,
+    "sha256": "869b36dbc1e1c970d4ea50cf335620aa08dce9bc56b8c374cf0054b2210b1584"
+  },
+  "include/sc_capture.h": {
+    "bytes": 1003,
+    "sha256": "fd491b23eb8acb332a0720fe852bfbdd114a5eb4e60932d4c28994270fd8898a"
+  },
+  "include/sc_touch.h": {
+    "bytes": 1062,
+    "sha256": "c04477208a2237d78df3df539c2c9d41a656c431c4d6d18e4b5d434246e59a85"
+  },
+  "include/sc_touch2.h": {
+    "bytes": 1053,
+    "sha256": "75259c160144be34095cbd291106ddf2e721ef99d064a002aefd4a07cf5f51bc"
+  },
+  "include/sc_touch2_capture.h": {
+    "bytes": 912,
+    "sha256": "ff46056f5f88b7ccbcad91f71eec020e439d1d5cdd0f27c8e8907661aacc6f47"
+  },
+  "spec/AIRKISS-V1.txt": {
+    "bytes": 6930,
+    "sha256": "6e55a0698737dd06d73faff42f73f02b49f8981da3fab12e7eb25ae46fa065ff"
+  },
+  "spec/CAPTURE-V1.txt": {
+    "bytes": 7838,
+    "sha256": "16043d8d5994099a0cc121bdf6e82f741220d98b7c9df28a910e69b7d17577cc"
+  },
+  "spec/ESPTOUCH-V1.txt": {
+    "bytes": 5882,
+    "sha256": "2d1727ba72eb892b9510da58e94897b2f6a5cbd11a3e3ce52a6f208435723c5d"
+  },
+  "spec/ESPTOUCH-V2.txt": {
+    "bytes": 9147,
+    "sha256": "09a983c1319f8c80c9d4731fe7e7113286cdf1074c3ae492ce5c2826ccedc4ef"
+  },
+  "spec/IMPLEMENTATION-NOTE-V2-CAST.txt": {
+    "bytes": 1067,
+    "sha256": "9ea3dcf3116b4fcef79dec6b067a25a269f77062304ea332ebab47b5f6311192"
+  },
+  "spec/IMPLEMENTATION-REPAIR-V2-GUIDE-OVERLAP.txt": {
+    "bytes": 1582,
+    "sha256": "b2081be16afc668b0cf58acade0d721506fb2fd12647859acb7474d75d645fc7"
+  },
+  "spec/IMPLEMENTATION-REVIEW-V2-GUIDE-OVERLAP.txt": {
+    "bytes": 1897,
+    "sha256": "024e0a1a8225c56babd573b4226eea32b58a16ccb78508bf5713c5220fdfca41"
+  },
+  "spec/PACKAGING-01.txt": {
+    "bytes": 3875,
+    "sha256": "b08f437c7202db7b702b9cfc8cf990361db630fa52f8273870736a8b4baa12a3"
+  },
+  "spec/SUPERVISOR-FEEDBACK-01.txt": {
+    "bytes": 896,
+    "sha256": "1a248a4e8809b755bcfbba0ffba89f65aabfd1b51955cf8bcecb476f9eda933b"
+  },
+  "spec/SUPERVISOR-FEEDBACK-02.txt": {
+    "bytes": 891,
+    "sha256": "a8af673d026af2bb30da308648980af3233dffbbf1b32b92fc662a25e38cf36c"
+  },
+  "spec/SUPERVISOR-FEEDBACK-03.txt": {
+    "bytes": 887,
+    "sha256": "1b963f3cadfe634261ef66c21abc8fa6feae77bb6313887bb95fac794bf7515f"
+  },
+  "spec/SUPERVISOR-FEEDBACK-04.txt": {
+    "bytes": 863,
+    "sha256": "cf2f2c1dcbfb01104823948e90d39dac22cdebffd42a8a621cccd4c67201eb0a"
+  },
+  "spec/SUPERVISOR-FEEDBACK-05.txt": {
+    "bytes": 1664,
+    "sha256": "4c021ff69da87cca3046867ef148e1a0a387564cf4faa2309af55410025fb4f2"
+  },
+  "spec/SUPERVISOR-FEEDBACK-06.txt": {
+    "bytes": 873,
+    "sha256": "bd125233492a1279e94d55289cd064df1713f6c748b2727e323573389358887d"
+  },
+  "spec/SUPERVISOR-FEEDBACK-07.txt": {
+    "bytes": 2490,
+    "sha256": "b436623d6d372c3a3917e0043645011f561d5d404b6f3a8018a50bf5a78ca1b8"
+  },
+  "src/sc_airkiss.c": {
+    "bytes": 5541,
+    "sha256": "8e0912c018cdd50c164395faaa29a0ce86662151089954c5ef2e14607e861988"
+  },
+  "src/sc_airkiss_capture.c": {
+    "bytes": 7534,
+    "sha256": "acb5d8abd0fa7369b5cd0e4233063dcd0e4456701a32f3401342697cbae0e48c"
+  },
+  "src/sc_capture.c": {
+    "bytes": 8021,
+    "sha256": "5e07f4d4a12929b8ad3080fc87991f9f93d1085fdc320455f95d9e97709f96c7"
+  },
+  "src/sc_touch.c": {
+    "bytes": 5327,
+    "sha256": "84a5f2ce7cead8b5dd0f520d0349b86b37d94f2419f112d3d951507e64240e83"
+  },
+  "src/sc_touch2.c": {
+    "bytes": 9216,
+    "sha256": "ddd29868bbacb38cd8e3ecdf0e5adecbcb85a53666f687944498742bc98adc88"
+  },
+  "src/sc_touch2_capture.c": {
+    "bytes": 8210,
+    "sha256": "6c75d3476b02dca13b9a4e62bdb139f1e541e5351f32900c7705cf0d5e77987d"
+  },
+  "tests/idf_stubs/esp_err.h": {
+    "bytes": 221,
+    "sha256": "9badc46275d5282c0b76b45bba0f3fde37e08951782978ebab2606e0963577f1"
+  },
+  "tests/idf_stubs/esp_event.h": {
+    "bytes": 426,
+    "sha256": "8c8cfd89b82fa7929a8bea82140b9127e941fde46752ef90635d6f7a253e00b2"
+  },
+  "tests/idf_stubs/esp_timer.h": {
+    "bytes": 111,
+    "sha256": "f8919f7816cc370affd49c2989d54db02c05ec1fc49218cda37b0e61572eec36"
+  },
+  "tests/idf_stubs/esp_wifi.h": {
+    "bytes": 1493,
+    "sha256": "6fa74bfb4c89d5d5564143381fd12ac1797e7541a232d15129cc91189e32fe76"
+  },
+  "tests/idf_stubs/freertos/FreeRTOS.h": {
+    "bytes": 321,
+    "sha256": "8d8a23f25d3a114ec393c40345d233a5343a97a76a2dd9f6c9eba158c29b9356"
+  },
+  "tests/idf_stubs/psa/crypto.h": {
+    "bytes": 1930,
+    "sha256": "811931d873057ea3dfa8c209e257a89081b399a6b4244a4a29082ef918916b62"
+  },
+  "tests/probe_touch2_guide_overlap.c": {
+    "bytes": 2956,
+    "sha256": "9748725546038a980d14e6b7fd0f0131ad815cc0983dd4a036ba50904aca71d8"
+  },
+  "tests/test_sc_airkiss.c": {
+    "bytes": 13286,
+    "sha256": "9b9c83d33628569d6c35cdba172462f68e42446059cde1af900786a3188313d9"
+  },
+  "tests/test_sc_airkiss_idf.c": {
+    "bytes": 9437,
+    "sha256": "69a7b510c1a991eb81f6a4ccd3b5cf7f3d4548204a66c3af0df965c7b2dbbf46"
+  },
+  "tests/test_sc_capture.c": {
+    "bytes": 9394,
+    "sha256": "af8b3e5f1a5be0ce1cb42b1ad7d8ba562fb8a69120c739f86d5c6774997a7873"
+  },
+  "tests/test_sc_touch.c": {
+    "bytes": 11943,
+    "sha256": "a93454a96264db773f465572492011cde2bd53f77b14bda853e113fbe5f687a7"
+  },
+  "tests/test_sc_touch2.c": {
+    "bytes": 16313,
+    "sha256": "4872dcf6c32a288aec995f3abaf0a1cd393d3339eee608c3928b6b649ff6c3e9"
+  },
+  "tests/test_sc_touch2_idf.c": {
+    "bytes": 10018,
+    "sha256": "ade872522ede3d22e6ffe9a0f01ce61770f7cf8f1f1436f4a91d541de8423213"
+  },
+  "tests/test_sc_touch2_psa.c": {
+    "bytes": 4877,
+    "sha256": "32a2995df658afb0456be91cebbd4b5663dbbb797260066c84736e5554d61b67"
+  },
+  "tests/test_sc_touch_idf.c": {
+    "bytes": 9414,
+    "sha256": "aa57f9e7d5cad5981ec43a2655b5a7cce47a4fe86098095c09e59c58298ba05f"
+  },
+  "tools/check_no_smartconfig_blob.py": {
+    "bytes": 1928,
+    "sha256": "f8c8c70754675e3f58824f4980016496d78277f22e2e89c949ef5fbf4bfdc6f5"
+  },
+  "validation/airkiss-link-audit.json": {
+    "bytes": 418,
+    "sha256": "0fbe9c6ad082a8979b4809929315fc1436aa76ded98f56723e7b8b0e4a84df04"
+  },
+  "validation/host-tests.txt": {
+    "bytes": 2540,
+    "sha256": "65cd1780f14349bec7853f1fd85ae850fa45dbdb58e6ad18084c3ab9bccead48"
+  },
+  "validation/package-checks.json": {
+    "bytes": 3711,
+    "sha256": "886a4a64b5b9f292c32c44ab6a0da1fc082765ae355b77802e5473c85ed77608"
+  },
+  "validation/v1-link-audit.json": {
+    "bytes": 413,
+    "sha256": "0e62e60071bd84b0b33e6fcfd13e78e004ffe06bd8d784edc4d2c09873448f12"
+  },
+  "validation/v2-link-audit.json": {
+    "bytes": 413,
+    "sha256": "94bd2998ebcb95760e831cc2179030a9edcf62aa92eb586ad3b0eeeec85a30c0"
+  }
+}
