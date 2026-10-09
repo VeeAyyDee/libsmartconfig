@@ -11,7 +11,9 @@ idf_component_register(
         "idf/sc_airkiss_idf.c"
         "idf/sc_touch2_idf.c"
         "idf/sc_touch2_psa.c"
+        "idf/libsmartconfig_compat.c"
     INCLUDE_DIRS "include" "idf"
     REQUIRES esp_wifi esp_event esp_timer mbedtls
 )
+set_target_properties(${COMPONENT_LIB} PROPERTIES OUTPUT_NAME smartconfig)
 target_compile_features(${COMPONENT_LIB} PUBLIC c_std_11)

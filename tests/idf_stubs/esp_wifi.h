@@ -3,7 +3,7 @@
 #include "esp_err.h"
 #include <stdbool.h>
 #include <stdint.h>
-typedef enum { WIFI_MODE_NULL = 0, WIFI_MODE_STA = 1 } wifi_mode_t;
+typedef enum { WIFI_MODE_NULL = 0, WIFI_MODE_STA = 1, WIFI_MODE_APSTA = 3 } wifi_mode_t;
 typedef enum { WIFI_SECOND_CHAN_NONE = 0, WIFI_SECOND_CHAN_ABOVE = 1 } wifi_second_chan_t;
 typedef enum { WIFI_PKT_MGMT = 0, WIFI_PKT_DATA = 1 } wifi_promiscuous_pkt_type_t;
 typedef struct { unsigned int filter_mask; } wifi_promiscuous_filter_t;

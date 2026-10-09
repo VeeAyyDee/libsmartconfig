@@ -1,7 +1,10 @@
 SPDX-License-Identifier: 0BSD
 
-ESP-IDF provisioning example
+libsmartconfig optional extension example
 ============================
+
+For the standard esp_smartconfig.h application workflow, use ../standard.
+This optional example preserves explicit keyed AirKiss and polling APIs.
 
 This example uses the original sc_touch/sc_touch2/sc_airkiss APIs in this
 component, instead of calling the vendor esp_smartconfig workflow. It targets
@@ -111,3 +114,10 @@ Wi-Fi initialization, event handling, stopping capture, connecting, and using
 the formatter/socket for acknowledgments. Stop one adapter before starting
 another, including after completed reception. No esp_smartconfig symbols are
 provided or called by this example.
+
+Version0.2.0 naming/audit note: the portable polling example remains optional;
+use examples/standard for esp_smartconfig.h drop-in workflow. Since the source
+component now emits libsmartconfig.a, include --replacement-archive with its
+exact build/esp-idf/<component-folder>/libsmartconfig.a path when invoking the
+audit above, including for legacy v1/v2/AirKiss protocol modes. This permits
+only the identified source archive, not a vendor archive of the same name.

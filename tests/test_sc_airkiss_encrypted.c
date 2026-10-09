@@ -34,7 +34,7 @@ static sc_airkiss_config config_for(crypto_spy *spy)
 }
 static size_t message_lengths(const crypto_fixture *f, size_t ssid_len, int empty, uint16_t out[190])
 {
-    uint8_t bytes[113], pair[5], wire_password = (uint8_t)(empty ? 0 : f->cipher_len);
+    uint8_t bytes[113] = {0}, pair[5], wire_password = (uint8_t)(empty ? 0 : f->cipher_len);
     size_t total = wire_password + 1U + ssid_len, i, index, used = 0;
     unsigned int crc;
     if (wire_password != 0) memcpy(bytes, f->cipher, wire_password);

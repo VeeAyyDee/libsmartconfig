@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: 0BSD
+menu "libsmartconfig standard API example"
+config LIBSMARTCONFIG_EXAMPLE_TYPE
+    int "Protocol: 0 ESPTouch, 1 AirKiss, 2 combined, 3 ESPTouch v2"
+    range 0 3
+    default 2
+config LIBSMARTCONFIG_EXAMPLE_V2_KEY
+    string "ESP-Touch v2 raw key encoded as 32 hex digits (empty for plaintext)"
+    default ""
+    help
+        This demo embeds the key in sdkconfig and firmware. Not secure storage.
+        Public SmartConfig has no encrypted-AirKiss key option; see the optional
+        keyed AirKiss adapter example for that distinct extension.
+endmenu

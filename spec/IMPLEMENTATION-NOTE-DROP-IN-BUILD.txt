@@ -1,0 +1,26 @@
+Owned record of permitted supervisor feedback, 2026-10-08
+
+For the DROP-IN-01 implementation, the supervisor supplied these build/API
+facts through task messages. No SDK wrapper source, proprietary archive or
+reference implementation was read by the implementation agent.
+
+The SDK target esp_wifi_smartconfig is imported with a proprietary archive
+location. Its consumers include esp_wifi and sibling archives. The component
+can replace IMPORTED_LOCATION after project() with a concrete original built
+libsmartconfig.a. The source component must remain a normal explicit project
+component dependency. An imported-target-to-source add_dependencies edge was
+initially suggested, then explicitly corrected: actual SDK configure found a
+strong dependency cycle within the mutually linked archives. The final hook
+has no such strong edge. OUTPUT_NAME smartconfig avoids liblibsmartconfig.a.
+
+The supervisor reported that the unchanged SDK example asks reserved-data
+getter for 33 bytes even when the decoded result is shorter. The authorized
+compatibility adjustment is zero-fill of the requested remainder rather than
+an error for shorter available content. This implementation supports requests
+0..64 with non-NULL destination after a completed v2 result, until stop.
+
+The supervisor reported successful real SDK compile/link using the standard
+wrapper and began an unchanged-SDK-application check. These messages are not
+hardware success evidence. A separate two-board standard-API experiment was
+started after the implementation's strict/host/sanitizer suites passed and
+runtime was frozen. This note asserts no outcome for that experiment.

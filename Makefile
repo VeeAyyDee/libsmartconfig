@@ -7,7 +7,7 @@ ASAN_OPTIONS ?= detect_leaks=1
 WARNINGS = -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror
 INCLUDES = -Iinclude
 
-.PHONY: all test test-crypto test-idf sanitize sanitize-idf clean
+.PHONY: all test test-crypto test-audit test-idf sanitize sanitize-idf clean
 
 all: libsc_touch.a libsc_touch.so
 
@@ -56,6 +56,9 @@ build/test_sc_airkiss_encrypted: $(AIRKISS_ENCRYPTED_INPUTS) $(AIRKISS_TEST_HEAD
 build/test_sc_airkiss_encrypted_sanitize: $(AIRKISS_ENCRYPTED_INPUTS) $(AIRKISS_TEST_HEADERS) tests/airkiss_crypto_fixtures.h | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) -O1 -g $(WARNINGS) -fno-omit-frame-pointer -fsanitize=address,undefined $(AIRKISS_ENCRYPTED_INPUTS) $(LDFLAGS) -o $@
 
+test-audit: | build
+	python3 tests/test_link_audit.py
+
 test-crypto: libsc_touch.so
 	python3 tests/test_airkiss_crypto.py
 
@@ -94,7 +97,16 @@ PSA_TEST_HEADERS = idf/sc_touch2_psa.h include/sc_touch2.h tests/idf_stubs/psa/c
 build/test_sc_touch2_psa: $(PSA_TEST_INPUTS) $(PSA_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Iidf $(CFLAGS) $(WARNINGS) $(PSA_TEST_INPUTS) $(LDFLAGS) -o $@
 
-test-idf: build/test_sc_touch_idf build/test_sc_airkiss_idf build/test_sc_touch2_idf build/test_sc_touch2_psa
+COMPAT_TEST_INPUTS = tests/test_libsmartconfig_compat.c idf/libsmartconfig_compat.c src/sc_touch.c src/sc_capture.c src/sc_airkiss.c src/sc_airkiss_capture.c src/sc_touch2.c src/sc_touch2_capture.c
+COMPAT_TEST_HEADERS = spec/public-sdk/esp_smartconfig.h tests/idf_stubs/esp_event_base.h tests/idf_stubs/freertos/task.h $(IDF_TEST_HEADERS) $(AIRKISS_TEST_HEADERS) $(TOUCH2_TEST_HEADERS)
+build/test_libsmartconfig_compat: $(COMPAT_TEST_INPUTS) $(COMPAT_TEST_HEADERS) | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Ispec/public-sdk -Iidf $(CFLAGS) $(WARNINGS) -pthread $(COMPAT_TEST_INPUTS) $(LDFLAGS) -o $@
+
+build/test_libsmartconfig_compat_sanitize: $(COMPAT_TEST_INPUTS) $(COMPAT_TEST_HEADERS) | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Ispec/public-sdk -Iidf -O1 -g $(WARNINGS) -pthread -fno-omit-frame-pointer -fsanitize=address,undefined $(COMPAT_TEST_INPUTS) $(LDFLAGS) -o $@
+
+test-idf: build/test_libsmartconfig_compat build/test_sc_touch_idf build/test_sc_airkiss_idf build/test_sc_touch2_idf build/test_sc_touch2_psa
+	./build/test_libsmartconfig_compat
 	./build/test_sc_touch_idf
 	./build/test_sc_airkiss_idf
 	./build/test_sc_touch2_idf
@@ -112,7 +124,8 @@ build/test_sc_touch2_idf_sanitize: $(TOUCH2_IDF_TEST_INPUTS) $(IDF_TEST_HEADERS)
 build/test_sc_touch2_psa_sanitize: $(PSA_TEST_INPUTS) $(PSA_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Iidf -O1 -g $(WARNINGS) -fno-omit-frame-pointer -fsanitize=address,undefined $(PSA_TEST_INPUTS) $(LDFLAGS) -o $@
 
-sanitize-idf: build/test_sc_touch_idf_sanitize build/test_sc_airkiss_idf_sanitize build/test_sc_touch2_idf_sanitize build/test_sc_touch2_psa_sanitize
+sanitize-idf: build/test_libsmartconfig_compat_sanitize build/test_sc_touch_idf_sanitize build/test_sc_airkiss_idf_sanitize build/test_sc_touch2_idf_sanitize build/test_sc_touch2_psa_sanitize
+	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_libsmartconfig_compat_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_touch_idf_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_airkiss_idf_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_touch2_idf_sanitize

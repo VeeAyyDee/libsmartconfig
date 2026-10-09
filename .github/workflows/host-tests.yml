@@ -8,6 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build and test portable code and IDF mocks
-        run: make all test test-idf
+        run: make all test test-idf test-audit
       - name: Address and undefined behavior sanitizers
         run: make sanitize sanitize-idf

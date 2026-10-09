@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: 0BSD
+# Include and call AFTER project(). Supply this package's component folder name.
+function(libsmartconfig_replace_sdk component_name)
+    if(NOT IDF_VERSION_MAJOR EQUAL 6)
+        message(FATAL_ERROR "libsmartconfig archive replacement supports the ESP-IDF 6 build layout only")
+    endif()
+    if(NOT TARGET esp_wifi_smartconfig)
+        message(FATAL_ERROR "SDK imported target esp_wifi_smartconfig is absent; unsupported SDK layout")
+    endif()
+    get_target_property(is_imported esp_wifi_smartconfig IMPORTED)
+    if(NOT is_imported)
+        message(FATAL_ERROR "esp_wifi_smartconfig is not the expected imported SDK archive")
+    endif()
+    idf_component_get_property(replacement ${component_name} COMPONENT_LIB)
+    get_target_property(binary_dir ${replacement} BINARY_DIR)
+    set_target_properties(${replacement} PROPERTIES OUTPUT_NAME smartconfig)
+    set_target_properties(esp_wifi_smartconfig PROPERTIES
+        IMPORTED_LOCATION "${binary_dir}/libsmartconfig.a")
+    message(STATUS "Using original libsmartconfig receiver: ${binary_dir}/libsmartconfig.a")
+endfunction()

@@ -1,0 +1,72 @@
+User-directed compatibility extension, 2026-10-08
+Keep procedural separation: permitted new inputs are this specification and
+public-sdk/esp_smartconfig.h (Apache2.0). Existing own decoders and specifications
+remain allowed. Do not read any original blob/reconstructed implementation.
+
+Rename presentation/component/release to libsmartconfig. Existing sc_* portable
+APIs may remain as useful optional interfaces, but application-facing default
+must be standard esp_smartconfig.h workflow, no polling required by caller.
+Do not delete previous frozen release archives. New version0.2.0.
+
+Important architecture: SDK6.0.3 esp_wifi ALREADY builds open-source wrapper
+esp_smartconfig_start/stop and SC_EVENT definition. It owns automatic ACK task
+through its event handler and sc_send_ack_start/stop. Retain that wrapper;
+do NOT duplicate those public symbols or ACK machinery. Implement exported
+esp_smartconfig_internal_start(const smartconfig_start_config_t*) and
+esp_smartconfig_internal_stop(void) called by wrapper, plus public
+esp_smartconfig_get_version, esp_esptouch_set_timeout, esp_smartconfig_set_type,
+esp_smartconfig_fast_mode, esp_smartconfig_get_rvd_data from public header.
+SDK wrapper registers an SC_EVENT_GOT_SSID_PSWD handler before internal_start,
+unregisters it on start failure; successful stop stops ACK and unregisters it.
+Publish standard events via existing SC_EVENT (extern), standard struct fields,
+actual protocol type and token/cellphone_ip required by SDK ACK sender. Core
+must not auto-connect: application consumes credentials and connects as usual.
+
+Use autonomous owned task/timer driving capture, not caller polling. Serialize
+lifecycle; bounded resources. Event handlers may call stop. Never block joining
+self, deadlock on event delivery, destroy worker-owned state still in use, or
+leave installed promiscuous callback after buffers freed. Stop must cleanly
+support start/stop/start and partial startup rollback. Credentials event only
+once/session, FOUND_CHANNEL before GOT_CREDENTIALS. SCAN_DONE only after real
+scan completion if you implement scanning; don't fabricate a completed scan.
+No credential logging even when enable_log true (operational logs okay).
+Validate started WiFi station or APSTA; APSTA must preserve running AP channel.
+Normal disconnected STA hopping remains. Don't silently offer APSTA by retuning
+an active AP; lock its channel or return explicit unsupported if cannot support.
+Reject conflicting existing promiscuous owner; document exclusivity.
+
+Types0 ESPTouch,1 AirKiss,2 simultaneous ESPTouch+AirKiss,3 ESPTouchV2.
+Default type2. Combined mode needs ONE capture/radio owner feeding both decoders,
+selecting first valid protocol and retaining channel once a candidate locks;
+existing protocol adapters separately installing callbacks is not sufficient.
+Prefer common compatible receiver integrating own portable capture decoders.
+Public APIs shouldn't silently claim combined mode/fast-mode unsupported parts
+are implemented. Implement if possible and document any unresolved limitations.
+Use v2 crypt flag/key16; NULL key when encrypted=>ARG; copy key before returning.
+Public API has no AirKiss key argument: default standard AirKiss remains plaintext;
+keep existing explicit keyed AirKiss optional extension available, don't conflate
+v2 key flag with AirKiss encryption. Preserve encrypted AirKiss core/tests.
+Timeout15..255 seconds, plus45 seconds per SDK contract; timeout restarts receive
+attempt (not whole app/WiFi), with careful wrap-safe milliseconds. Prefer full
+reset of decoder lock/channel state. Reject invalid timeout. Set protocol/fast
+options before active session; while active return invalid state.
+Reserved-data getter copies v2 reserved bytes with requested length/bounds,
+validate NULL and availability; no uninitialized bytes. See own v2 result struct.
+
+Build: provide component/root CMake hook replacing SDK imported
+esp_wifi_smartconfig target archive with our built library, not two competing
+archives. Component libsmartconfig, emitted archive libsmartconfig.a. Hook must
+work after project() if necessary, clear unsupported SDK guard. Supervisor will
+verify actual IDF build and link map. Avoid absolute local paths in package.
+Update no-blob audit: must distinguish OUR libsmartconfig archive path from
+SDK proprietary archive, and REQUIRE standard APIs for drop-in example;
+old audit banning any libsmartconfig and esp_smartconfig symbols is obsolete.
+Example must use esp_smartconfig.h, SC_EVENT, esp_smartconfig_start, ordinary
+credential event handler then connect, on ACK_DONE stop. No sc_* calls needed.
+SDK public header dependencies Apache licensed, new implementation0BSD.
+Tests: host meaningful public/internal lifecycle mocks, single/combined capture,
+standard event shape/order, callback-stop, timer/task shutdown, option/error
+handling, rollback injection; retain portable suite/sanitizers. Independent
+supervisor target/hardware checks follow. Record permitted inputs hashes and
+explicit limits. You may refactor own adapters/core; don't claim compatibility
+beyond demonstrated scopes. Report when ready for target compile.

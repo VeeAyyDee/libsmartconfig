@@ -15,3 +15,9 @@ are provenance references, not a grant of rights in those external materials.
 The implementation used a specification/implementation split documented in
 PROVENANCE.json. This is a record of development, not a legal certification.
 Third-party notices must be retained if third-party code is added in future.
+
+Version0.2.0 includes the public SDK esp_smartconfig.h and its Apache-2.0 license
+under spec/public-sdk/. Those declarations retain Espressif's notices; 0BSD
+applies to the new receiver and compatibility logic, not those copied headers.
+The SDK's wrapper and ACK sender are linked from the user's ESP-IDF installation
+under their existing Apache-2.0 license; their implementation is not copied here.

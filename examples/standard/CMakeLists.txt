@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: 0BSD
+cmake_minimum_required(VERSION 3.16)
+set(EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../..")
+set(COMPONENTS main)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(libsmartconfig_example)
+get_filename_component(LIBSMARTCONFIG_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+get_filename_component(LIBSMARTCONFIG_COMPONENT "${LIBSMARTCONFIG_ROOT}" NAME)
+include("${LIBSMARTCONFIG_ROOT}/cmake/replace_sdk_smartconfig.cmake")
+libsmartconfig_replace_sdk("${LIBSMARTCONFIG_COMPONENT}")

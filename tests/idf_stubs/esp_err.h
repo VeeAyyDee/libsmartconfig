@@ -3,5 +3,5 @@
 typedef int esp_err_t;
 enum { ESP_OK = 0, ESP_FAIL = -1, ESP_ERR_INVALID_STATE = 10,
        ESP_ERR_NO_MEM = 11, ESP_ERR_WIFI_NOT_CONNECT = 12, ESP_ERR_TIMEOUT = 13,
-       ESP_ERR_INVALID_ARG = 14 };
+       ESP_ERR_INVALID_ARG = 14, ESP_ERR_NOT_SUPPORTED = 15 };
 #endif

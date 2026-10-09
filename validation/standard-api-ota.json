@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "protocol": "ESPTouch v1",
+  "variants": [
+    "reference",
+    "cleanroom"
+  ],
+  "standard_api_and_event_workflow": true,
+  "credential_bytes_checked": true,
+  "association_dhcp_udp_echo_sdk_ack": true,
+  "event_order_verified": true,
+  "saved_phy_calibration_both_boards": true,
+  "full_flash_restoration_verified_both_boards": true,
+  "held_in_download_for_next_test": true,
+  "trial_sha256": "a18dbf613febaa50cbb06b202a3ee1d4d7375ca58f07851ecf6d891829cb48ee",
+  "scope": "Synthetic credentials; raw unencrypted From-DS lab frames into both receivers. Does not establish actual-phone/AP-forwarded encrypted-envelope compatibility or other protocol workflow variants."
+}

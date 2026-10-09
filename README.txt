@@ -1,22 +1,28 @@
-sc_touch: portable C11 ESP-Touch v1/v2 and full-message AirKiss decoders
+libsmartconfig 0.2.0: original receiver for the ESP-IDF SmartConfig workflow
 
-This library implements the behavioral contracts in spec/ESPTOUCH-V1.txt and
-spec/CAPTURE-V1.txt, spec/AIRKISS-V1.txt, spec/AIRKISS-ENCRYPTED-01.txt
-and spec/ESPTOUCH-V2.txt.
-Its sc_touch API is original and is not a vendor private ABI or an
-ABI-compatible replacement for libsmartconfig.a. No full SmartConfig
-compatibility claim is made. The user selected 0BSD on 2026-10-08 for this
-new implementation and example; see LICENSE. This does not relicense SDK or
-other third-party code.
+The default application interface is esp_smartconfig.h and SC_EVENT, with an
+autonomous receiver task. The SDK's open-source start/stop wrapper and ACK
+machinery remain in place; our library supplies their internal receiver and
+remaining public options. The built IDF archive is libsmartconfig.a. Existing
+sc_* portable and explicit keyed AirKiss APIs remain optional extensions.
+This is bounded public-workflow compatibility, not a claim to reproduce all
+private ABI, receiver heuristics or phone behavior. See the limits below.
+
+Behavioral inputs are spec/DROP-IN-01.txt, ESPTOUCH-V1.txt, CAPTURE-V1.txt,
+AIRKISS-V1.txt, AIRKISS-ENCRYPTED-01.txt and ESPTOUCH-V2.txt. New code uses
+0BSD, selected by the user on 2026-10-08; see LICENSE. The supplied public SDK
+header and its license under spec/public-sdk retain Apache-2.0. SDK and other
+third-party software are not relicensed.
 
 Build and test
 --------------
   make                 Build libsc_touch.a and libsc_touch.so.
   make test            Build/run strict warnings-as-errors unit tests.
   make sanitize        Run tests with AddressSanitizer and UBSan.
-  make test-idf        Run owned IDF lifecycle and PSA wrapper mocks.
+  make test-idf        Run IDF lifecycle/PSA mocks and real-worker compatibility tests.
   make test-crypto     Run real host AES tests (Python cryptography required).
   make sanitize-idf    Run those mocks with ASAN and UBSan.
+  make test-audit      Verify approved/archive contamination audit behavior.
   make clean           Remove local build products.
 
 Under a traced environment where LeakSanitizer cannot operate, use
@@ -27,50 +33,107 @@ CC, AR, CPPFLAGS, CFLAGS and LDFLAGS may be overridden. The source uses only
 standard C11 library facilities; Makefile shared-library/PIC/sanitizer flags
 target toolchains supporting the usual Unix compiler options.
 
-ESP-IDF component and example
------------------------------
-The root CMakeLists.txt registers all six portable and four IDF source files
-with public include/ and idf/ directories. idf_component.yml declares version
-0.1.1, license 0BSD, ESP-IDF >=6.0,<7.0 and ESP32-S3, the tested SDK family and target.
-Required SDK components are esp_wifi, esp_event, esp_timer and mbedtls.
-Use this directory as a local project component, or add it through your
-project's EXTRA_COMPONENT_DIRS. The host Makefile remains independent of IDF.
+ESP-IDF component and standard example
+--------------------------------------
+The root component registers six portable and five IDF source files, uses
+public include/ and idf/ directories, and emits libsmartconfig.a. Manifest
+version 0.2.0 targets ESP32-S3 and ESP-IDF >=6.0,<7.0. Required SDK components
+are esp_wifi, esp_event, esp_timer and mbedtls. The host Makefile remains
+independent of IDF and preserves its existing libsc_touch.a/.so names.
 
-The original example in examples/provision selects ESP-Touch v2 by default,
-or ESP-Touch v1/AirKiss through its Kconfig choice. From that directory in an
-activated IDF environment:
-
+Use examples/standard as the default application. It uses only the standard
+esp_smartconfig.h provisioning API; there is no caller polling or sc_* API
+migration. From that directory in an activated IDF environment:
   idf.py set-target esp32s3
   idf.py menuconfig
   idf.py build
+The project produces libsmartconfig_example.elf. Select protocol0..3 with
+CONFIG_LIBSMARTCONFIG_EXAMPLE_TYPE (default2 combined) and an optional v2 key
+with CONFIG_LIBSMARTCONFIG_EXAMPLE_V2_KEY (32 hex digits, decoded to16 bytes).
 
-The project produces cleanroom_provision_example.elf. Its component dependency
-is derived from the package root folder, so renaming this package to
-sc_provision works. No absolute workstation path or remote component
-dependency is needed. Optional user-operated flashing is:
+The application's top-level CMake must call libsmartconfig_replace_sdk after
+project(), as shown in examples/standard/CMakeLists.txt. The hook sets the
+existing SDK imported esp_wifi_smartconfig archive location to this built
+component archive. Main must explicitly require this component. It does not
+link two competing receiver archives or replace SDK public wrapper/ACK code.
+The hook rejects an unsupported SDK target layout; SDK-major6 support does
+not imply every minor version has been tested. No absolute local paths are
+embedded. The package can be renamed because the example derives its folder
+name. See examples/standard/README.txt for link audit and lifecycle details.
 
-  idf.py -p PORT flash monitor
+Public workflow and limits
+---------------------------
+SC_EVENT_FOUND_CHANNEL precedes exactly one SC_EVENT_GOT_SSID_PSWD per
+successful session; failed event posts retry without duplicate successful
+credential posts. No scan is implemented and SCAN_DONE is not fabricated.
+Application handlers configure/connect Wi-Fi and stop after SDK ACK_DONE,
+as in the ordinary SDK workflow. The receiver never auto-connects. Stop
+must be called after completion before another receiver starts. All public
+lifecycle/option calls are serialized internally; a simultaneous API call
+returns ESP_ERR_INVALID_STATE rather than blocking on another caller.
 
-See examples/provision/README.txt for Kconfig symbols, optional 32-hex-digit
-v2 and AirKiss AES keys, bounded session/retry behavior and protocol-specific replies.
-A key stored in sdkconfig is embedded in firmware; it is not secure key
-storage. This example uses IPv4 DHCP/UDP and rejects IPv6-marked v2 messages.
-It stops capture before association, uses RAM-only credential configuration,
-does not erase NVS on initialization errors, and does not pin association to
-the observed capture channel. Event callbacks only enqueue bounded copies;
-the application task polls and owns association and sockets.
+A fixed128-frame ring copies only bounded headers in the Wi-Fi callback.
+A4096-byte worker stack drains bounded work every10ms. Stop disables ring
+acceptance, asks the worker to exit, waits up to2seconds, then removes the
+callback and restores filter/channel state before freeing decoders. A
+failed stop/rollback retains state for retry; start is rejected until cleanup
+finishes. SDK event posts have zero wait, so event-handler stop can join the
+worker without a delivery deadlock. Stop from the worker itself signals
+shutdown and returns INVALID_STATE rather than self-joining; retry from an
+application task cleans retained resources. SDK-owned queued event copies
+may still be delivered after stop; keep application handler state valid.
 
-Replace the vendor provisioning workflow with the selected original
-sc_touch_idf_*, sc_touch2_idf_* or sc_airkiss_idf_* functions and matching
-FOUND_CHANNEL/GOT_CREDENTIALS events. The example does not call or implement
-esp_smartconfig APIs. Replacing this provisioning implementation does not
-replace the vendor Wi-Fi/PHY radio stack. Earlier hardware validation used
-separate harnesses; this new example itself has not been hardware tested.
-Successful UDP sends mean local socket acceptance, not confirmed phone
-receipt or a complete vendor acknowledgment/discovery lifecycle.
+Default type2 feeds ESPTouch and plaintext AirKiss through one radio owner.
+Either candidate lock retains the channel; the first complete valid message
+wins. Types0/1/3 select ESPTouch/AirKiss/ESPTouchV2. Normal disconnected STA
+hops channels350ms apart according to country bounds1..14. APSTA remains on
+its saved AP channel without retuning, and requires disconnected STA. A
+pre-existing promiscuous owner or an associated STA is rejected. Never run
+this receiver alongside an optional sc_* radio adapter or another sniffer.
 
-Use
----
+esp_esptouch_set_timeout accepts15..255seconds and adds45seconds; elapsed
+unsigned milliseconds reset receive state for another attempt without
+resetting Wi-Fi. Options must be set while inactive. fast_mode(false) is
+normal mode; fast_mode(true) explicitly returns ESP_ERR_NOT_SUPPORTED.
+No AP scan/SSID reconstruction or undocumented fast-mode behavior is claimed.
+
+V2 encryption copies16 raw key bytes before start returns; enabled with NULL
+key is INVALID_ARG. These v2 options do not enable AirKiss encryption. Public
+AirKiss is plaintext because the standard config has no AirKiss key argument;
+explicit keyed AirKiss remains available through the optional APIs. V2
+reserved-data getter is available after a complete v2 result until stop,
+accepts requests0..64 with a non-NULL buffer, copies available bytes and
+zero-fills the requested remainder. It never exposes uninitialized bytes.
+
+The standard credential event uses fixed string arrays, so empty SSIDs and
+embedded-NUL credentials are rejected even though portable byte codecs can
+represent them. Maximum32-byte SSID/64-byte password fields may fill their
+arrays completely; use bounded copies. Standard v2 currently accepts IPv4
+only. Capture channel is not guaranteed AP primary; association is not
+pinned to it, and stop preserves the channel of a newly connected station.
+CRC/CBC/padding do not authenticate provisioning or reliably identify a wrong
+key. Wi-Fi/PHY and SDK ACK implementation remain external dependencies.
+
+Owned standard-workflow tests use real pthread workers with public-API Wi-Fi
+and event mocks. They cover start/stop/start, every probed Wi-Fi API startup
+failure, task-creation failure, cleanup retry, active option rejection, single
+and combined capture, event retry/order, asynchronous event-handler stop,
+APSTA channel preservation, timeout reacquisition, v2 key copying/decrypt
+failure and reserved zero-fill. Strict warnings-as-errors and ASAN/UBSan pass;
+LeakSanitizer is disabled in the traced environment. Synthetic link-audit
+fixtures cover approved paths with spaces, contamination and missing symbols.
+These owned tests do not replace SDK-wrapper, real-radio or phone validation.
+
+Optional extension example
+---------------------------
+examples/provision keeps the previous sc_* polling workflow, including
+CONFIG_SC_EXAMPLE_AIRKISS_KEY for encrypted AirKiss. Its package/version now
+follow libsmartconfig; its source API remains available. That application
+owns replies itself. It is an optional integration path, not the default
+standard-API example. Earlier0.1.0/0.1.1 frozen exports are not overwritten.
+
+Optional portable decoder use
+------------------------------
 Include sc_touch.h, create a context with sc_touch_create(), and feed one
 normalized UDP payload length at a time through sc_touch_feed(). A return
 value of 1 means sc_touch_get_result() can copy complete verified credentials.
@@ -308,7 +371,8 @@ and binary strings are byte-codec extensions, not demonstrated phone support.
 The earlier AirKiss hardware report covered cleartext only. Feedback09 now
 records three encrypted-AirKiss cases, one keyed open-network case and one
 wrong-key negative on two S3 boards. Actual-phone interoperability is untested.
-The archived 0.1.0 release is unchanged.
+The archived 0.1.0 release is unchanged. This paragraph describes the 0.1.1
+extension evidence available before later standard-workflow work.
 
 Separately, spec/SUPERVISOR-FEEDBACK-08.txt reports 1056 independently
 executed native sender sequences passed core decoding/reset/config-copy
@@ -432,19 +496,23 @@ text and recorded hash remain unchanged.
 
 Remaining gaps
 --------------
-Scanning/AP matching, automatic association, acknowledgment transmission,
-phone orchestration, AirKiss discovery/control protocols, and crypto beyond
-the specified v2/AirKiss callback/PSA paths remain outside this library. Fixed ring overflow may lose
-packets. Guide/source filtering is a chosen bounded policy, not authentication
-or guaranteed session separation. No proprietary receiver heuristics, private
-layouts, symbols, or internal API compatibility are implemented.
+Scanning/AP matching and fast mode remain unimplemented. Association belongs
+to the application; acknowledgment transmission belongs to the retained SDK
+wrapper in the standard workflow, or to the optional extension application.
+Phone orchestration, AirKiss discovery/control protocols, and crypto beyond
+the specified v2/AirKiss callback/PSA paths remain outside this receiver. Fixed
+ring overflow may lose packets. Source filtering is a bounded policy, not
+authentication or guaranteed session separation. The standard internal
+start/stop integration is explicitly implemented; undocumented private
+layouts, other internal symbols and proprietary heuristics are not claimed.
 
 Provenance
 ----------
 PROVENANCE.json records the implementation's knowledge inputs. Only the local
 AGENTS.md, permitted behavioral specifications and synthetic execution vectors,
 recorded supervisor feedback, and permitted packaging documentation/tools were
-read, along with the explicitly permitted public PSA Crypto API header and
+read, along with the supplied public SmartConfig header/license, explicitly
+permitted public PSA Crypto API header and
 files created by this implementation. No sender source,
 proprietary implementation, parent
 workspace research, disassembly, credentials, or network was accessed.

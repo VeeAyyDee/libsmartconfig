@@ -1,19 +1,20 @@
-# Android sender app handoff
+# libsmartconfig Android sender app handoff
 
 Build a small, usable Android sender for this receiver component. Start with
 ESP-Touch v2 plaintext, then add security version 2 with a user-supplied key.
 Use the repository's behavioral specifications and public Android APIs. Keep
 the encoder separate from the UI and socket transport so it can be tested
-without a phone. The original release contained no Android app. The new
-[Android test app](../android/README.md) implements all listed sender modes;
-see its validation record for current phone/hardware evidence.
+without a phone. The [Android test app](../android/README.md) now implements
+all listed sender modes; see its [validation record](../android/VALIDATION.md)
+for phone/hardware evidence using the optional polling example.
 
 ## Read first
 
 - [ESP-Touch v2 wire contract](../spec/ESPTOUCH-V2.txt)
 - [Encrypted AirKiss contract](../spec/AIRKISS-ENCRYPTED-01.txt)
 - [Receiver API and limits](../README.txt)
-- [Firmware example](../examples/provision/README.txt)
+- [Default standard-API firmware example](../examples/standard/README.txt)
+- [Optional keyed AirKiss/polling example](../examples/provision/README.txt)
 - [Validation summary](VALIDATION.md)
 
 The specifications describe observable packet formats and our receiver policy.
@@ -41,7 +42,9 @@ dependencies retain their own terms.
 6. Cancel transmission, close sockets, release callbacks/locks, and remove
    sensitive state when the session ends. Do not log or upload credentials.
 
-The firmware example defaults to v2 with no AES key. For encrypted v2, configure
+The standard-API example defaults to simultaneous ESPTouch/AirKiss. Select
+protocol3 for v2; its key setting is CONFIG_LIBSMARTCONFIG_EXAMPLE_V2_KEY.
+The optional polling example defaults to v2 with no AES key. For encrypted v2, configure
 the same 16-byte key on both sides. Its demo sdkconfig key is not secure storage.
 Version 2 uses a fresh transmitted IV; version 1 uses the legacy zero IV.
 CBC, CRC and acknowledgement fields do not authenticate the sender/device.

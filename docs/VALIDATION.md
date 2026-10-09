@@ -1,14 +1,64 @@
-# Validation and release scope
+# Validation
 
-## Android sender added after the release handoff
+## Repository integration checks, 2026-10-09
 
-The new [Android test app](../android/README.md) has a separate
+The supplied 0.2.0 snapshot's 97 manifest entries were verified before merging.
+The Android app, test AP, signing ignores and previous phone evidence were retained.
+Windows MinGW GCC passed the portable and IDF mock suites at `-O2` with strict
+warnings treated as errors, including the new pthread compatibility-worker suite.
+Real host AES checks passed (36 fixtures, 12 emitted sequences, 262 decrypt calls),
+as did the synthetic link-audit suite. The audit fixture now also runs on Windows;
+an existing test buffer was zero-initialized to satisfy GCC's optimized analysis.
+
+ASan/UBSan were not rerun locally because the installed Windows toolchain lacks
+their runtime libraries. The new IDF 6 build and hardware tests were not repeated
+here; the supplied upstream results below retain their original scope. CI runs
+the strict host, IDF mock, link-audit and sanitizer suites on Linux.
+
+`MANIFEST.sha256` covers the merged publishable files, excluding itself. Text
+hashes use LF line endings, matching Git's normalized text; binary hashes use the
+exact file bytes. The imported snapshot's manifest hash is retained in provenance.
+
+## Version 0.2.0 standard API integration
+
+Host checks pass with strict warnings and ASan/UBSan (LeakSanitizer disabled in
+this traced environment). They include a real pthread worker, start/stop/restart,
+startup rollback, event retries/order, stop from an event handler, single and
+combined reception, timeout reset, APSTA channel preservation, copied v2 keys
+and reserved-data padding. Mock radio and crypto calls alone are not hardware
+or cryptographic validation. Existing independent portable AES tests also pass.
+ThreadSanitizer could not run in this environment (unexpected memory mapping).
+
+The unmodified ESP-IDF 6.0.3 SmartConfig example application compiled for S3
+using the replacement build hook. Link-map/symbol checks confirm the standard
+SDK wrapper and SC_EVENT, our internal receiver, and no linked members from the
+proprietary SmartConfig archive. Application code was not rewritten.
+
+Fresh two-board standard-API ESPTouch v1 A/B passed on 2026-10-08. The same
+application flow ran with the stock receiver and our receiver. Both delivered
+matching synthetic credential bytes, associated with the lab AP, obtained DHCP,
+completed UDP echo, and completed the SDK ACK sequence. FOUND_CHANNEL,
+GOT_SSID_PSWD and SEND_ACK_DONE order was checked. Both saved PHY calibration
+and both original full-flash snapshots were restored and verified afterward.
+Boards remained in download mode for the following ESP-NOW test. See
+[the receipt](../validation/standard-api-ota.json).
+
+That test covers the new standard workflow with v1, not every protocol/mode.
+Historical 0.1.x results below cover the portable/optional interfaces and do not
+by themselves validate every path through the new compatibility worker. Fast mode, scan-assisted recovery and full discovery remain unsupported;
+see README.md for the supported workflow and limits.
+
+## Historical portable/optional API validation
+
+### Android sender
+
+The [Android test app](../android/README.md) has a separate
 [validation record](../android/VALIDATION.md). All six sender modes passed with
 a POCO X3 NFC running Android 11 and two ESP32-S3 boards (WPA2 AP plus receiver)
-using ESP-IDF 5.5.2. This new phone evidence does not expand the older raw-frame
-comparisons or establish compatibility with every Android version or router.
+using ESP-IDF 5.5.2 and the optional polling example. This phone evidence does
+not establish coverage of the new standard API worker or every Android/router.
 
-## Original receiver and example release evidence
+### Original receiver and example release evidence
 
 The runtime source implements ESP-Touch v1, full-message plaintext/keyed AirKiss and
 ESP-Touch v2 plaintext/security1/security2. Validation has two separate scopes:
@@ -80,8 +130,9 @@ were absent from the test images. CBC has no authentication guarantee.
 - The earlier plaintext AirKiss validation used a community public sender, not official Tencent
   conformance. That sender's code is not distributed here. Binary byte cases
   beyond its ASCII behavior test our stated policy, not phone compatibility.
-- This is an original API, not full `libsmartconfig.a` ABI compatibility.
-  Underlying vendor Wi-Fi/PHY code remains in hardware builds.
+- Historical tests below used the optional `sc_*` API. Version 0.2.0 adds the
+  standard SDK workflow; its separate checks are listed above. This does not
+  establish every private vendor symbol or behavior. Wi-Fi/PHY remain SDK code.
 - No authentication guarantee follows from CRC, tokens or CBC padding.
 - No production reliability or broad phone/AP compatibility claim is made.
 
