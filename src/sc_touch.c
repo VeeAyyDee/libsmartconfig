@@ -15,6 +15,7 @@ enum {
 };
 
 struct sc_touch {
+    sc_scan_ap ap;
     uint8_t bytes[SC_INDEX_COUNT];
     uint8_t seen[SC_INDEX_COUNT];
     uint16_t window[3];
@@ -86,6 +87,9 @@ sc_touch *sc_touch_create(void)
     return calloc(1, sizeof(sc_touch));
 }
 
+void sc_touch_set_ap(sc_touch *ctx, const sc_scan_ap *ap)
+{ if (ctx != NULL && !ctx->complete) { memset(&ctx->ap, 0, sizeof(ctx->ap)); if (ap != NULL && ap->ssid_len <= 32) ctx->ap = *ap; } }
+
 void sc_touch_reset(sc_touch *ctx)
 {
     if (ctx != NULL) {
@@ -108,7 +112,8 @@ static int try_complete(sc_touch *ctx)
     size_t ssid_length;
     size_t ssid_start;
     size_t i;
-    uint8_t message_xor = 0;
+    uint8_t message_xor = 0, bytes[SC_INDEX_COUNT];
+    int recovery;
 
     if (ctx->seen[0] == 0 || ctx->seen[1] == 0) {
         return 0;
@@ -125,26 +130,32 @@ static int try_complete(sc_touch *ctx)
     if (ssid_length > sizeof(ctx->result.ssid)) {
         return 0;
     }
+    recovery = ctx->seen[2] && ctx->seen[3] && ctx->ap.ssid_len != 0 &&
+        ctx->ap.ssid_len == ssid_length && sc_touch_crc8(ctx->ap.ssid, ssid_length) == ctx->bytes[2] &&
+        sc_touch_crc8(ctx->ap.bssid, 6) == ctx->bytes[3];
+    memcpy(bytes, ctx->bytes, sizeof(bytes));
     for (i = 0; i < total + SC_BSSID_LENGTH; ++i) {
-        if (ctx->seen[i] == 0) {
-            return 0;
-        }
+        if (recovery && i >= ssid_start) {
+            uint8_t expected = i < total ? ctx->ap.ssid[i - ssid_start] : ctx->ap.bssid[i - total];
+            if (ctx->seen[i] && bytes[i] != expected) return 0;
+            bytes[i] = expected;
+        } else if (!ctx->seen[i]) return 0;
     }
     for (i = 0; i < total; ++i) {
         if (i != 4) {
-            message_xor = (uint8_t)(message_xor ^ ctx->bytes[i]);
+            message_xor = (uint8_t)(message_xor ^ bytes[i]);
         }
     }
-    if (message_xor != ctx->bytes[4] ||
-        sc_touch_crc8(ctx->bytes + ssid_start, ssid_length) != ctx->bytes[2] ||
-        sc_touch_crc8(ctx->bytes + total, SC_BSSID_LENGTH) != ctx->bytes[3]) {
+    if (message_xor != bytes[4] ||
+        sc_touch_crc8(bytes + ssid_start, ssid_length) != bytes[2] ||
+        sc_touch_crc8(bytes + total, SC_BSSID_LENGTH) != bytes[3]) {
         return 0;
     }
 
-    memcpy(ctx->result.ssid, ctx->bytes + ssid_start, ssid_length);
-    memcpy(ctx->result.password, ctx->bytes + SC_HEADER_LENGTH, password_length);
-    memcpy(ctx->result.bssid, ctx->bytes + total, SC_BSSID_LENGTH);
-    memcpy(ctx->result.sender_ip, ctx->bytes + 5, sizeof(ctx->result.sender_ip));
+    memcpy(ctx->result.ssid, bytes + ssid_start, ssid_length);
+    memcpy(ctx->result.password, bytes + SC_HEADER_LENGTH, password_length);
+    memcpy(ctx->result.bssid, bytes + total, SC_BSSID_LENGTH);
+    memcpy(ctx->result.sender_ip, bytes + 5, sizeof(ctx->result.sender_ip));
     ctx->result.ssid_len = (uint8_t)ssid_length;
     ctx->result.password_len = (uint8_t)password_length;
     ctx->complete = 1;

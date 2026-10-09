@@ -71,7 +71,8 @@ TOUCH2_GUIDE_TEST_INPUTS = tests/probe_touch2_guide_overlap.c src/sc_touch2_capt
 build/probe_touch2_guide_overlap: $(TOUCH2_GUIDE_TEST_INPUTS) $(TOUCH2_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) $(WARNINGS) $(TOUCH2_GUIDE_TEST_INPUTS) $(LDFLAGS) -o $@
 
-test: build/test_sc_airkiss_encrypted build/test_sc_touch build/test_sc_capture build/test_sc_airkiss build/test_sc_touch2 build/probe_touch2_guide_overlap
+test: build/test_sc_scan build/test_sc_airkiss_encrypted build/test_sc_touch build/test_sc_capture build/test_sc_airkiss build/test_sc_touch2 build/probe_touch2_guide_overlap
+	./build/test_sc_scan
 	./build/test_sc_airkiss_encrypted
 	./build/test_sc_touch
 	./build/test_sc_capture
@@ -105,7 +106,8 @@ build/test_libsmartconfig_compat: $(COMPAT_TEST_INPUTS) $(COMPAT_TEST_HEADERS) |
 build/test_libsmartconfig_compat_sanitize: $(COMPAT_TEST_INPUTS) $(COMPAT_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Ispec/public-sdk -Iidf -O1 -g $(WARNINGS) -pthread -fno-omit-frame-pointer -fsanitize=address,undefined $(COMPAT_TEST_INPUTS) $(LDFLAGS) -o $@
 
-test-idf: build/test_libsmartconfig_compat build/test_sc_touch_idf build/test_sc_airkiss_idf build/test_sc_touch2_idf build/test_sc_touch2_psa
+test-idf: build/test_hop_guide build/test_libsmartconfig_compat build/test_sc_touch_idf build/test_sc_airkiss_idf build/test_sc_touch2_idf build/test_sc_touch2_psa
+	./build/test_hop_guide
 	./build/test_libsmartconfig_compat
 	./build/test_sc_touch_idf
 	./build/test_sc_airkiss_idf
@@ -124,7 +126,8 @@ build/test_sc_touch2_idf_sanitize: $(TOUCH2_IDF_TEST_INPUTS) $(IDF_TEST_HEADERS)
 build/test_sc_touch2_psa_sanitize: $(PSA_TEST_INPUTS) $(PSA_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Iidf -O1 -g $(WARNINGS) -fno-omit-frame-pointer -fsanitize=address,undefined $(PSA_TEST_INPUTS) $(LDFLAGS) -o $@
 
-sanitize-idf: build/test_libsmartconfig_compat_sanitize build/test_sc_touch_idf_sanitize build/test_sc_airkiss_idf_sanitize build/test_sc_touch2_idf_sanitize build/test_sc_touch2_psa_sanitize
+sanitize-idf: build/test_hop_guide_sanitize build/test_libsmartconfig_compat_sanitize build/test_sc_touch_idf_sanitize build/test_sc_airkiss_idf_sanitize build/test_sc_touch2_idf_sanitize build/test_sc_touch2_psa_sanitize
+	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_hop_guide_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_libsmartconfig_compat_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_touch_idf_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_airkiss_idf_sanitize
@@ -146,7 +149,8 @@ build/test_sc_touch2_sanitize: $(TOUCH2_TEST_INPUTS) $(TOUCH2_TEST_HEADERS) | bu
 build/probe_touch2_guide_overlap_sanitize: $(TOUCH2_GUIDE_TEST_INPUTS) $(TOUCH2_TEST_HEADERS) | build
 	$(CC) $(CPPFLAGS) $(INCLUDES) -O1 -g $(WARNINGS) -fno-omit-frame-pointer -fsanitize=address,undefined $(TOUCH2_GUIDE_TEST_INPUTS) $(LDFLAGS) -o $@
 
-sanitize: build/test_sc_airkiss_encrypted_sanitize build/test_sc_touch_sanitize build/test_sc_capture_sanitize build/test_sc_airkiss_sanitize build/test_sc_touch2_sanitize build/probe_touch2_guide_overlap_sanitize
+sanitize: build/test_sc_scan_sanitize build/test_sc_airkiss_encrypted_sanitize build/test_sc_touch_sanitize build/test_sc_capture_sanitize build/test_sc_airkiss_sanitize build/test_sc_touch2_sanitize build/probe_touch2_guide_overlap_sanitize
+	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_scan_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_airkiss_encrypted_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_touch_sanitize
 	ASAN_OPTIONS='$(ASAN_OPTIONS)' ./build/test_sc_capture_sanitize
@@ -156,3 +160,15 @@ sanitize: build/test_sc_airkiss_encrypted_sanitize build/test_sc_touch_sanitize 
 
 clean:
 	rm -rf build libsc_touch.a libsc_touch.so
+
+SCAN_TEST_INPUTS = tests/test_sc_scan.c src/sc_touch.c src/sc_airkiss.c src/sc_touch2.c
+build/test_sc_scan: $(SCAN_TEST_INPUTS) include/sc_scan.h | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) $(WARNINGS) $(SCAN_TEST_INPUTS) $(LDFLAGS) -o $@
+build/test_sc_scan_sanitize: $(SCAN_TEST_INPUTS) include/sc_scan.h | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) -O1 -g $(WARNINGS) -fno-omit-frame-pointer -fsanitize=address,undefined $(SCAN_TEST_INPUTS) $(LDFLAGS) -o $@
+
+HOP_TEST_INPUTS = tests/test_hop_guide.c $(filter-out tests/test_libsmartconfig_compat.c,$(COMPAT_TEST_INPUTS))
+build/test_hop_guide: $(HOP_TEST_INPUTS) tests/test_libsmartconfig_compat.c $(COMPAT_TEST_HEADERS) | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Ispec/public-sdk -Iidf $(CFLAGS) $(WARNINGS) -pthread $(HOP_TEST_INPUTS) $(LDFLAGS) -o $@
+build/test_hop_guide_sanitize: $(HOP_TEST_INPUTS) tests/test_libsmartconfig_compat.c $(COMPAT_TEST_HEADERS) | build
+	$(CC) $(CPPFLAGS) $(INCLUDES) -Itests/idf_stubs -Ispec/public-sdk -Iidf -O1 -g $(WARNINGS) -pthread -fno-omit-frame-pointer -fsanitize=address,undefined $(HOP_TEST_INPUTS) $(LDFLAGS) -o $@

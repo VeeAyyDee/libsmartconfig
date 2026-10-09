@@ -1,0 +1,221 @@
+{
+  "method": "Original instruction execution of public setter, local setter and hopper; explicit driver/timer/IPC mocks. No implementation loaded.",
+  "cases": [
+    {
+      "enabled": "untouched-initializer",
+      "return": null,
+      "dwell_ms": 150,
+      "calls": [
+        {
+          "name": "set_channel",
+          "args": [
+            1,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            150,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "return": 0,
+      "dwell_ms": 100,
+      "calls": [
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            11,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            1,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "return": 0,
+      "dwell_ms": 50,
+      "calls": [
+        {
+          "name": "set_channel",
+          "args": [
+            11,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            50,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            1,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            50,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            50,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            11,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            50,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "return": 0,
+      "dwell_ms": 100,
+      "calls": [
+        {
+          "name": "set_channel",
+          "args": [
+            1,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            11,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            1,
+            0
+          ]
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            100,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "bodies": [
+    "esp_smartconfig_fast_mode",
+    "esp_smartconfig_fast_mode_local",
+    "sc_listen_next_channel"
+  ],
+  "instruction_count": 75
+}

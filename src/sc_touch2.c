@@ -6,6 +6,7 @@
 enum { MAX_GROUPS = 40, MAX_CIPHER = 144 };
 typedef struct { size_t start, groups, width; } segment;
 struct sc_touch2 {
+    sc_scan_ap ap;
     sc_touch2_config config;
     sc_touch2_result result;
     uint8_t header[6], data[MAX_GROUPS][6], seen[MAX_GROUPS], widths[MAX_GROUPS];
@@ -22,6 +23,9 @@ sc_touch2 *sc_touch2_create(const sc_touch2_config *config)
     if (ctx != NULL && config != NULL) ctx->config = *config;
     return ctx;
 }
+void sc_touch2_set_ap(sc_touch2 *ctx, const sc_scan_ap *ap)
+{ if (ctx != NULL && !ctx->complete) { memset(&ctx->ap, 0, sizeof(ctx->ap)); if (ap != NULL && ap->ssid_len <= 32) ctx->ap = *ap; } }
+
 void sc_touch2_reset(sc_touch2 *ctx)
 {
     sc_touch2_config config;
@@ -88,8 +92,18 @@ static void try_complete(sc_touch2 *ctx)
     uint8_t cipher[MAX_CIPHER], plain[MAX_CIPHER], iv[16] = {0};
     size_t i, password, reserved, plain_length, padding;
     unsigned int security;
+    int recovered;
     if (!ctx->have_header) return;
-    for (i = 0; i < ctx->group_count; ++i) if (!ctx->seen[i]) return;
+    recovered = ctx->ap.ssid_len != 0 && ctx->ap.ssid_len == (ctx->header[0] & 127U) &&
+        sc_touch_crc8(ctx->ap.bssid, 6) == ctx->header[3];
+    for (i = 0; i < ctx->group_count; ++i) {
+        if (recovered && i >= ctx->ssid.start && i < ctx->ssid.start + ctx->ssid.groups) {
+            size_t offset = (i - ctx->ssid.start) * ctx->ssid.width;
+            size_t n = ctx->ap.ssid_len - offset;
+            if (n > ctx->ssid.width) n = ctx->ssid.width;
+            if (ctx->seen[i] && memcmp(ctx->data[i], ctx->ap.ssid + offset, n) != 0) return;
+        } else if (!ctx->seen[i]) return;
+    }
     memset(&result, 0, sizeof(result));
     result.ssid_len = (uint8_t)(ctx->header[0] & 127U);
     result.password_len = (uint8_t)(ctx->header[1] & 127U);
@@ -119,7 +133,8 @@ static void try_complete(sc_touch2 *ctx)
         memcpy(result.reserved, plain + password, reserved);
     } else if (!gather(ctx, &ctx->password, result.password, password, sizeof(result.password)) ||
                !gather(ctx, &ctx->reserved, result.reserved, reserved, sizeof(result.reserved))) return;
-    if (!gather(ctx, &ctx->ssid, result.ssid, result.ssid_len, sizeof(result.ssid))) return;
+    if (recovered) memcpy(result.ssid, ctx->ap.ssid, result.ssid_len);
+    else if (!gather(ctx, &ctx->ssid, result.ssid, result.ssid_len, sizeof(result.ssid))) return;
     ctx->result = result;
     ctx->complete = 1;
 }

@@ -1,6 +1,59 @@
 # Validation
 
-## Repository integration checks, 2026-10-09
+## Repository integration checks for 0.3.0, 2026-10-09
+
+Verified all 115 entries in the supplied source manifest before merging.
+MinGW GCC at `-O2` with strict warnings-as-errors passed the portable, scan
+recovery, IDF mock and real-worker suites, including all 48 hopper/guide cases.
+The hopper test initially failed because its wall-clock sleep did not guarantee
+worker progress on Windows. It now waits for completed worker iterations while
+preserving virtual 10 ms guide spacing, 50 ms dwell and the exact four-packet
+acquisition assertion. No receiver runtime changes were needed.
+
+Real host AES checks passed (36 fixtures, 12 emitted sequences, 262 decrypt calls).
+All 2,100 saved Android sender vectors decoded with the updated C receivers, and
+the link-audit tests passed. Existing Android app/test AP files, SDK build hook,
+signing ignores, CI audit check and Windows test fixes were preserved.
+
+No new IDF build, flashing or phone/RF testing was performed in this integration.
+Sanitizers remain unavailable in the installed Windows GCC toolchain; upstream
+and CI sanitizer results are separate from these local checks. The supplied
+[parity hardware report](PARITY-VALIDATION.txt) retains its original scope.
+
+Both manifests describe the merged tree using LF-normalized UTF-8 text and exact
+binary bytes. `SOURCE-MANIFEST.json` excludes both manifests to avoid circular
+hashes; `MANIFEST.sha256` includes that JSON manifest and excludes only itself.
+
+## Version 0.3.0 parity validation (implementation-side)
+
+Host tests use injected scan records and synthetic packets, with no ambient
+network activity. They cover owned asynchronous scanning, event-loop fences,
+weak/empty scan filtering, scan cancellation, registration rollback, connected
+STA disconnect, APSTA hopping, exact50/100ms dwell boundaries, retune failure
+rearming, and real-discovery event ordering. Recovery tests cover omitted SSIDs for v1, plaintext AirKiss and v2, including
+v2 encrypted password/reserved data. Negative tests cover hidden/wrong length,
+SSID CRC, BSSID, protected-frame mismatch and conflicting duplicate scan records.
+AirKiss tests cover every password length0..64, short/full final blocks, bad CRC
+and a late hint after contradictory SSID blocks. Untouched150ms dwell is tested
+before explicit option setters. Existing protocol/encryption regressions pass. Target and hardware results for this revision must
+be supplied separately by the supervisor; older evidence below is historical.
+The supplied [supervisor report](PARITY-VALIDATION.txt) records controlled v1
+hardware checks and their limits; no new AirKiss/v2 RF or phone claim follows.
+
+## Version 0.3.0 guide-acquisition regression
+
+The follow-up guide-acquisition regression uses real worker tasks with a virtual
+sender clock,50ms dwell,10ms guide spacing and reception only on the sender's
+channel. The preserved pre-fix probe failed12/12 fast cases across2–4 channels
+and four phases. The matching post-fix probe acquired on packet4 in24/24 normal
+and fast cases. Both protocols additionally enumerate all256 four-symbol windows
+(including24 permutations and duplicate negatives). The integrated later-channel
+suite covers48 v1/AirKiss single/combined cases and scan-sourcedSSID with an empty
+password. These are controlled host timing results; hardware outcomes belong to
+the supervisor. See parity03/04 for original-only evidence and remaining weak-RSSI
+survey differences.
+
+## Repository integration checks for 0.2.0, 2026-10-09
 
 The supplied 0.2.0 snapshot's 97 manifest entries were verified before merging.
 The Android app, test AP, signing ignores and previous phone evidence were retained.
@@ -45,7 +98,7 @@ Boards remained in download mode for the following ESP-NOW test. See
 
 That test covers the new standard workflow with v1, not every protocol/mode.
 Historical 0.1.x results below cover the portable/optional interfaces and do not
-by themselves validate every path through the new compatibility worker. Fast mode, scan-assisted recovery and full discovery remain unsupported;
+by themselves validate every path through the new compatibility worker. In that historical version, fast mode, scan-assisted recovery and discovery were unsupported;
 see README.md for the supported workflow and limits.
 
 ## Historical portable/optional API validation

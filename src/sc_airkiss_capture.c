@@ -9,7 +9,7 @@ typedef struct {
 typedef struct {
     frame_key key;
     uint32_t updated;
-    uint16_t first_length, sequence;
+    uint16_t lengths[4], sequence;
     unsigned int progress;
     int used;
 } guide_candidate;
@@ -99,6 +99,15 @@ void sc_airkiss_capture_reset(sc_airkiss_capture *ctx)
     ctx->decoder = decoder;
 }
 
+int sc_airkiss_capture_set_ap(sc_airkiss_capture *ctx, const sc_scan_ap *ap)
+{
+    if (ctx == NULL || ctx->state != 1 || ap == NULL || ap->ssid_len == 0 || ap->ssid_len > 32 ||
+        memcmp(ctx->lock.bssid, ap->bssid, 6) != 0 || ctx->lock.channel != ap->channel ||
+        ctx->selected.protected_frame != ap->protected_frame) return 0;
+    sc_airkiss_set_ap(ctx->decoder, ap);
+    return 1;
+}
+
 void sc_airkiss_capture_destroy(sc_airkiss_capture *ctx)
 {
     if (ctx == NULL) return;
@@ -139,8 +148,8 @@ static void search_guide(sc_airkiss_capture *ctx, const frame_key *key,
         }
     }
     if (candidate == NULL) {
-        /* New sequences must start with a possible 1+overhead guide. */
-        if (length < 1 || length > 257) return;
+        /* Any rotation/permutation may start a quartet; portable overhead0..256. */
+        if (length < 1 || length > 260) return;
         for (i = 0; i < CANDIDATES; ++i) {
             uint32_t age = now_ms - ctx->candidates[i].updated;
             if (ctx->candidates[i].used == 0) { replacement = i; break; }
@@ -155,19 +164,26 @@ static void search_guide(sc_airkiss_capture *ctx, const frame_key *key,
     }
     candidate->sequence = sequence;
     candidate->updated = now_ms;
-    if (candidate->progress != 0 &&
-        length == candidate->first_length + (candidate->progress % 4U)) {
-        ++candidate->progress;
-    } else {
-        candidate->progress = (length >= 1 && length <= 257) ? 1U : 0U;
-        candidate->first_length = length;
+    if (candidate->progress == 4) {
+        memmove(candidate->lengths, candidate->lengths + 1, 3 * sizeof(candidate->lengths[0]));
+        candidate->progress = 3;
     }
-    if (candidate->progress == 8) {
+    candidate->lengths[candidate->progress++] = length;
+    if (candidate->progress == 4) {
+        uint16_t minimum = candidate->lengths[0], maximum = minimum;
+        size_t j;
+        for (i = 0; i < 4; ++i) {
+            if (candidate->lengths[i] < minimum) minimum = candidate->lengths[i];
+            if (candidate->lengths[i] > maximum) maximum = candidate->lengths[i];
+            for (j = 0; j < i; ++j)
+                if (candidate->lengths[i] == candidate->lengths[j]) return;
+        }
+        if (minimum < 1 || maximum > 260 || maximum - minimum != 3) return;
         ctx->selected = *key;
         memcpy(ctx->lock.bssid, key->bssid, 6);
         memcpy(ctx->lock.sender, key->sender, 6);
         ctx->lock.channel = key->channel;
-        ctx->lock.overhead = (uint16_t)(candidate->first_length - 1U);
+        ctx->lock.overhead = (uint16_t)(minimum - 1U);
         ctx->sequence = sequence;
         ctx->last_frame = now_ms;
         ctx->locked_at = now_ms;

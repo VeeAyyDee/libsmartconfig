@@ -1,0 +1,7 @@
+{
+  "esp-idf/components/esp_event/include/esp_event.h": "1456a9d9b10be6571c4f55a94f2a79148d367e93442baa8dabb6a74326eeef95",
+  "esp-idf/components/esp_event/include/esp_event_base.h": "1d72ccd5a4a6a91f3d68dbee3a03e32e8626e040faea5d6cb67080f6705983d3",
+  "esp-idf/components/esp_wifi/include/esp_wifi.h": "d708b77ab4d4ecc78e0ae2748fc0f69af4aca868294988ac74b7f618a5bd7ca9",
+  "esp-idf/components/esp_wifi/include/esp_wifi_types_generic.h": "14b28fc07d890fc89b7b356ca3e62fa14d0b8b0fbdb8ca9faae02d479e0a605e",
+  "esp-idf/components/esp_wifi/include/esp_smartconfig.h": "e93894d1e276bb4d76e6cf423a59487375881a12484094fdc14893040d3c7fd9"
+}

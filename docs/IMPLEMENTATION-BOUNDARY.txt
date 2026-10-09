@@ -7,3 +7,5 @@ No network calls or external uploads. Work only in this directory. The permitted
 knowledge input is spec/ESPTOUCH-V1.txt plus tests created here or provided here
 by the supervisor. Do not read sibling private oracle files. Record input paths
 and hashes in PROVENANCE.json, including any later feedback file.
+
+Current authorized revision: read all supplied spec/ protocol/interface addenda, including spec/parity/. Implement parity improvements only from these inputs and existing original source/tests in this tree. Existing original code and changes remain 0BSD; retain copied SDK Apache-2.0 notices. New parity addenda supersede prior disconnected-STA/pinned-APSTA design restrictions where explicitly stated. Record new input hashes and exact implementation/validation scope.

@@ -11,6 +11,8 @@ typedef struct {
     uint16_t overhead;
 } sc_capture_lock;
 sc_capture *sc_capture_create(void);
+/* Returns 1 only for an exact locked identity/channel/security match. */
+int sc_capture_set_ap(sc_capture *ctx, const sc_scan_ap *ap);
 void sc_capture_destroy(sc_capture *ctx);
 void sc_capture_reset(sc_capture *ctx);
 int sc_capture_feed(sc_capture *ctx, const uint8_t *header,

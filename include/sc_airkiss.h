@@ -1,6 +1,7 @@
 #ifndef SC_AIRKISS_H
 #define SC_AIRKISS_H
 #include <stddef.h>
+#include "sc_scan.h"
 #include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +24,8 @@ sc_airkiss *sc_airkiss_create(void);
  * The copied key is zero-padded to 16 bytes and used as both AES key and IV.
  * Callback writes exactly length (16..80) decrypted bytes without unpadding. */
 sc_airkiss *sc_airkiss_create_with_config(const sc_airkiss_config *config);
+/* Optional copied scan hint; NULL clears it. Metadata remains mandatory. */
+void sc_airkiss_set_ap(sc_airkiss *ctx, const sc_scan_ap *ap);
 void sc_airkiss_destroy(sc_airkiss *ctx);
 void sc_airkiss_reset(sc_airkiss *ctx);
 /* 0 incomplete, 1 complete, -1 NULL, -2 conflicting session until reset. */

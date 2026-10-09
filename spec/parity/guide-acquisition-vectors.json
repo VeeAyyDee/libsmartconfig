@@ -1,0 +1,1185 @@
+{
+  "method": "Pinned original TOUCH_Find_sync_ht20 plus original completion helper; allocations, decoder initialization and SDK timer/driver/event effects mocked. No fresh implementation read or executed.",
+  "cases": [
+    {
+      "direction": "ToDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        515,
+        514,
+        513,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "ToDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        513,
+        512,
+        515,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "ToDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        512,
+        515,
+        513,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "ToDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        515,
+        514,
+        514,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        }
+      ],
+      "effects": []
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        515,
+        514,
+        513,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        513,
+        512,
+        515,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        512,
+        515,
+        513,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -40,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        515,
+        514,
+        514,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        }
+      ],
+      "effects": []
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        515,
+        514,
+        513,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 1
+        }
+      ],
+      "effects": [
+        {
+          "name": "survey_hop",
+          "args": []
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        513,
+        512,
+        515,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 1
+        }
+      ],
+      "effects": [
+        {
+          "name": "survey_hop",
+          "args": []
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        512,
+        515,
+        513,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 1
+        }
+      ],
+      "effects": [
+        {
+          "name": "survey_hop",
+          "args": []
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 3,
+      "udp_guide_lengths": [
+        515,
+        514,
+        514,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        }
+      ],
+      "effects": []
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 1,
+      "udp_guide_lengths": [
+        515,
+        514,
+        513,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 1,
+      "udp_guide_lengths": [
+        513,
+        512,
+        515,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 1,
+      "udp_guide_lengths": [
+        512,
+        515,
+        513,
+        514
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 0,
+          "found_events": 1,
+          "survey_hops": 0
+        }
+      ],
+      "effects": [
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "timer_arm",
+          "args": [
+            46000,
+            0
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "event",
+          "args": [
+            1
+          ]
+        },
+        {
+          "name": "timer_disarm",
+          "args": []
+        },
+        {
+          "name": "timer_done",
+          "args": []
+        },
+        {
+          "name": "set_channel",
+          "args": [
+            6,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "direction": "FromDS",
+      "rssi": -60,
+      "candidate_channels": 1,
+      "udp_guide_lengths": [
+        515,
+        514,
+        514,
+        512
+      ],
+      "overhead": 100,
+      "observations": [
+        {
+          "received": 1,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 2,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 3,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        },
+        {
+          "received": 4,
+          "channel_timer_active": 1,
+          "found_events": 0,
+          "survey_hops": 0
+        }
+      ],
+      "effects": []
+    }
+  ],
+  "reproducer_sha256": "4bfdc189e7157a3e4dafa2cf7b501432ceb57efb765c15bad7a1589ba6b70cc9"
+}

@@ -1,0 +1,1 @@
+Headers are copied from the pinned public ESP-IDF6.0.3 tree under Apache-2.0, with copyright notices retained. They are separate from independently written specification prose. Use the complete SDK headers for actual target builds.

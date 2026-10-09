@@ -8,6 +8,8 @@ extern "C" {
 typedef struct sc_touch2_capture sc_touch2_capture;
 
 sc_touch2_capture *sc_touch2_capture_create(const sc_touch2_config *config);
+/* Returns 1 only for an exact locked identity/channel/security match. */
+int sc_touch2_capture_set_ap(sc_touch2_capture *ctx, const sc_scan_ap *ap);
 void sc_touch2_capture_destroy(sc_touch2_capture *ctx);
 void sc_touch2_capture_reset(sc_touch2_capture *ctx);
 int sc_touch2_capture_feed(sc_touch2_capture *ctx, const uint8_t *header,

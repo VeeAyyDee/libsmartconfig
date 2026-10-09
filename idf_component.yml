@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: 0BSD
-version: "0.2.0"
+version: "0.3.0"
 license: "0BSD"
 description: "Original libsmartconfig receiver, standard SDK workflow and optional portable decoders"
 targets:

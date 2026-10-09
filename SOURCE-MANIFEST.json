@@ -1,15 +1,19 @@
 {
   ".github/workflows/host-tests.yml": {
-    "bytes": 366,
-    "sha256": "0fb5fa08ec77cb7de545de2d4e6af0b58c0bfb124d40e2a8de4e8d74e755d003"
+    "bytes": 377,
+    "sha256": "ca28a0b6447eb13d1a8396bcc2fa64a71314ff63192c718eba0d80889b958c77"
   },
   ".gitignore": {
-    "bytes": 195,
-    "sha256": "40f861b121f0df304bd56476843deaa06614f35c96695f67f4da67285e8fe9f7"
+    "bytes": 308,
+    "sha256": "41951f2a2e53a4a92f4861ea30a627b8b21899caea9da0659dfd120be05354d6"
+  },
+  "AGENTS.md": {
+    "bytes": 699,
+    "sha256": "63d449f206bb91de9afc232d85d34acebe758d91189003ac9f47f951fdef5472"
   },
   "CMakeLists.txt": {
-    "bytes": 502,
-    "sha256": "6a437e9b9aaa07f7e90f14d323445bf3456f62eb648a58caf4014ef20e9a1601"
+    "bytes": 615,
+    "sha256": "e7c9a1a691881ac392a6f996a49d3376dc2c679520975039b0abd92f058e7ddd"
   },
   "CONTRIBUTING.md": {
     "bytes": 1367,
@@ -20,44 +24,420 @@
     "sha256": "38c68168db39067adfaf01751b5e2b3255a4a69184c727d9f312179b22eebcbf"
   },
   "LICENSING.txt": {
-    "bytes": 1015,
-    "sha256": "73bed7679d6ef812d21dbeb2df0080f073828e69651370ceb917b55f86219ea9"
+    "bytes": 1416,
+    "sha256": "e02c4da9dfcd17d5c8c68db6b5492ad8f1b82ceff05f7a2ad5252cb72fe41d82"
   },
   "Makefile": {
-    "bytes": 9442,
-    "sha256": "70d41402236a14353006f9f41893f81b4e3960da61a4bfa232a117a99711f585"
+    "bytes": 11998,
+    "sha256": "77caf76ac4d488fcddca12f80b91e90a00e9ceae1ccb40ea38a7ea5f20fe89bf"
   },
   "PROVENANCE.json": {
-    "bytes": 21157,
-    "sha256": "38011b8b42848aaabc5e00d6f7b922c2ac8d1c3e631ef57b8c3699527ccae28c"
+    "bytes": 46755,
+    "sha256": "7ad20849aad37bb4be1bcc8cba7680978f6ca5cf96329feee547dce6ed2e19b3"
   },
   "README.md": {
-    "bytes": 6579,
-    "sha256": "a90691a81a10819cc0286a5193335a5333a475f361ae7316782cdacfcfcc6894"
+    "bytes": 5985,
+    "sha256": "cca2d7fb077beb1d11fb686b8f827284d5350b6f2218a7b9cea82bef2ef3fafc"
   },
   "README.txt": {
-    "bytes": 27546,
-    "sha256": "65033ea560ae74cac998b1212d9f059bcaf2dc4731334d448d99c1f0327b5faf"
+    "bytes": 35070,
+    "sha256": "50b38591d675f9c81e4eeeade081f41b176b56c36feaa532e15840ed88f1be25"
+  },
+  "VALIDATION.txt": {
+    "bytes": 1920,
+    "sha256": "0bde8b304dd7add13b48473dfb053c870e0caccbcc824bb7a1b30c76efae2e0e"
+  },
+  "android/.gitignore": {
+    "bytes": 194,
+    "sha256": "150617ee7452c699511c3ea7210d675ee5650539f1a2c7be28b740178ab0b080"
+  },
+  "android/PROVENANCE.json": {
+    "bytes": 1510,
+    "sha256": "e26d32d4ad9eddc32060786fbe81979520b5127622bdc577513c497e4d46d082"
+  },
+  "android/README.md": {
+    "bytes": 10629,
+    "sha256": "3c00136cc37ca2d05ecfdc90b618eafdb70fbd6100ca5d2798d38fba37a78ec6"
+  },
+  "android/VALIDATION.md": {
+    "bytes": 6295,
+    "sha256": "20d1117d318b4783b3f53a71311d839ac27933d95068bd9721cdeb216f0f67e9"
+  },
+  "android/app/build.gradle": {
+    "bytes": 2301,
+    "sha256": "acdbb2eb5806c7a4278237d13d45c860fd5f7df1525206d5b93f1f32b4f1f094"
+  },
+  "android/app/src/androidTest/java/dev/libsmartconfig/testapp/LabInstrumentation.java": {
+    "bytes": 6921,
+    "sha256": "777248c975fcff07e80ca1a7d801c356608af907061637bb5fb9fd0576fdca5d"
+  },
+  "android/app/src/main/AndroidManifest.xml": {
+    "bytes": 1376,
+    "sha256": "38cfac873f26dd91bd4d96a1742eec89064c63e6edb6237139dacc5c4c512ce0"
+  },
+  "android/app/src/main/java/dev/libsmartconfig/testapp/MainActivity.java": {
+    "bytes": 20816,
+    "sha256": "f54382c331997664be6397f9cd09a7eca1cdad77c33ea5a305ff95f7b36e951e"
+  },
+  "android/app/src/main/java/dev/libsmartconfig/testapp/ProvisionSession.java": {
+    "bytes": 6817,
+    "sha256": "47f59b7eb3bbaa93c6691a1072fea2a09d01adf73a07dae4ce2a9f1d516571c8"
+  },
+  "android/app/src/main/res/drawable/ic_launcher.xml": {
+    "bytes": 420,
+    "sha256": "74403269b4f6347a9663864d350a00f68fdc8486479f667f683b9feb69ca8e74"
+  },
+  "android/app/src/main/res/values/styles.xml": {
+    "bytes": 538,
+    "sha256": "1e3e26afcb7d8ef4b54fe40a7b14ae02835e9c96d8cac38bf418de5fa2b4d4b3"
+  },
+  "android/app/src/main/res/xml/data_extraction_rules.xml": {
+    "bytes": 267,
+    "sha256": "fe1a93a28f7314f8268ed10c7ce572e283042777a73d66aa8b19840e64d2267a"
+  },
+  "android/build.gradle": {
+    "bytes": 73,
+    "sha256": "47e094b953d3951ab097c173a334a41a5ae80f9d9980f459b1b7b48436df7805"
+  },
+  "android/codec/build.gradle": {
+    "bytes": 448,
+    "sha256": "b7c3b6ab7bfc8ebe3ac13741548aa8e011936389139086af1b158f446292d224"
+  },
+  "android/codec/src/main/java/dev/libsmartconfig/codec/Acknowledgement.java": {
+    "bytes": 1500,
+    "sha256": "4782032027c2147cd16593a8e341ede3fa2caee1e5c19f91fa4a3e1a9f3ac795"
+  },
+  "android/codec/src/main/java/dev/libsmartconfig/codec/LegacyEncoder.java": {
+    "bytes": 4631,
+    "sha256": "58318cae924c548fbdf5dfcf536ad88c5c37ae1e266fe2508cad6657b0781b1e"
+  },
+  "android/codec/src/main/java/dev/libsmartconfig/codec/Protocol.java": {
+    "bytes": 411,
+    "sha256": "5bd50d1c2aab42023457a431ac2859ca6035fc80e2974d7ffd0332dc20f45640"
+  },
+  "android/codec/src/main/java/dev/libsmartconfig/codec/Touch2Encoder.java": {
+    "bytes": 6812,
+    "sha256": "dfaaf9593127216c9dcdc2a48aeed1385b7b7fd3f7bf6b8933237fc6bf39fb3e"
+  },
+  "android/codec/src/test/java/dev/libsmartconfig/codec/CodecTest.java": {
+    "bytes": 8296,
+    "sha256": "a8b9bb166073109c356b8c5558c9242f8cc85063e9c3c07dd6db1be916ac0f52"
+  },
+  "android/gradle.properties": {
+    "bytes": 51,
+    "sha256": "526e7d3f92e04315ac105c8e309c5204c286254fb2df9b3bd28147a831e12d66"
+  },
+  "android/gradle/LICENSE": {
+    "bytes": 23622,
+    "sha256": "9536d88ea948603d18e232a13f5958d67807cd80828036b082bff171d2cf0703"
+  },
+  "android/gradle/wrapper/gradle-wrapper.jar": {
+    "bytes": 43705,
+    "sha256": "81a82aaea5abcc8ff68b3dfcb58b3c3c429378efd98e7433460610fecd7ae45f"
+  },
+  "android/gradle/wrapper/gradle-wrapper.properties": {
+    "bytes": 339,
+    "sha256": "1e3d87ddfd70069f68afa0c9ddcaab26913c3baf3d809447b0362d2d49f57325"
+  },
+  "android/gradlew": {
+    "bytes": 8774,
+    "sha256": "c76f16038b4e70b84ed0b3b9e08e82a8ecaf66ec0efdfdecdece92520fa3cecb"
+  },
+  "android/gradlew.bat": {
+    "bytes": 2894,
+    "sha256": "0f3ed8f03b50934cb8c48b15a470d5c20a30a5385825e48b55bcc8ea3d8f8e18"
+  },
+  "android/settings.gradle": {
+    "bytes": 286,
+    "sha256": "430d5e87c0025c30e87dea32d4e18366e191395bdc0464ccf5442741e22340d2"
+  },
+  "android/tools/build_receiver.ps1": {
+    "bytes": 1721,
+    "sha256": "3d6344799c1e7f03877a6564aa49c9a24ee8e637e7115842cc84f29ebce0c480"
+  },
+  "android/tools/build_release.ps1": {
+    "bytes": 7144,
+    "sha256": "5b38bda2237810c1cb709c9ced1019e7b5f2ddd7554a29e2593d20b44b5069af"
+  },
+  "android/tools/receiver_compat.py": {
+    "bytes": 3917,
+    "sha256": "7eb64f040996d2bce4989b7acfe4c067ac4a4128cef180278f1c5670ebf06cf5"
+  },
+  "android/tools/run_phone_case.py": {
+    "bytes": 3926,
+    "sha256": "0f56f66651271681b81c25511e82bf6d59428b9df298c332b7fa9d8d7fcfe1d7"
+  },
+  "android/tools/serial_capture.py": {
+    "bytes": 792,
+    "sha256": "2de777843aac3d2c24f13ba3139dc12ae864d7ae77ecc6549d5a6a8403327f68"
+  },
+  "android/validation/airkiss-aes-flash.txt": {
+    "bytes": 3378,
+    "sha256": "3d2affacb08694b312b1b028dac58a84a16e7d74d9348ccc5c289133f4b2e372"
+  },
+  "android/validation/airkiss-aes-phone.txt": {
+    "bytes": 204,
+    "sha256": "528cd6c27628a751de672b3b686d9d7e754dfbe7803b3f96cdb0fdcc467ba485"
+  },
+  "android/validation/airkiss-aes-receiver.txt": {
+    "bytes": 4068,
+    "sha256": "4efa9591a0fb7ebdb45977a96dc8b0293727131f07cf532a17a727e966b19879"
+  },
+  "android/validation/airkiss-aes.json": {
+    "bytes": 103,
+    "sha256": "a455db61c0604f480c97517bd172b5068c57c6ab63bd4f2a87232e5fdc445f82"
+  },
+  "android/validation/airkiss-flash.txt": {
+    "bytes": 3378,
+    "sha256": "d0174fd2872eb45feca18d8d4eead3b8f844da479ebae5785c0491057abd4066"
+  },
+  "android/validation/airkiss-plain-phone.txt": {
+    "bytes": 68,
+    "sha256": "8c9eb27f2b20e124ea4cdbf535d6f9d2f3fc4540c4e8c8b9cb4b68570a66950f"
+  },
+  "android/validation/airkiss-plain-receiver.txt": {
+    "bytes": 3417,
+    "sha256": "e1d541a3dc554920e86f83c16adc68288fe1f3127482f040447d8a874a8d717d"
+  },
+  "android/validation/airkiss-plain-retry-phone.txt": {
+    "bytes": 204,
+    "sha256": "7d6658f8249b3d3d467618acfdae5eea260aa39370293828c8d02adc9645009f"
+  },
+  "android/validation/airkiss-plain-retry-receiver.txt": {
+    "bytes": 3988,
+    "sha256": "fae409ac91e541d2864da84c44a2f90b02ce7628b7e71816d22b3209d57fafa8"
+  },
+  "android/validation/airkiss-plain-retry.json": {
+    "bytes": 103,
+    "sha256": "95753a76b2411a8df90390de16af26fe2bf28d97ac9da1a558dc5a313edad592"
+  },
+  "android/validation/airkiss-plain.json": {
+    "bytes": 104,
+    "sha256": "d66f98ec9a70decba717500cf25dfeb456eec14fe27805dfc62a9ab46d4dbe61"
+  },
+  "android/validation/android-build.txt": {
+    "bytes": 3435,
+    "sha256": "baa98433da90cf1e69558f5314d241bc9f43a28a5e75c0bc88295fa13c6b6a0d"
+  },
+  "android/validation/ap-boot.txt": {
+    "bytes": 4388,
+    "sha256": "92b73e3760530d1c2c439fcda2c3b94d449d9cb4b4be37f7716448fa3e9fa1cb"
+  },
+  "android/validation/background-phone.txt": {
+    "bytes": 80,
+    "sha256": "6840a8cf586d3c33f722d7274b74e9e28587c7fb2f33df32f92eecd99c74f09c"
+  },
+  "android/validation/background-receiver.txt": {
+    "bytes": 3346,
+    "sha256": "4b2f83d394ceaf5d63000145ed87485e2f9ca054b03d093977590d23da441d7a"
+  },
+  "android/validation/background.json": {
+    "bytes": 105,
+    "sha256": "13f11b182a089563051f948b7e2fd9b134b34dd14e79389c3225d075a5b72421"
+  },
+  "android/validation/build-receipt.json": {
+    "bytes": 427,
+    "sha256": "bb7a4aeced4be5af73e9ff65e0a0cff21601461babd6df3d02987eb1c66da3cf"
+  },
+  "android/validation/cancel-phone.txt": {
+    "bytes": 90,
+    "sha256": "b938e67a9113f6192fdaf855af28d6f6bf78788fbb2ea297476f540098adc0e8"
+  },
+  "android/validation/cancel-receiver.txt": {
+    "bytes": 3346,
+    "sha256": "4b2f83d394ceaf5d63000145ed87485e2f9ca054b03d093977590d23da441d7a"
+  },
+  "android/validation/cancel-retry-phone.txt": {
+    "bytes": 40,
+    "sha256": "7193fb76cc70bc991e830ffac806f728471bab8e56a80d782bfd387351891ee2"
+  },
+  "android/validation/cancel-retry-receiver.txt": {
+    "bytes": 3346,
+    "sha256": "a4fcd409d3c390531343ea65ec2333dcab38183ade6c65c8f388ddf007e5372d"
+  },
+  "android/validation/cancel-retry.json": {
+    "bytes": 101,
+    "sha256": "36fd1d46cd6e52be11e8ca7d26018e1184520e3ed58991b519619d8aaae18bce"
+  },
+  "android/validation/cancel.json": {
+    "bytes": 102,
+    "sha256": "ec029f08b7ca1d28855980e9a2fde752d70256aee608111ac2bd73f622a1f93f"
+  },
+  "android/validation/final-checks.txt": {
+    "bytes": 2582,
+    "sha256": "b673ce6fc0a69c2332efeb05a7937bb2f9e6e90feac82f251d2c274d2b9bf96a"
+  },
+  "android/validation/final-receiver-ready.txt": {
+    "bytes": 3346,
+    "sha256": "2c94172397dfa67246524b76fe43502db3598d848a8a8040cefc6b8e99d8c5a2"
+  },
+  "android/validation/instrumentation-build.txt": {
+    "bytes": 3824,
+    "sha256": "a0a8417200a1e9b388cdf965266e9244fd25961d0f3d6a497cb834aab9d3c837"
+  },
+  "android/validation/preview-bottom.png": {
+    "bytes": 173205,
+    "sha256": "b86516c35eabd719e5bc78a9dae54f42e049ffbdfa4c291be153e76d53b4ea32"
+  },
+  "android/validation/preview-top.png": {
+    "bytes": 162064,
+    "sha256": "5c4b5e943649e40f73c67d739ab830389ae44a982cb0b3933114a6853ebe3591"
+  },
+  "android/validation/receiver-boot.txt": {
+    "bytes": 3413,
+    "sha256": "120b97a112bb00afb1231f292b3e60069369e09a1b4819d8abb0f78d6449ed6c"
+  },
+  "android/validation/release-receipt.json": {
+    "bytes": 522,
+    "sha256": "16f58f4ffd16fb9121a902e9861a73e3416f25584d977a22affd520ad8659a06"
+  },
+  "android/validation/signing-setup-checks.txt": {
+    "bytes": 3605,
+    "sha256": "87d42353a2fe792aa4eb0fe2d1cd39b40963eb9be82636cb0bf0a6be00600c28"
+  },
+  "android/validation/unsigned-release-guard.txt": {
+    "bytes": 1369,
+    "sha256": "844d6ee1e5ced4aff3cd8e2596fd39ab05883270b70ab7f621d89398e02b5a94"
+  },
+  "android/validation/v1-flash.txt": {
+    "bytes": 3291,
+    "sha256": "534d006305a9f30eb66cf86df346be30c02b6d3b8791e0509b4645efa9e40527"
+  },
+  "android/validation/v1-phone.txt": {
+    "bytes": 178,
+    "sha256": "b035f748ec0cab99155a406e1abeb08d7ba560a51dae1104b93fafd9aa6f0819"
+  },
+  "android/validation/v1-receiver.txt": {
+    "bytes": 4068,
+    "sha256": "6a0199a837ba4f492184b60710de03d0c65d07f7f49b52b46188abd56990c12f"
+  },
+  "android/validation/v1.json": {
+    "bytes": 103,
+    "sha256": "2b1ff46020f6173836b43f55a785223bb410e6e9ebb1fa052c8f04914fd7cb1d"
+  },
+  "android/validation/v2-aes-flash.txt": {
+    "bytes": 3378,
+    "sha256": "7e8727fbe3f23ab3265071f0d5978da83f341b104c57ad2488241c96e923c71b"
+  },
+  "android/validation/v2-final-flash.txt": {
+    "bytes": 3378,
+    "sha256": "dbc5ae5ab0997f9a58e46039bd8c22e3172f63f70b1fcf8b33e8ccd75cc8d5eb"
+  },
+  "android/validation/v2-location-denied-phone.txt": {
+    "bytes": 178,
+    "sha256": "4631aa7a0a199ea0b0af46a1fa120a2d8b8f5fd94ed00f2cef1241c7ec1e9686"
+  },
+  "android/validation/v2-location-denied-receiver.txt": {
+    "bytes": 4069,
+    "sha256": "b0db555a6711edd21ea693e537748f935c96c1d670dd93c5bbef1ffe5e289198"
+  },
+  "android/validation/v2-location-denied.json": {
+    "bytes": 103,
+    "sha256": "93b30021ce4df0fc6075adf5ebe9c3f279c0290d869da1f87905bb005bcc2999"
+  },
+  "android/validation/v2-plain-phone.txt": {
+    "bytes": 3982,
+    "sha256": "b851c1bba9304059b65c77b83d612094444b98a150b9df215f50ba7483a9ebd8"
+  },
+  "android/validation/v2-security1-phone.txt": {
+    "bytes": 178,
+    "sha256": "0a9882748d187316e35963068ffe88a0ff67a979bfa5e692fafa94df9eba467b"
+  },
+  "android/validation/v2-security1-receiver.txt": {
+    "bytes": 3988,
+    "sha256": "77dfead5434e5e8b6751d28f84e134b98296cb1ed4c0be0f5f100e00a01c0594"
+  },
+  "android/validation/v2-security1.json": {
+    "bytes": 103,
+    "sha256": "9434d2fecf51affa0656921b199e852347a45dc925a7698126d1ceace9b73869"
+  },
+  "android/validation/v2-security2-phone.txt": {
+    "bytes": 178,
+    "sha256": "f4d331cb8901125a4910fc042bc4605ad5b3d8bd9cf639288c7c387058638c91"
+  },
+  "android/validation/v2-security2-receiver.txt": {
+    "bytes": 4069,
+    "sha256": "f30a13b39b5f63e86d9d30fa66aa0092d45fc1f5485bef02e19ce94c3a00fd78"
+  },
+  "android/validation/v2-security2.json": {
+    "bytes": 103,
+    "sha256": "fe73f053aeae732670b1c226a6997b20b00a7f2cd796298ba8c64f40f6d73bd7"
+  },
+  "android/validation/wifi-loss-phone.txt": {
+    "bytes": 166,
+    "sha256": "af3db51c18ae0d9c739817544527017ade0db960f8fbdc35322133a1530b3249"
+  },
+  "android/validation/wifi-loss-receiver.txt": {
+    "bytes": 3346,
+    "sha256": "a4fcd409d3c390531343ea65ec2333dcab38183ade6c65c8f388ddf007e5372d"
+  },
+  "android/validation/wifi-loss-retry-phone.txt": {
+    "bytes": 88,
+    "sha256": "e22e950090e327586727e4fe74abacc83a014f635d5622e5bc68d537780d45d8"
+  },
+  "android/validation/wifi-loss-retry-receiver.txt": {
+    "bytes": 3346,
+    "sha256": "a4fcd409d3c390531343ea65ec2333dcab38183ade6c65c8f388ddf007e5372d"
+  },
+  "android/validation/wifi-loss-retry.json": {
+    "bytes": 103,
+    "sha256": "27403ca322f9f975d8e609598db509d46d180b868f2ee6057a972d668b6422bf"
+  },
+  "android/validation/wifi-loss.json": {
+    "bytes": 200,
+    "sha256": "86de75c8b09d94f08324bc29aa679db48feaa021f18e0bf21c8ddb3dfd4cdacb"
+  },
+  "android/validation/wrong-key-phone.txt": {
+    "bytes": 148,
+    "sha256": "92d3aada29e03a3bb5da079c53ff0897342ebf284c36b8d05ab105fb4ddbd3e3"
+  },
+  "android/validation/wrong-key-receiver.txt": {
+    "bytes": 3824,
+    "sha256": "5028473365d1cd555a43fd2bfaea206fc1c66ed5ebe70b987bbae692a0adc722"
+  },
+  "android/validation/wrong-key.json": {
+    "bytes": 106,
+    "sha256": "f60da128849257fc7e7081536f34864c676a4af992a3a155469fd8fc7efb46cc"
+  },
+  "android/validation/wrong-password-phone.txt": {
+    "bytes": 153,
+    "sha256": "e20121b6f1df1750eb2ea641fde6cf4301449a027342869eeccf39c0a1916e3f"
+  },
+  "android/validation/wrong-password-receiver.txt": {
+    "bytes": 3931,
+    "sha256": "8fdcd4c61775606ce067f00849c6350814f0765f68a54856b8812cd541fbe162"
+  },
+  "android/validation/wrong-password.json": {
+    "bytes": 111,
+    "sha256": "4a0f38d0093ba1f25e737799241b1615015bf6d2580e8ba45d65f171e9398625"
+  },
+  "cmake/replace_sdk_smartconfig.cmake": {
+    "bytes": 1116,
+    "sha256": "ce52ea7895b6d3787cbed544bdc583b03c882fea0418b67a0f24194256a9ec56"
   },
   "docs/ANDROID-HANDOFF.md": {
-    "bytes": 8381,
-    "sha256": "a1ebd1db1f608ea5c03970a2dd787a05af48543a4ed59331ea2141a59588f01f"
+    "bytes": 8803,
+    "sha256": "f8b51f50f791f04af376e0774359f4998738bfb7b52099b7076d442a51fcc7d5"
   },
   "docs/IMPLEMENTATION-BOUNDARY.txt": {
-    "bytes": 699,
-    "sha256": "63d449f206bb91de9afc232d85d34acebe758d91189003ac9f47f951fdef5472"
+    "bytes": 1170,
+    "sha256": "98675ebf5bc6e39095be4988ce9d7385b36524dd9b195f2d3e6741fbb51b762b"
+  },
+  "docs/PARITY-VALIDATION.txt": {
+    "bytes": 2517,
+    "sha256": "d26c136aefd03e1a92d609b7ba40e983d89e9d0437c6572356eab7aa96413616"
   },
   "docs/VALIDATION.md": {
-    "bytes": 5287,
-    "sha256": "d3c86a43fc865e4d29d665c0d2891f77aad805baa08832e4430a5a09d86e1fa8"
+    "bytes": 12354,
+    "sha256": "af3de6233191c80fbcccfe307aeb135a48471fa1f8b1082a7685169403bdc73e"
   },
   "examples/provision/CMakeLists.txt": {
     "bytes": 237,
     "sha256": "f8d3b0ec14a861ebeb2af0425767044b6647c5aace7f895456359fac0518140c"
   },
   "examples/provision/README.txt": {
-    "bytes": 5891,
-    "sha256": "5f13cbd187e5f44c75a90c09757f62e13a0d8fc409d90a988d72703e295303cd"
+    "bytes": 6519,
+    "sha256": "d6e4b476241a74feadd6a2d8a201397526590af382c1a46d2821e42e4c83a2e8"
   },
   "examples/provision/main/CMakeLists.txt": {
     "bytes": 445,
@@ -74,6 +454,54 @@
   "examples/provision/sdkconfig.defaults": {
     "bytes": 145,
     "sha256": "11c1c649ae73333c6e372e35eca14032ab94b09da8e46808f711ce8df420e7ea"
+  },
+  "examples/standard/CMakeLists.txt": {
+    "bytes": 526,
+    "sha256": "19ea090b6fc39cda80e5d60ef7d57d6d2c9acd634be0622146cce6bc54ebea19"
+  },
+  "examples/standard/README.txt": {
+    "bytes": 4517,
+    "sha256": "96fff166e148c811f5cdea00fa1924265cdc88cbaa890abc61a6eefe2bba8b8a"
+  },
+  "examples/standard/main/CMakeLists.txt": {
+    "bytes": 336,
+    "sha256": "7d1ad33d480d90da30e0a62146030c34a47e0ddaf4f859d952a2c112f52daec3"
+  },
+  "examples/standard/main/Kconfig.projbuild": {
+    "bytes": 585,
+    "sha256": "088da59084cc75ad326cff48061241b59c444090cf7ebdfb9112e73a2f625927"
+  },
+  "examples/standard/main/main.c": {
+    "bytes": 5332,
+    "sha256": "c9e44cd76feb4ecfcd0d962eb81c6ee4d34a21085c45405ffc3820b414b4b8c8"
+  },
+  "examples/standard/sdkconfig.defaults": {
+    "bytes": 110,
+    "sha256": "e02d9f0c1f6efc625d239ce2e364221b9192e4a74d610cf2deba4b1bd7515c7d"
+  },
+  "examples/test-ap/CMakeLists.txt": {
+    "bytes": 137,
+    "sha256": "3da4022e017597b1b197695b82d43bf9daf68a0854d6f3240989ef6e83105a45"
+  },
+  "examples/test-ap/README.md": {
+    "bytes": 933,
+    "sha256": "409e78947b40578923f24b069cb08f98fc7e679676fb7fd27be16c97f0c1b4f0"
+  },
+  "examples/test-ap/main/CMakeLists.txt": {
+    "bytes": 106,
+    "sha256": "5b80f88734213e6c72f75718a52585ce0133466094408b397e4d6a2c2ba332c9"
+  },
+  "examples/test-ap/main/test_ap.c": {
+    "bytes": 1267,
+    "sha256": "100b314a611260f03b2febc5ec91489f93ef2d3b837fce3f29c30c27cce40f77"
+  },
+  "examples/test-ap/sdkconfig.defaults": {
+    "bytes": 71,
+    "sha256": "dd60343c5b0b3cb8a4919678c6b6500265c7a21470322ace866d91fba76bb20e"
+  },
+  "idf/libsmartconfig_compat.c": {
+    "bytes": 26177,
+    "sha256": "07e4f1c9751c6cec9118d8c9684a6d46eb0f44c27e53633a542bb95ace734484"
   },
   "idf/sc_airkiss_idf.c": {
     "bytes": 10157,
@@ -108,32 +536,36 @@
     "sha256": "d9d6fa41ea2fdac2c5b3d9476f6d1281bc2f9d5dd62db93eca658cd8ac06eabb"
   },
   "idf_component.yml": {
-    "bytes": 215,
-    "sha256": "10cf880d855b702f327f3b1fb0a2a341560858e2c2ec313f16f592e0fdcc713e"
+    "bytes": 222,
+    "sha256": "5c5e99d5a37a23ac69f68533aa003eafcb7a53fe50cff2d32fcbf43336b43bd2"
   },
   "include/sc_airkiss.h": {
-    "bytes": 1318,
-    "sha256": "f8eb866592587817a9ac99d6403d80275e230b572f6b242ecb0989dafcacc02c"
+    "bytes": 1479,
+    "sha256": "74832ff1aa65c13fa8bf96c80d8199f29360147bb738106c890f1df9f0708dc2"
   },
   "include/sc_airkiss_capture.h": {
-    "bytes": 1000,
-    "sha256": "d07c3b0be2e72a0cbd2f8fd6265a8c564988d2ba3919a5daac68831929ebd24a"
+    "bytes": 1152,
+    "sha256": "58885145ea4c9c68352c40cf4d697558f9bb0f66b2c2eef2267ce624f43c7691"
   },
   "include/sc_capture.h": {
-    "bytes": 1003,
-    "sha256": "fd491b23eb8acb332a0720fe852bfbdd114a5eb4e60932d4c28994270fd8898a"
+    "bytes": 1139,
+    "sha256": "f4159c7e95605301430f83e2adb6166220e8db13862450b4524bbdcaa65e33ba"
+  },
+  "include/sc_scan.h": {
+    "bytes": 350,
+    "sha256": "ad13fc718d4eb0fcd0d002ee398585326c7d1e3dfbf13f2b74e09dc5fa96dbf7"
   },
   "include/sc_touch.h": {
-    "bytes": 1062,
-    "sha256": "c04477208a2237d78df3df539c2c9d41a656c431c4d6d18e4b5d434246e59a85"
+    "bytes": 1219,
+    "sha256": "a35c4c7a1fc02311ea1a3df20229b0a1852381012d9b8a6d5b3a2fb03d0698cf"
   },
   "include/sc_touch2.h": {
-    "bytes": 1053,
-    "sha256": "75259c160144be34095cbd291106ddf2e721ef99d064a002aefd4a07cf5f51bc"
+    "bytes": 1212,
+    "sha256": "482be1fa79e77049fa5fd758f7b05beb9ad4f327779fc8d13fc4764aa1ae9c42"
   },
   "include/sc_touch2_capture.h": {
-    "bytes": 912,
-    "sha256": "ff46056f5f88b7ccbcad91f71eec020e439d1d5cdd0f27c8e8907661aacc6f47"
+    "bytes": 1062,
+    "sha256": "c2d76d3d594d371d557a1df3209e4fd860aeda0f4890e48411fdf5a632d71d78"
   },
   "spec/AIRKISS-ENCRYPTED-01.txt": {
     "bytes": 4378,
@@ -147,6 +579,10 @@
     "bytes": 7838,
     "sha256": "16043d8d5994099a0cc121bdf6e82f741220d98b7c9df28a910e69b7d17577cc"
   },
+  "spec/DROP-IN-01.txt": {
+    "bytes": 5136,
+    "sha256": "eea8b813de4771572f12a944e59e5cf27d97b14e981fd1703d3ce3e60acd2c3a"
+  },
   "spec/ESPTOUCH-V1.txt": {
     "bytes": 5882,
     "sha256": "2d1727ba72eb892b9510da58e94897b2f6a5cbd11a3e3ce52a6f208435723c5d"
@@ -154,6 +590,10 @@
   "spec/ESPTOUCH-V2.txt": {
     "bytes": 9147,
     "sha256": "09a983c1319f8c80c9d4731fe7e7113286cdf1074c3ae492ce5c2826ccedc4ef"
+  },
+  "spec/IMPLEMENTATION-NOTE-DROP-IN-BUILD.txt": {
+    "bytes": 1640,
+    "sha256": "f4d5fcf3ec0c141710db45a01362ed88b37640c152a809c94f26e5124db6081f"
   },
   "spec/IMPLEMENTATION-NOTE-V2-CAST.txt": {
     "bytes": 1067,
@@ -215,57 +655,141 @@
     "bytes": 13271,
     "sha256": "2b855f95ae5c4248f1fc8a3cb339a9c7452009e702e3e474fc911dffde14c307"
   },
+  "spec/parity/01-fastmode-start-discovery.md": {
+    "bytes": 8412,
+    "sha256": "9fee582b9769686320319f4b3e2b3dcd4df931906cb83309ac0938c0ed93a323"
+  },
+  "spec/parity/02-ssid-recovery-and-scan-api.md": {
+    "bytes": 9881,
+    "sha256": "ee5fb5a1d192aff4e7973d25e61b5f514284d3b14be59b04581579ead83674c6"
+  },
+  "spec/parity/03-guide-acquisition-fast-dwell.md": {
+    "bytes": 6255,
+    "sha256": "fdeffe8da6317ce58713085cad405fcb534c8762e427ba8378def7d5b203d59d"
+  },
+  "spec/parity/04-airkiss-guide-acquisition.md": {
+    "bytes": 2601,
+    "sha256": "74584e4e68a63de95918178ac435fc5d96095ffdfd31ff0ad7c5bc8d5967a20f"
+  },
+  "spec/parity/README.md": {
+    "bytes": 812,
+    "sha256": "dc71e6726efca4f4a1cac9470db4ed7217889630642fd8285defda4622b5aa79"
+  },
+  "spec/parity/airkiss-guide-vectors.json": {
+    "bytes": 19203,
+    "sha256": "d65567a9129d9ff5de1dd73c449412e80faed4c75c0968a5eab4db453bd977d5"
+  },
+  "spec/parity/fastmode-vectors.json": {
+    "bytes": 3736,
+    "sha256": "57a3847782e9a46a2215bce09ec29bdcdfdc6fd92a4963a5e160673c68f40e9d"
+  },
+  "spec/parity/guide-acquisition-vectors.json": {
+    "bytes": 22964,
+    "sha256": "3e46059f61961c0c9823a8cc5cc755bf5dea6a716c592472a70528cfda02dbf4"
+  },
+  "spec/parity/public-sdk/NOTICE.md": {
+    "bytes": 232,
+    "sha256": "326911e74215295fab1f9e22ea9435da29382d9d5fca9e755cf548890eaecb4a"
+  },
+  "spec/parity/public-sdk/SOURCE-HASHES.json": {
+    "bytes": 633,
+    "sha256": "0eeca9bc91aff261edb1415735fe9a6f967d652768fe624c067b79996e9d432b"
+  },
+  "spec/parity/public-sdk/esp_event_base.h": {
+    "bytes": 1303,
+    "sha256": "1d72ccd5a4a6a91f3d68dbee3a03e32e8626e040faea5d6cb67080f6705983d3"
+  },
+  "spec/parity/public-sdk/esp_smartconfig.h": {
+    "bytes": 4915,
+    "sha256": "e93894d1e276bb4d76e6cf423a59487375881a12484094fdc14893040d3c7fd9"
+  },
+  "spec/parity/public-sdk/esp_wifi_types_generic.h": {
+    "bytes": 89589,
+    "sha256": "14b28fc07d890fc89b7b356ca3e62fa14d0b8b0fbdb8ca9faae02d479e0a605e"
+  },
+  "spec/parity/public-sdk/event-handler-declarations.h": {
+    "bytes": 840,
+    "sha256": "383394173657fbdc4143f2b03d10a5bc23e246152a2825f3b3c3c91901477c0d"
+  },
+  "spec/parity/public-sdk/wifi-scan-declarations.h": {
+    "bytes": 1020,
+    "sha256": "7d364d35830fd6ed30b057bcffdcb56f1e46b700c56767f1be87a60974dbd5f9"
+  },
+  "spec/parity/public-sdk/wifi-scan-types-excerpts.h": {
+    "bytes": 4580,
+    "sha256": "a434513cdc91c81af0e868b6b8476871533038a630201f0ae5649ea091681d5a"
+  },
+  "spec/public-sdk/LICENSE": {
+    "bytes": 11358,
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  "spec/public-sdk/esp_smartconfig.h": {
+    "bytes": 4915,
+    "sha256": "e93894d1e276bb4d76e6cf423a59487375881a12484094fdc14893040d3c7fd9"
+  },
   "src/sc_airkiss.c": {
-    "bytes": 7639,
-    "sha256": "65ea449a88da16a2293d1ea0a07814a197adba87d2d84517e1d012750054bf42"
+    "bytes": 9332,
+    "sha256": "e7557ed38a75626e2e123a9af57c74073b91d7f77882a9889e62d8cfb365c89e"
   },
   "src/sc_airkiss_capture.c": {
-    "bytes": 7704,
-    "sha256": "57472e478c3e9a18295c5d5f02f7c528f5edc813a8e41adadaffce910bf2084f"
+    "bytes": 8531,
+    "sha256": "c3a9ee15106e917ce97908a826e81cf7232e84475dcb3a33a16c7fdded3e7bea"
   },
   "src/sc_capture.c": {
-    "bytes": 8021,
-    "sha256": "5e07f4d4a12929b8ad3080fc87991f9f93d1085fdc320455f95d9e97709f96c7"
+    "bytes": 8828,
+    "sha256": "f1b1063b532226363ed4f1b33b4bee9704c355e262d5569849cfec6c53add03f"
   },
   "src/sc_touch.c": {
-    "bytes": 5327,
-    "sha256": "84a5f2ce7cead8b5dd0f520d0349b86b37d94f2419f112d3d951507e64240e83"
+    "bytes": 6029,
+    "sha256": "090392f3d711f1ce97fcd084fc31eee0758bde3d4bdd086eb5ddc8fcbcf4e644"
   },
   "src/sc_touch2.c": {
-    "bytes": 9216,
-    "sha256": "ddd29868bbacb38cd8e3ecdf0e5adecbcb85a53666f687944498742bc98adc88"
+    "bytes": 10056,
+    "sha256": "8d27e8976f13cd71b348523a8c60e82e94a17c2e4d6fc5b2094940666c260f00"
   },
   "src/sc_touch2_capture.c": {
-    "bytes": 8210,
-    "sha256": "6c75d3476b02dca13b9a4e62bdb139f1e541e5351f32900c7705cf0d5e77987d"
+    "bytes": 8604,
+    "sha256": "0ea1d8b389f9f63d406de2835c21a830edfb34c51eaa7de4bbcbc0af0d6bc42d"
   },
   "tests/airkiss_crypto_fixtures.h": {
     "bytes": 15497,
     "sha256": "ddba83fabcfbc56ce8c79887c8ebc826e9cb07b062695231d22242a1600cf061"
   },
   "tests/idf_stubs/esp_err.h": {
-    "bytes": 254,
-    "sha256": "c35b2351b83f50f0a0130b3b49fb4c2342c44dc12395a8e9549d14418d93c1e8"
+    "bytes": 282,
+    "sha256": "a26945a477223e0e7c6903a47f6169386e215ace46415031394ab50944bcec13"
   },
   "tests/idf_stubs/esp_event.h": {
-    "bytes": 426,
-    "sha256": "8c8cfd89b82fa7929a8bea82140b9127e941fde46752ef90635d6f7a253e00b2"
+    "bytes": 835,
+    "sha256": "aa02116ca9402a5c2b6635469e7461811ecc3c38a3eef7f6562627c5ab4470b6"
+  },
+  "tests/idf_stubs/esp_event_base.h": {
+    "bytes": 90,
+    "sha256": "1bb6e960b8716e46a92368a74cf363b0dd9a7e5ee71f72cec35945a0713783a8"
   },
   "tests/idf_stubs/esp_timer.h": {
     "bytes": 111,
     "sha256": "f8919f7816cc370affd49c2989d54db02c05ec1fc49218cda37b0e61572eec36"
   },
   "tests/idf_stubs/esp_wifi.h": {
-    "bytes": 1493,
-    "sha256": "6fa74bfb4c89d5d5564143381fd12ac1797e7541a232d15129cc91189e32fe76"
+    "bytes": 2203,
+    "sha256": "e4b7e7ae222ea05fbc25f527fbf5066b7dc37b3f4890a6dbb6a177f9613cba99"
   },
   "tests/idf_stubs/freertos/FreeRTOS.h": {
     "bytes": 321,
     "sha256": "8d8a23f25d3a114ec393c40345d233a5343a97a76a2dd9f6c9eba158c29b9356"
   },
+  "tests/idf_stubs/freertos/task.h": {
+    "bytes": 476,
+    "sha256": "f059dc843b2be966b9192949f6a0002aae77ef8f38c8916e47d079dcfbe7e344"
+  },
   "tests/idf_stubs/psa/crypto.h": {
     "bytes": 1930,
     "sha256": "811931d873057ea3dfa8c209e257a89081b399a6b4244a4a29082ef918916b62"
+  },
+  "tests/probe_hop_guide.c": {
+    "bytes": 1771,
+    "sha256": "6a89d8f2e904d6c95bce864b3ba947f8f7050bb03166c87cda1d578df4ad8966"
   },
   "tests/probe_touch2_guide_overlap.c": {
     "bytes": 2956,
@@ -275,21 +799,37 @@
     "bytes": 5342,
     "sha256": "029c8da466ff78c3ba8c92cf0e96c78d321654e449aba3274506b960c1122238"
   },
+  "tests/test_hop_guide.c": {
+    "bytes": 3798,
+    "sha256": "b0a90c490ab4b4c62d1e5d6a81464695ffd53786ad3a931ca66db3aa3d826fe6"
+  },
+  "tests/test_libsmartconfig_compat.c": {
+    "bytes": 26084,
+    "sha256": "3f8c4cf80d444e9ec0f03d557965896344393b8adb578521a48e9352038eaf5f"
+  },
+  "tests/test_link_audit.py": {
+    "bytes": 3078,
+    "sha256": "25a593a95746d23e282a672684b094240a8e1c2cf3dc93ddfe4bddfbafec8b7e"
+  },
   "tests/test_sc_airkiss.c": {
-    "bytes": 13286,
-    "sha256": "9b9c83d33628569d6c35cdba172462f68e42446059cde1af900786a3188313d9"
+    "bytes": 13916,
+    "sha256": "ca0f6014f6ec36f74616c6e539b5e11258f432af7e3ada320b35d7c3f0f44f66"
   },
   "tests/test_sc_airkiss_encrypted.c": {
-    "bytes": 8742,
-    "sha256": "c0ade9c0009c005100b4af64575c439c882a2000ee8ae47aea0c65c324b01c94"
+    "bytes": 8748,
+    "sha256": "73dfcd2561f79457949f788f45f7a38bdfced4c9a9e91b95f26cdc4513fe72a8"
   },
   "tests/test_sc_airkiss_idf.c": {
     "bytes": 12549,
     "sha256": "e1e86364a6e1c467200f785f3fbecba2e0c78ac16709e837fb357b91594b9527"
   },
   "tests/test_sc_capture.c": {
-    "bytes": 9394,
-    "sha256": "af8b3e5f1a5be0ce1cb42b1ad7d8ba562fb8a69120c739f86d5c6774997a7873"
+    "bytes": 10121,
+    "sha256": "17a8b10d02a552bf38624fccd907c505767151d70ce5b44e6cce98d3937d8d06"
+  },
+  "tests/test_sc_scan.c": {
+    "bytes": 5664,
+    "sha256": "000d319d35c3e19c3ad6e2444097afb3f9f7d32f9b0058fd990d8f9dd9210fee"
   },
   "tests/test_sc_touch.c": {
     "bytes": 11943,
@@ -312,8 +852,8 @@
     "sha256": "aa57f9e7d5cad5981ec43a2655b5a7cce47a4fe86098095c09e59c58298ba05f"
   },
   "tools/check_no_smartconfig_blob.py": {
-    "bytes": 2177,
-    "sha256": "f4beb31151f172844c51377d66aa039da7aa4c3df794e198aa39f3667137441b"
+    "bytes": 3995,
+    "sha256": "affc003b0a4c335546ef02792904841734f2553cf54f3cb3fbd2d4c7633e2847"
   },
   "validation/airkiss-encrypted-link-audit.json": {
     "bytes": 428,
@@ -346,6 +886,14 @@
   "validation/negative-link-audit.json": {
     "bytes": 545,
     "sha256": "a70d2bf85f2fbdad7a84ae9d5b62398392cea05978de5f12c985dc8ccf35c905"
+  },
+  "validation/package-checks.json": {
+    "bytes": 3711,
+    "sha256": "886a4a64b5b9f292c32c44ab6a0da1fc082765ae355b77802e5473c85ed77608"
+  },
+  "validation/standard-api-ota.json": {
+    "bytes": 698,
+    "sha256": "5608b44fd83dffb5a785cea2cffa32d5e0e485e97e8304e7d67adf176e7959be"
   },
   "validation/v1-link-audit.json": {
     "bytes": 413,

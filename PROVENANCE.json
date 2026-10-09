@@ -1,12 +1,14 @@
 {
   "format_version": 1,
-  "scope": "libsmartconfig 0.2.0 original bounded ESP-IDF standard-workflow receiver under retained SDK wrapper/ACK, plus optional portable C11 ESPTouch v1/v2 and plaintext/keyed full-message AirKiss decoders/capture/PSA interfaces",
+  "scope": "libsmartconfig 0.3.0 original bounded ESP-IDF standard-workflow receiver under retained SDK wrapper/ACK, plus optional portable C11 ESPTouch v1/v2 and plaintext/keyed full-message AirKiss decoders/capture/PSA interfaces; public asynchronous discovery, persistent 150/100/50ms dwell and conservative scan-assisted SSID recovery",
   "implementation_boundary": "Only permitted specifications and supervisor feedback stored in this directory, implementation-owned outputs, and expressly allowed public SDK API headers may be read for task knowledge. The v2 contract and supervisor explicitly permitted the recorded PSA Crypto API header for declarations and semantics. No network, parent project research, public protocol sender source, proprietary binary, disassembly, generated reconstruction, receiver code, or credentials were used.",
   "knowledge_inputs": [
     {
-      "path": "AGENTS.md",
-      "sha256": "63d449f206bb91de9afc232d85d34acebe758d91189003ac9f47f951fdef5472",
-      "role": "Implementation boundary instructions"
+      "path": "docs/IMPLEMENTATION-BOUNDARY.txt",
+      "sha256": "98675ebf5bc6e39095be4988ce9d7385b36524dd9b195f2d3e6741fbb51b762b",
+      "role": "Implementation boundary instructions",
+      "sha256_at_previous_revision": "63d449f206bb91de9afc232d85d34acebe758d91189003ac9f47f951fdef5472",
+      "original_path": "AGENTS.md"
     },
     {
       "path": "spec/ESPTOUCH-V1.txt",
@@ -50,9 +52,10 @@
       "role": "Sole ESP-Touch v2 behavioral contract, bounded core/capture/IDF APIs, optional decryption callback and mandatory public PSA Crypto wrapper requirements."
     },
     {
-      "path": "<ESP-IDF>/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto.h",
+      "path": "ESP-IDF/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto.h",
       "sha256": "8f0b7e1c227875076540809d19c4686b38a765f929caa1559df2babc418cdb85",
-      "role": "Explicitly permitted installed public PSA Crypto API declarations/semantics only: key import/destruction and multipart CBC setup/IV/update/finish/abort. Read targeted API documentation ranges; no private AES or SmartConfig source inspected."
+      "role": "Explicitly permitted installed public PSA Crypto API declarations/semantics only: key import/destruction and multipart CBC setup/IV/update/finish/abort. Read targeted API documentation ranges; no private AES or SmartConfig source inspected.",
+      "external_dependency_not_bundled": true
     },
     {
       "path": "spec/SUPERVISOR-FEEDBACK-06.txt",
@@ -141,6 +144,86 @@
       "path": "spec/IMPLEMENTATION-NOTE-DROP-IN-BUILD.txt",
       "sha256": "f4d5fcf3ec0c141710db45a01362ed88b37640c152a809c94f26e5124db6081f",
       "role": "Owned local record of supervisor-supplied target-link layout/cycle correction and reserved-getter zero-fill requirement. No SDK/proprietary wrapper implementation inspected."
+    },
+    {
+      "path": "spec/parity/01-fastmode-start-discovery.md",
+      "sha256": "9fee582b9769686320319f4b3e2b3dcd4df931906cb83309ac0938c0ed93a323",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/02-ssid-recovery-and-scan-api.md",
+      "sha256": "ee5fb5a1d192aff4e7973d25e61b5f514284d3b14be59b04581579ead83674c6",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/README.md",
+      "sha256": "dc71e6726efca4f4a1cac9470db4ed7217889630642fd8285defda4622b5aa79",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/fastmode-vectors.json",
+      "sha256": "57a3847782e9a46a2215bce09ec29bdcdfdc6fd92a4963a5e160673c68f40e9d",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/NOTICE.md",
+      "sha256": "326911e74215295fab1f9e22ea9435da29382d9d5fca9e755cf548890eaecb4a",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/SOURCE-HASHES.json",
+      "sha256": "0eeca9bc91aff261edb1415735fe9a6f967d652768fe624c067b79996e9d432b",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/esp_event_base.h",
+      "sha256": "1d72ccd5a4a6a91f3d68dbee3a03e32e8626e040faea5d6cb67080f6705983d3",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/esp_smartconfig.h",
+      "sha256": "e93894d1e276bb4d76e6cf423a59487375881a12484094fdc14893040d3c7fd9",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/esp_wifi_types_generic.h",
+      "sha256": "14b28fc07d890fc89b7b356ca3e62fa14d0b8b0fbdb8ca9faae02d479e0a605e",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/event-handler-declarations.h",
+      "sha256": "383394173657fbdc4143f2b03d10a5bc23e246152a2825f3b3c3c91901477c0d",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/wifi-scan-declarations.h",
+      "sha256": "7d364d35830fd6ed30b057bcffdcb56f1e46b700c56767f1be87a60974dbd5f9",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/public-sdk/wifi-scan-types-excerpts.h",
+      "sha256": "a434513cdc91c81af0e868b6b8476871533038a630201f0ae5649ea091681d5a",
+      "role": "Supplied parity behavioral addendum/vector or separately licensed public SDK declaration; no private oracle/implementation inspected."
+    },
+    {
+      "path": "spec/parity/03-guide-acquisition-fast-dwell.md",
+      "sha256": "fdeffe8da6317ce58713085cad405fcb534c8762e427ba8378def7d5b203d59d",
+      "role": "Safe independently authored original guide-acquisition behavior/vector; supersedes prior eight-guide design policy. No original instruction/code/private oracle inspected."
+    },
+    {
+      "path": "spec/parity/guide-acquisition-vectors.json",
+      "sha256": "3e46059f61961c0c9823a8cc5cc755bf5dea6a716c592472a70528cfda02dbf4",
+      "role": "Safe independently authored original guide-acquisition behavior/vector; supersedes prior eight-guide design policy. No original instruction/code/private oracle inspected."
+    },
+    {
+      "path": "spec/parity/04-airkiss-guide-acquisition.md",
+      "sha256": "74584e4e68a63de95918178ac435fc5d96095ffdfd31ff0ad7c5bc8d5967a20f",
+      "role": "Safe independently authored original guide-acquisition behavior/vector; supersedes prior eight-guide design policy. No original instruction/code/private oracle inspected."
+    },
+    {
+      "path": "spec/parity/airkiss-guide-vectors.json",
+      "sha256": "d65567a9129d9ff5de1dd73c449412e80faed4c75c0968a5eab4db453bd977d5",
+      "role": "Safe independently authored original guide-acquisition behavior/vector; supersedes prior eight-guide design policy. No original instruction/code/private oracle inspected."
     }
   ],
   "implementation_owned_files": [
@@ -350,6 +433,92 @@
     "receipt": "validation/standard-api-ota.json",
     "supervisor_changes": "Build hook strong-dependency removal, documentation, validation receipts and packaging; no receiver C implementation edits."
   },
+  "parity_extension": {
+    "version": "0.3.0",
+    "date": "2026-10-08",
+    "license": "Original changes 0BSD; copied public SDK Apache-2.0 notices retained.",
+    "scope": "Standard compatibility worker plus owned sc_scan_ap interface in portable/capture decoders. Optional IDF adapter lifecycle unchanged.",
+    "discovery": "Public asynchronous active scans with hidden AP visibility, private generation event-loop fence, at least two successful passes, 64-BSSID owned cache, deduplication/conflict rejection, RSSI>-85 and country-valid 2.4GHz channels. Owned scans/results and event registrations released on stop/rollback. Empty/failed scan retry50ms. SCAN_DONE only after real usable discovery and capture activation.",
+    "dwell": "Untouched150ms, explicit false100ms, true50ms. Persistent stop/start setting; worker polling10ms adds latency. Failed retunes retain actual channel and rearm. Active setters deliberately reject INVALID_STATE.",
+    "start": "STA and APSTA share scan/hop lifecycle. Start calls disconnect and delays50ms; no automatic restoration of old association. Application must suspend reconnect/unrelated scans. SDK cannot atomically arbitrate ownership against unrelated scan callers.",
+    "recovery": "Exact locked BSSID/channel/protected-frame gate; unknown cipher excluded. V1 missing SSID/BSSID substitution only with metadata CRC/length checks plus unchanged whole XOR. Plaintext AirKiss password+token short/full block CRC, all password lengths0..64. V2 cache SSID with declared length/BSSID CRC; password/reserved CRC/decryption unchanged. Prior conflicting received fields block completion; completed results immutable. Keyed AirKiss remains full-message.",
+    "validation": {
+      "commands": [
+        "make test test-idf test-crypto test-audit",
+        "make sanitize sanitize-idf ASAN_OPTIONS=detect_leaks=0"
+      ],
+      "result": "PASS at implementation candidate freeze; real pthread worker + injected public SDK mocks, synthetic protocol sequences, host AES fixtures and synthetic link audit. Later supervisor validation reported separately.",
+      "hardware_performed": false,
+      "network_accessed": false,
+      "sdk_build_performed": false
+    },
+    "residual_gaps": [
+      "No full vendor private discovery/RF timing or undocumented ABI equivalence.",
+      "No ambiguous CRC-only, hidden-SSID, cross-band or HT40 heuristic recovery; exact BSSID/channel and protected-bit compatibility is deliberately conservative.",
+      "No standard encrypted AirKiss key field; existing optional keyed full-message API preserved.",
+      "Standard events reject empty/embedded-NUL credentials and v2 non-IPv4.",
+      "APSTA client continuity is not promised; driver retune refusals logged/retried.",
+      "Public lifecycle calls serialize with INVALID_STATE on concurrent calls. Active fast setters remain disallowed.",
+      "SDK-queued public event payloads can outlive stop; application handler context must remain valid. Event-loop fence guards stale scan consumption under exclusive scan ownership.",
+      "Core and mocks do not establish phone/all-cipher interoperability or independent original decoder parity.",
+      "Weak FromDS/multichannel RSSI survey preference and original narrow raw guide-length filters are not reproduced; immediate confirmed-quartet lock and portable overhead0..256 remain explicit policies."
+    ],
+    "runtime_sha256": {
+      "src/sc_airkiss.c": "e7557ed38a75626e2e123a9af57c74073b91d7f77882a9889e62d8cfb365c89e",
+      "src/sc_airkiss_capture.c": "c3a9ee15106e917ce97908a826e81cf7232e84475dcb3a33a16c7fdded3e7bea",
+      "src/sc_capture.c": "f1b1063b532226363ed4f1b33b4bee9704c355e262d5569849cfec6c53add03f",
+      "src/sc_touch.c": "090392f3d711f1ce97fcd084fc31eee0758bde3d4bdd086eb5ddc8fcbcf4e644",
+      "src/sc_touch2.c": "8d27e8976f13cd71b348523a8c60e82e94a17c2e4d6fc5b2094940666c260f00",
+      "src/sc_touch2_capture.c": "0ea1d8b389f9f63d406de2835c21a830edfb34c51eaa7de4bbcbc0af0d6bc42d",
+      "include/sc_airkiss.h": "74832ff1aa65c13fa8bf96c80d8199f29360147bb738106c890f1df9f0708dc2",
+      "include/sc_airkiss_capture.h": "58885145ea4c9c68352c40cf4d697558f9bb0f66b2c2eef2267ce624f43c7691",
+      "include/sc_capture.h": "f4159c7e95605301430f83e2adb6166220e8db13862450b4524bbdcaa65e33ba",
+      "include/sc_scan.h": "ad13fc718d4eb0fcd0d002ee398585326c7d1e3dfbf13f2b74e09dc5fa96dbf7",
+      "include/sc_touch.h": "a35c4c7a1fc02311ea1a3df20229b0a1852381012d9b8a6d5b3a2fb03d0698cf",
+      "include/sc_touch2.h": "482be1fa79e77049fa5fd758f7b05beb9ad4f327779fc8d13fc4764aa1ae9c42",
+      "include/sc_touch2_capture.h": "c2d76d3d594d371d557a1df3209e4fd860aeda0f4890e48411fdf5a632d71d78",
+      "idf/libsmartconfig_compat.c": "07e4f1c9751c6cec9118d8c9684a6d46eb0f44c27e53633a542bb95ace734484",
+      "idf/sc_airkiss_idf.c": "8cdc87bae964a348d22420b77ec197a4c43d6e1318b91f14176e610430325c6c",
+      "idf/sc_airkiss_idf.h": "1269f1210beec422ed2f551d6018c72f0129342b568c3d54ae709a324e15dec6",
+      "idf/sc_touch2_idf.c": "c193f102277b0c2a8313d110d4bcc341a0d4f42ab39455e9ea15dae5af08f770",
+      "idf/sc_touch2_idf.h": "1e88b3f46506463ec88727a9aaffd53ff1e91d954548942ad24712c4417a2b64",
+      "idf/sc_touch2_psa.c": "67ce85b1af296e388b785bee4eec329025ca53019d17f13e285c770c91e0b343",
+      "idf/sc_touch2_psa.h": "663addb0fe7f8e6bd2f5feed5c6754b9d43bfaabc393c1f2b263891bf0c68449",
+      "idf/sc_touch_idf.c": "1a87f64d163ed7b6f33ba2fbd908a1d633f984158b374f4e5df92d0e4cb80f63",
+      "idf/sc_touch_idf.h": "d9d6fa41ea2fdac2c5b3d9476f6d1281bc2f9d5dd62db93eca658cd8ac06eabb"
+    },
+    "frozen": true,
+    "guide_acquisition_correction": {
+      "trigger": "Supervisor-reported strong-signal fast50ms hardware acquisition failure prompted own multichannel timing reproduction.",
+      "contract": "Supplied parity03/04: v1 and AirKiss accept one sliding same-source quartet of four distinct consecutive lengths in any order, infer overhead from minimum minus512/1, then freeze hopping. Partial windows do not extend dwell; v2 unchanged.",
+      "baseline": "Own real-worker probe:12/12 fast cases failed within800ms across2..4 channels and four phases; two of12 normal100ms cases also failed. Preserved validation/hop-guide-before.txt.",
+      "after": "Matching24/24 normal/fast probe cases lock on packet4. Both protocols enumerate256 quartet windows including24 permutations and duplicate negatives.48 later-channel real-worker cases cover v1/AirKiss single/combined, off-channel gaps and omitted-SSID empty-password completion.",
+      "limits": "Immediate lock also for weak FromDS is deliberate; original RSSI-ranked multichannel survey not reproduced. Wider portable overhead0..256 kept rather than pinned raw receive-length bounds. Host virtual-time results do not establish RF timing."
+    }
+  },
+  "export": {
+    "source_record_sha256": "f24eea4ee06574344459d13e1e77eea019651875724cf7a31d35a903f0ed2494",
+    "path_changes": "Boundary instructions archived as documentation; local SDK prefix replaced with ESP-IDF/. Input content hashes retained.",
+    "runtime_source_changes": false,
+    "scope": "Original source/tests/specs/docs only, no reference sender or proprietary artifacts"
+  },
+  "parity_supervisor_validation": {
+    "date": "2026-10-08",
+    "independent_recovery_capture_cases": 97,
+    "independent_worker_assertions": 23,
+    "timed_acquisition_cases": 1680,
+    "timed_provisioning_cases": 1260,
+    "implementation_later_channel_cases": 48,
+    "hardware_rounds": 6,
+    "hardware_device_boots": 12,
+    "smartconfig_lifecycle_cases": 60,
+    "smartconfig_v1_provisioning_dhcp_udp_rounds": 6,
+    "fast_omitted_ssid_connected_rounds": 3,
+    "all_five_fresh_libraries_combined": true,
+    "both_original_flash_images_restored_verified": true,
+    "hardware_summary_sha256": "749eddf566d33de5b4e8b1a6d7fdb15991adb830e32ad91ca900c729878df839",
+    "limits": "Bounded controlled v1 sender; no real phone or new over-air AirKiss/v2 recovery. No full vendor/RF equivalence. Earlier hardware failure exposed eight-guide starvation; fixed to evidence-backed sliding quartets."
+  },
   "repository_integration_0_2_0": {
     "date": "2026-10-09",
     "source": "User-supplied libsmartconfig-0.2.0/libsmartconfig source snapshot",
@@ -383,6 +552,95 @@
       "link_audit": "pass, synthetic fixtures including contamination and optional workflows",
       "sanitizers": "not rerun: installed Windows GCC lacks ASan/UBSan runtime libraries",
       "idf6_build_and_hardware": "not rerun locally; supplied upstream evidence retained separately"
+    }
+  },
+  "repository_integration_0_3_0": {
+    "date": "2026-10-09",
+    "source": "User-supplied libsmartconfig-0.3.0/libsmartconfig snapshot",
+    "base_revision": "9be374b",
+    "source_manifest_sha256": "c147f0a9221570061016858c7dec326bda95902689d804214ca1123aeba9260d",
+    "source_manifest_entries_verified": 115,
+    "merge": "Preserve Android app/test AP, standard example and CMake hook, signing ignores, CI link audit, Windows audit fixture, prior integration records and encrypted AirKiss test buffer initialization. Runtime source matches supplied snapshot.",
+    "permitted_inputs": [
+      {
+        "path": "docs/IMPLEMENTATION-BOUNDARY.txt",
+        "sha256": "98675ebf5bc6e39095be4988ce9d7385b36524dd9b195f2d3e6741fbb51b762b"
+      },
+      {
+        "path": "spec/parity/01-fastmode-start-discovery.md",
+        "sha256": "9fee582b9769686320319f4b3e2b3dcd4df931906cb83309ac0938c0ed93a323"
+      },
+      {
+        "path": "spec/parity/02-ssid-recovery-and-scan-api.md",
+        "sha256": "ee5fb5a1d192aff4e7973d25e61b5f514284d3b14be59b04581579ead83674c6"
+      },
+      {
+        "path": "spec/parity/03-guide-acquisition-fast-dwell.md",
+        "sha256": "fdeffe8da6317ce58713085cad405fcb534c8762e427ba8378def7d5b203d59d"
+      },
+      {
+        "path": "spec/parity/04-airkiss-guide-acquisition.md",
+        "sha256": "74584e4e68a63de95918178ac435fc5d96095ffdfd31ff0ad7c5bc8d5967a20f"
+      },
+      {
+        "path": "spec/parity/README.md",
+        "sha256": "dc71e6726efca4f4a1cac9470db4ed7217889630642fd8285defda4622b5aa79"
+      },
+      {
+        "path": "spec/parity/airkiss-guide-vectors.json",
+        "sha256": "d65567a9129d9ff5de1dd73c449412e80faed4c75c0968a5eab4db453bd977d5"
+      },
+      {
+        "path": "spec/parity/fastmode-vectors.json",
+        "sha256": "57a3847782e9a46a2215bce09ec29bdcdfdc6fd92a4963a5e160673c68f40e9d"
+      },
+      {
+        "path": "spec/parity/guide-acquisition-vectors.json",
+        "sha256": "3e46059f61961c0c9823a8cc5cc755bf5dea6a716c592472a70528cfda02dbf4"
+      },
+      {
+        "path": "spec/parity/public-sdk/NOTICE.md",
+        "sha256": "326911e74215295fab1f9e22ea9435da29382d9d5fca9e755cf548890eaecb4a"
+      },
+      {
+        "path": "spec/parity/public-sdk/SOURCE-HASHES.json",
+        "sha256": "0eeca9bc91aff261edb1415735fe9a6f967d652768fe624c067b79996e9d432b"
+      },
+      {
+        "path": "spec/parity/public-sdk/esp_event_base.h",
+        "sha256": "1d72ccd5a4a6a91f3d68dbee3a03e32e8626e040faea5d6cb67080f6705983d3"
+      },
+      {
+        "path": "spec/parity/public-sdk/esp_smartconfig.h",
+        "sha256": "e93894d1e276bb4d76e6cf423a59487375881a12484094fdc14893040d3c7fd9"
+      },
+      {
+        "path": "spec/parity/public-sdk/esp_wifi_types_generic.h",
+        "sha256": "14b28fc07d890fc89b7b356ca3e62fa14d0b8b0fbdb8ca9faae02d479e0a605e"
+      },
+      {
+        "path": "spec/parity/public-sdk/event-handler-declarations.h",
+        "sha256": "383394173657fbdc4143f2b03d10a5bc23e246152a2825f3b3c3c91901477c0d"
+      },
+      {
+        "path": "spec/parity/public-sdk/wifi-scan-declarations.h",
+        "sha256": "7d364d35830fd6ed30b057bcffdcb56f1e46b700c56767f1be87a60974dbd5f9"
+      },
+      {
+        "path": "spec/parity/public-sdk/wifi-scan-types-excerpts.h",
+        "sha256": "a434513cdc91c81af0e868b6b8476871533038a630201f0ae5649ea091681d5a"
+      }
+    ],
+    "integration_adjustments": "Preserve local packaging and Windows fixes. New hopper test waits for worker-cycle progress instead of wall-clock scheduling assumptions; virtual 10 ms guide / 50 ms dwell and exact-four-packet assertions unchanged. Receiver runtime unchanged from snapshot.",
+    "local_validation": {
+      "toolchain": "Windows MinGW GCC -O2, existing strict warnings-as-errors",
+      "portable_scan_and_idf_mock_suites": "pass",
+      "hopper_guide_cases": 48,
+      "host_aes": "pass, 36 fixtures, 12 emitted sequences, 262 decrypt calls",
+      "android_sender_vectors": 2100,
+      "link_audit": "pass",
+      "sanitizers": "not rerun: installed Windows GCC lacks runtime libraries",
+      "idf_build_hardware_phone": "not rerun; supplied upstream evidence retained separately"
     }
   }
 }

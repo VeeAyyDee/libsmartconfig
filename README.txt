@@ -1,4 +1,4 @@
-libsmartconfig 0.2.0: original receiver for the ESP-IDF SmartConfig workflow
+libsmartconfig 0.3.0: original receiver for the ESP-IDF SmartConfig workflow
 
 The default application interface is esp_smartconfig.h and SC_EVENT, with an
 autonomous receiver task. The SDK's open-source start/stop wrapper and ACK
@@ -37,7 +37,7 @@ ESP-IDF component and standard example
 --------------------------------------
 The root component registers six portable and five IDF source files, uses
 public include/ and idf/ directories, and emits libsmartconfig.a. Manifest
-version 0.2.0 targets ESP32-S3 and ESP-IDF >=6.0,<7.0. Required SDK components
+version 0.3.0 targets ESP32-S3 and ESP-IDF >=6.0,<7.0. Required SDK components
 are esp_wifi, esp_event, esp_timer and mbedtls. The host Makefile remains
 independent of IDF and preserves its existing libsc_touch.a/.so names.
 
@@ -85,17 +85,43 @@ may still be delivered after stop; keep application handler state valid.
 
 Default type2 feeds ESPTouch and plaintext AirKiss through one radio owner.
 Either candidate lock retains the channel; the first complete valid message
-wins. Types0/1/3 select ESPTouch/AirKiss/ESPTouchV2. Normal disconnected STA
-hops channels350ms apart according to country bounds1..14. APSTA remains on
-its saved AP channel without retuning, and requires disconnected STA. A
-pre-existing promiscuous owner or an associated STA is rejected. Never run
-this receiver alongside an optional sc_* radio adapter or another sniffer.
+wins. Types0/1/3 select ESPTouch/AirKiss/ESPTouchV2. Start always requests
+STA disconnect (errors are logged but tolerated), waits50ms, and discovers
+APs with public asynchronous scans. Applications must exclusively reserve
+scanning/promiscuous reception and suspend automatic reconnect while active.
+APSTA uses the same discovery/hopping path; uninterrupted softAP service is
+not guaranteed. Only successfully acquired scans are cancelled on stop.
 
-esp_esptouch_set_timeout accepts15..255seconds and adds45seconds; elapsed
-unsigned milliseconds reset receive state for another attempt without
-resetting Wi-Fi. Options must be set while inactive. fast_mode(false) is
-normal mode; fast_mode(true) explicitly returns ESP_ERR_NOT_SUPPORTED.
-No AP scan/SSID reconstruction or undocumented fast-mode behavior is claimed.
+Discovery retains up to64 distinct BSSIDs with RSSI>-85dBm and country-valid
+2.4GHz channels. At least two successful passes precede capture; empty scans
+continue discovery. SCAN_DONE follows capture enablement, before FOUND_CHANNEL
+and GOT_SSID_PSWD. A generation-tagged event-loop fence drains queued old scan
+completions before a new scan starts. Stop quiesces the worker and unregisters
+handlers before freeing receiver state. The public SDK cannot arbitrate scans
+against unrelated components: application-level exclusive ownership is required.
+
+Untouched default dwell is150ms; fast_mode(false) selects100ms and true selects
+50ms, persistent across stop/start. Timings are scheduling requests plus worker
+and driver latency. Retune failures keep the actual channel and rearm the dwell;
+errors are printed when enable_log is true. Options must be set while inactive,
+a deliberate restriction relative to the original's active fast-mode setter.
+esp_esptouch_set_timeout accepts15..255seconds and adds45seconds. Expiry clears
+decoders and AP cache and starts discovery again. Copied v2 keys survive this
+reset, an intentional robustness improvement over the observed original restart.
+
+A copied sc_scan_ap hint bridges discovery and the byte/capture decoders.
+Capture accepts hints only for the locked six-byte BSSID, channel and matching
+protected/unprotected frame flag. The standard path rejects unknown cipher
+metadata and conflicting duplicate BSSID records; it does not attempt ambiguous
+CRC-only, hidden-SSID or cross-band recovery. V1 checks SSID length/CRC and
+BSSID CRC, fills missing SSID/BSSID bytes without overwriting received bytes,
+then checks whole-message XOR. Plaintext AirKiss validates the SSID metadata,
+requires password+token and each actual short/full block CRC. V2 can source
+SSID from cache after declared length/BSSID CRC checks while preserving all
+password/reserved-data CRC and decryption requirements. Previously received
+conflicting SSID data blocks prevent completion. Completed results are immutable.
+Keyed AirKiss keeps its earlier full-message behavior. These are conservative
+recovery rules, not full equivalence with all proprietary AP matching heuristics.
 
 V2 encryption copies16 raw key bytes before start returns; enabled with NULL
 key is INVALID_ARG. These v2 options do not enable AirKiss encryption. Public
@@ -118,7 +144,7 @@ Owned standard-workflow tests use real pthread workers with public-API Wi-Fi
 and event mocks. They cover start/stop/start, every probed Wi-Fi API startup
 failure, task-creation failure, cleanup retry, active option rejection, single
 and combined capture, event retry/order, asynchronous event-handler stop,
-APSTA channel preservation, timeout reacquisition, v2 key copying/decrypt
+APSTA discovery/hopping, timeout rediscovery, v2 key copying/decrypt
 failure and reserved zero-fill. Strict warnings-as-errors and ASAN/UBSan pass;
 LeakSanitizer is disabled in the traced environment. Synthetic link-audit
 fixtures cover approved paths with spaces, contamination and missing symbols.
@@ -159,7 +185,7 @@ Same-value duplicates are harmless. Conflicting indexed bytes poison the
 context; source/session separation remains the caller's responsibility.
 
 Completion requires T in 9..105, password length in 0..64, SSID length in
-0..32, all T+6 required indices, whole-message XOR, SSID CRC, and BSSID CRC.
+0..32, all T+6 required indices without a scan hint, whole-message XOR, SSID CRC, and BSSID CRC.
 BSSID indices may arrive before or interleaved with message indices. Empty
 SSID/password arrays are permitted by this byte codec without implying an
 access point can be provisioned with them. Integrity failures and invalid
@@ -194,14 +220,22 @@ It parses bytes explicitly, filters multicast/broadcast DS data frames and
 rejects fragments, A-MSDU, unsupported framing, invalid addresses and bounds.
 Protected frames are supported for length observation without decryption.
 
-Four bounded candidates recognize two complete 515/514/513/512 guide cycles
-with inferred overhead 0..256. Candidate keys include BSSID, sender, channel,
+Four bounded candidates keep sliding four-length windows. One quartet of
+distinct consecutive lengths (normalized512..515), in any order or cycle phase,
+locks immediately with inferred overhead0..256. Candidate keys include BSSID, sender, channel,
 DS direction, QoS and Protected. Candidates expire after 1500 ms without a
 new eligible-header frame for their key. Replacement chooses an unused slot,
 otherwise the least recently updated slot, with lowest-slot tie breaking.
 Consecutive duplicate Sequence Control values do not advance or refresh it.
 Other keys do not alter a retained candidate's sequence. Same-key mismatches
-restart from the current length when it is a possible initial guide length.
+slide through the four-sample window, allowing a later intact quartet to lock.
+
+The parity03/04 addenda supersede the historical eight-guide policy for v1 and
+AirKiss. Four10ms-spaced frames fit the50ms fast dwell; partial one/two/three
+samples do not hold a channel. This implementation commits all valid same-source
+quartets immediately. It does not reproduce the original weak FromDS/multichannel
+RSSI survey preference, and retains the wider portable overhead bounds rather
+than the pinned original raw frame-length filters. V2 acquisition is unchanged.
 
 State is 0 searching, 1 locked, or 2 complete; NULL feed/tick/state returns -1.
 Once locked only matching key/unique consecutive sequences reach the byte
@@ -285,7 +319,8 @@ lost or extra symbols. Valid blocks may arrive reordered or identically
 repeated, and identical metadata may repeat between blocks. A valid
 conflicting block or established metadata poisons the context until reset.
 Malformed metadata, indices and CRCs do not commit partial credentials.
-Completion requires every block and the SSID CRC, then freezes until reset.
+Without a scan hint, completion requires every block and the SSID CRC, then
+freezes until reset. Plaintext scan hints may supply SSID as described above.
 Returns are 0 incomplete, 1 complete, -1 NULL and -2 poisoned; getters leave
 outputs untouched on failure. Reset clears results and preserves key configuration.
 AirKiss context destruction and temporary plaintext clearing use volatile byte
@@ -293,7 +328,8 @@ writes; this does not guarantee erasure of caller copies or platform internals.
 
 sc_airkiss_capture.h uses the same frame filtering, bounded four candidates,
 source keys, retransmission policy, deadlines and lock type as sc_capture.h.
-It recognizes two ascending 1/2/3/4 guide cycles at inferred overhead 0..256.
+It recognizes one sliding quartet of distinct consecutive lengths (normalized
+1..4) in any order/phase, at inferred overhead0..256.
 MAC header/FCS length bounds still apply: overheads that make the tiny guide
 frames shorter than a real MAC frame cannot acquire through capture. Its
 normalized byte decoder has no such capture-length limitation. The message
@@ -496,7 +532,8 @@ text and recorded hash remain unchanged.
 
 Remaining gaps
 --------------
-Scanning/AP matching and fast mode remain unimplemented. Association belongs
+The optional adapters retain their earlier polling/capture behavior; standard
+API discovery and fast-mode options are implemented by the compatibility worker. Association belongs
 to the application; acknowledgment transmission belongs to the retained SDK
 wrapper in the standard workflow, or to the optional extension application.
 Phone orchestration, AirKiss discovery/control protocols, and crypto beyond

@@ -11,9 +11,10 @@
 #include "sc_touch2_capture.h"
 #include "sc_touch2_psa.h"
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
-enum { RING_SIZE = 128, HEADER_SIZE = 26, HOP_MS = 350, STOP_WAIT_MS = 2000 };
+enum { RING_SIZE = 128, HEADER_SIZE = 26, STOP_WAIT_MS = 2000, AP_LIMIT = 64 };
 typedef struct {
     uint8_t header[HEADER_SIZE], header_bytes, channel;
     uint16_t length;
@@ -27,12 +28,24 @@ static bool accepting, stop_requested, worker_running, api_busy;
 static TaskHandle_t worker_handle;
 static smartconfig_type_t selected_type = SC_TYPE_ESPTOUCH_AIRKISS;
 static uint8_t timeout_seconds = 15;
+static uint32_t dwell_ms = 150, generation;
+ESP_EVENT_DEFINE_BASE(SC_DISCOVERY_EVENT);
+/* Only these mailbox fields are shared with SDK event callbacks. */
+static bool scan_waiting, scan_done, fence_done;
+static uint32_t scan_status;
 static struct {
     sc_capture *v1;
     sc_airkiss_capture *airkiss;
     sc_touch2_capture *v2;
-    bool active, callback, promiscuous, filter_changed, channel_changed, fixed_channel;
-    bool found_posted, credentials_posted, result_ready;
+    bool active, callback, promiscuous, filter_changed, channel_changed;
+    bool scan_owned, scan_handler, fence_handler, discovering, scan_posted, fence_posted;
+    esp_event_handler_instance_t scan_instance, fence_instance;
+    wifi_ap_record_t aps[AP_LIMIT];
+    size_t ap_count;
+    unsigned int scan_pass;
+    uint16_t channels;
+    uint32_t retry_at, dwell;
+    bool found_posted, credentials_posted, result_ready, logging;
     wifi_promiscuous_filter_t saved_filter;
     uint8_t saved_channel, channel, first, last;
     wifi_second_chan_t saved_secondary;
@@ -91,9 +104,131 @@ static void reset_attempt(uint32_t time)
     portENTER_CRITICAL(&mux);
     receiver.result_ready = false; receiver.winner = SC_TYPE_ESPTOUCH_AIRKISS;
     portEXIT_CRITICAL(&mux);
-    receiver.attempt_at = time; receiver.hop_at = time;
+    receiver.attempt_at = time; receiver.hop_at = time; receiver.dwell = dwell_ms;
     memset(&receiver.lock, 0, sizeof(receiver.lock));
     ring_enable(true);
+}
+/* A private event-loop fence drains earlier queued completion events before
+ * an owned scan begins, including completion queued before a stop/restart. */
+static void discovery_event(void *arg, esp_event_base_t base, int32_t id, void *data)
+{
+    (void)arg; (void)id;
+    portENTER_CRITICAL(&mux);
+    if (!stop_requested) {
+        if (base == SC_DISCOVERY_EVENT && data != NULL && *(uint32_t *)data == generation)
+            fence_done = true;
+        else if (base == WIFI_EVENT && data != NULL && scan_waiting) {
+            scan_status = ((wifi_event_sta_scan_done_t *)data)->status;
+            scan_done = true; scan_waiting = false;
+        }
+    }
+    portEXIT_CRITICAL(&mux);
+}
+static void report_error(const char *operation, esp_err_t error)
+{
+    if (receiver.logging && error != ESP_OK)
+        fprintf(stderr, "smartconfig: %s failed (%ld)\n", operation, (long)error);
+}
+static void begin_discovery(uint32_t time)
+{
+    ring_enable(false);
+    reset_attempt(time);
+    ring_enable(false);
+    receiver.discovering = true; receiver.scan_posted = false;
+    receiver.fence_posted = false; receiver.ap_count = 0; receiver.channels = 0;
+    receiver.scan_pass = 0; receiver.retry_at = time;
+    portENTER_CRITICAL(&mux);
+    ++generation; scan_waiting = scan_done = fence_done = false;
+    portEXIT_CRITICAL(&mux);
+}
+static uint8_t next_channel(uint8_t current)
+{
+    unsigned int i;
+    for (i = 0; i < 14; ++i) {
+        current = current >= 14 ? 1 : (uint8_t)(current + 1U);
+        if ((receiver.channels & (uint16_t)(1U << current)) != 0) return current;
+    }
+    return receiver.first;
+}
+static void discover(uint32_t time)
+{
+    bool completed, fenced;
+    uint32_t status;
+    esp_err_t error;
+    wifi_scan_config_t config = {0};
+    wifi_promiscuous_filter_t filter = { .filter_mask = WIFI_PROMIS_FILTER_MASK_DATA };
+    if (receiver.promiscuous) {
+        if (esp_wifi_set_promiscuous(false) != ESP_OK) return;
+        receiver.promiscuous = false;
+    }
+    portENTER_CRITICAL(&mux);
+    completed = scan_done; scan_done = false; status = scan_status; fenced = fence_done;
+    portEXIT_CRITICAL(&mux);
+    if (completed) {
+        uint16_t number = 0, i;
+        error = status == 0 ? esp_wifi_scan_get_ap_num(&number) : ESP_FAIL;
+        for (i = 0; error == ESP_OK && i < number; ++i) {
+            wifi_ap_record_t ap;
+            size_t j;
+            error = esp_wifi_scan_get_ap_record(&ap);
+            if (error != ESP_OK) break;
+            if (ap.rssi <= -85 || ap.primary < receiver.first || ap.primary > receiver.last) continue;
+            for (j = 0; j < receiver.ap_count; ++j)
+                if (memcmp(receiver.aps[j].bssid, ap.bssid, 6) == 0) break;
+            if (j == receiver.ap_count && receiver.ap_count < AP_LIMIT) receiver.aps[receiver.ap_count++] = ap;
+            else if (j < receiver.ap_count && (memcmp(receiver.aps[j].ssid, ap.ssid, 32) != 0 ||
+                     receiver.aps[j].primary != ap.primary || receiver.aps[j].pairwise_cipher != ap.pairwise_cipher))
+                memset(receiver.aps[j].ssid, 0, sizeof(receiver.aps[j].ssid));
+            receiver.channels |= (uint16_t)(1U << ap.primary);
+        }
+        if (esp_wifi_clear_ap_list() != ESP_OK) {
+            portENTER_CRITICAL(&mux); scan_status = 1; scan_done = true; portEXIT_CRITICAL(&mux);
+            return;
+        }
+        receiver.scan_owned = false;
+        report_error("scan results", error);
+        if (error == ESP_OK) ++receiver.scan_pass;
+        receiver.retry_at = time + (error == ESP_OK && receiver.ap_count != 0 ? 0U : 50U);
+    }
+    if ((int32_t)(time - receiver.retry_at) < 0) return;
+    if (receiver.scan_pass >= 2 && receiver.ap_count != 0 && receiver.channels != 0) {
+        if (!receiver.filter_changed) {
+            if (esp_wifi_set_promiscuous_filter(&filter) != ESP_OK) return;
+            receiver.filter_changed = true;
+        }
+        if (!receiver.callback) {
+            if (esp_wifi_set_promiscuous_rx_cb(receive_frame) != ESP_OK) return;
+            receiver.callback = true;
+        }
+        receiver.channel = next_channel(14);
+        error = esp_wifi_set_channel(receiver.channel, WIFI_SECOND_CHAN_NONE);
+        if (error != ESP_OK) { report_error("initial channel", error); receiver.retry_at = time + 50U; return; }
+        receiver.channel_changed = true;
+        error = esp_wifi_set_promiscuous(true);
+        if (error != ESP_OK) { report_error("capture enable", error); receiver.retry_at = time + 50U; return; }
+        receiver.promiscuous = true;
+        reset_attempt(time);
+        if (stopping()) return;
+        if (esp_event_post(SC_EVENT, SC_EVENT_SCAN_DONE, NULL, 0, 0) != ESP_OK) { ring_enable(false); return; }
+        receiver.scan_posted = true; receiver.discovering = false;
+        return;
+    }
+    if (receiver.scan_owned || (int32_t)(time - receiver.retry_at) < 0) return;
+    if (!receiver.fence_posted) {
+        if (esp_event_post(SC_DISCOVERY_EVENT, 0, &generation, sizeof(generation), 0) == ESP_OK)
+            receiver.fence_posted = true;
+        return;
+    }
+    if (!fenced || stopping()) return;
+    config.show_hidden = true;
+    portENTER_CRITICAL(&mux); scan_waiting = true; portEXIT_CRITICAL(&mux);
+    error = esp_wifi_scan_start(&config, false);
+    if (error == ESP_OK) receiver.scan_owned = true;
+    else {
+        report_error("scan start", error);
+        portENTER_CRITICAL(&mux); scan_waiting = scan_done = false; portEXIT_CRITICAL(&mux);
+        receiver.retry_at = time + 50U;
+    }
 }
 static void remember_error(esp_err_t *first, esp_err_t error)
 { if (*first == ESP_OK && error != ESP_OK) *first = error; }
@@ -103,6 +238,22 @@ static esp_err_t cleanup(void)
     esp_err_t result = ESP_OK, error;
     wifi_ap_record_t associated;
     ring_enable(false);
+    portENTER_CRITICAL(&mux); scan_waiting = scan_done = fence_done = false; portEXIT_CRITICAL(&mux);
+    if (receiver.scan_owned) {
+        error = esp_wifi_scan_stop(); remember_error(&result, error);
+        if (error == ESP_OK) {
+            error = esp_wifi_clear_ap_list(); remember_error(&result, error);
+            if (error == ESP_OK) receiver.scan_owned = false;
+        }
+    }
+    if (receiver.scan_handler) {
+        error = esp_event_handler_instance_unregister(WIFI_EVENT, WIFI_EVENT_SCAN_DONE, receiver.scan_instance);
+        remember_error(&result, error); if (error == ESP_OK) receiver.scan_handler = false;
+    }
+    if (receiver.fence_handler) {
+        error = esp_event_handler_instance_unregister(SC_DISCOVERY_EVENT, 0, receiver.fence_instance);
+        remember_error(&result, error); if (error == ESP_OK) receiver.fence_handler = false;
+    }
     if (receiver.promiscuous) {
         error = esp_wifi_set_promiscuous(false); remember_error(&result, error);
         if (error == ESP_OK) receiver.promiscuous = false;
@@ -123,13 +274,13 @@ static esp_err_t cleanup(void)
             remember_error(&result, error); if (error == ESP_OK) receiver.channel_changed = false;
         } else remember_error(&result, error);
     }
-    if (!receiver.promiscuous && !receiver.callback && !receiver.filter_changed && !receiver.channel_changed) {
+    if (!receiver.scan_owned && !receiver.scan_handler && !receiver.fence_handler && !receiver.promiscuous && !receiver.callback && !receiver.filter_changed && !receiver.channel_changed) {
         sc_capture_destroy(receiver.v1); sc_airkiss_capture_destroy(receiver.airkiss);
         sc_touch2_capture_destroy(receiver.v2); wipe(&receiver, sizeof(receiver));
     }
     return result;
 }
-const char *esp_smartconfig_get_version(void) { return "libsmartconfig 0.2.0"; }
+const char *esp_smartconfig_get_version(void) { return "libsmartconfig 0.3.0"; }
 esp_err_t esp_smartconfig_set_type(smartconfig_type_t type)
 {
     esp_err_t result = ESP_OK;
@@ -150,7 +301,8 @@ esp_err_t esp_smartconfig_fast_mode(bool enabled)
 {
     esp_err_t result;
     if (!enter_api()) return ESP_ERR_INVALID_STATE;
-    result = receiver.active ? ESP_ERR_INVALID_STATE : enabled ? ESP_ERR_NOT_SUPPORTED : ESP_OK;
+    result = receiver.active ? ESP_ERR_INVALID_STATE : ESP_OK;
+    if (result == ESP_OK) dwell_ms = enabled ? 50U : 100U;
     leave_api(); return result;
 }
 esp_err_t esp_smartconfig_get_rvd_data(uint8_t *data, uint8_t length)
@@ -211,6 +363,24 @@ static bool make_result(smartconfig_type_t type, const sc_capture_lock *lock)
     }
     return okay;
 }
+static void apply_scan_hint(int protocol, const sc_capture_lock *lock)
+{
+    size_t i;
+    for (i = 0; i < receiver.ap_count; ++i) {
+        const wifi_ap_record_t *record = &receiver.aps[i];
+        sc_scan_ap ap = {0};
+        if (record->primary != lock->channel || memcmp(record->bssid, lock->bssid, 6) != 0 ||
+            record->pairwise_cipher == WIFI_CIPHER_TYPE_UNKNOWN) continue;
+        while (ap.ssid_len < 32 && record->ssid[ap.ssid_len] != 0) ++ap.ssid_len;
+        if (ap.ssid_len == 0) return;
+        memcpy(ap.ssid, record->ssid, ap.ssid_len); memcpy(ap.bssid, record->bssid, 6);
+        ap.channel = record->primary; ap.protected_frame = record->pairwise_cipher != WIFI_CIPHER_TYPE_NONE;
+        if (protocol == SC_TYPE_ESPTOUCH) (void)sc_capture_set_ap(receiver.v1, &ap);
+        else if (protocol == SC_TYPE_AIRKISS) (void)sc_airkiss_capture_set_ap(receiver.airkiss, &ap);
+        else (void)sc_touch2_capture_set_ap(receiver.v2, &ap);
+        return;
+    }
+}
 static int feed_protocol(int protocol, const frame_t *f, sc_capture_lock *lock)
 {
     int state;
@@ -230,6 +400,7 @@ static int feed_protocol(int protocol, const frame_t *f, sc_capture_lock *lock)
             sc_touch2_capture_feed(receiver.v2, f->header, f->header_bytes, f->length, f->channel, f->time);
         if (state > 0) (void)sc_touch2_capture_get_lock(receiver.v2, lock);
     }
+    if (state == 1) apply_scan_hint(protocol, lock);
     return state;
 }
 static void work(void)
@@ -240,8 +411,9 @@ static void work(void)
     size_t n;
     int protocol, locked = 0;
     if (receiver.credentials_posted) return;
+    if (receiver.discovering) { discover(time); return; }
     if (!receiver.result_ready && (uint32_t)(time - receiver.attempt_at) >= ((uint32_t)timeout_seconds + 45U) * 1000U)
-        reset_attempt(time);
+        { begin_discovery(time); return; }
     for (n = 0; n < RING_SIZE && !receiver.result_ready && pop(&frame); ++n) {
         if (stopping()) return;
         if (frame.channel != receiver.channel) continue;
@@ -251,7 +423,7 @@ static void work(void)
             state = feed_protocol(protocol, &frame, &lock);
             if (state > 0) receiver.lock = lock;
             if (state == 2) {
-                if (!make_result((smartconfig_type_t)protocol, &lock)) reset_attempt(time);
+                if (!make_result((smartconfig_type_t)protocol, &lock)) { begin_discovery(time); return; }
                 break;
             }
         }
@@ -266,9 +438,12 @@ static void work(void)
     } else locked = 1;
     if (!locked) {
         receiver.found_posted = false;
-        if (!receiver.fixed_channel && (uint32_t)(time - receiver.hop_at) >= HOP_MS) {
-            uint8_t next = receiver.channel >= receiver.last ? receiver.first : (uint8_t)(receiver.channel + 1U);
-            if (esp_wifi_set_channel(next, WIFI_SECOND_CHAN_NONE) == ESP_OK) {
+        if ((uint32_t)(time - receiver.hop_at) >= receiver.dwell) {
+            uint8_t next = next_channel(receiver.channel);
+            receiver.hop_at = time; receiver.dwell = dwell_ms;
+            esp_err_t retune = esp_wifi_set_channel(next, WIFI_SECOND_CHAN_NONE);
+            report_error("channel hop", retune);
+            if (retune == ESP_OK) {
                 receiver.channel = next; receiver.channel_changed = true; receiver.hop_at = time;
                 ring_enable(true);
             }
@@ -324,10 +499,9 @@ esp_err_t esp_smartconfig_internal_start(const smartconfig_start_config_t *start
 {
     esp_err_t error, rollback;
     wifi_mode_t mode;
-    wifi_ap_record_t associated;
     wifi_country_t country;
-    wifi_promiscuous_filter_t filter = { .filter_mask = WIFI_PROMIS_FILTER_MASK_DATA };
     sc_touch2_config crypto = {0};
+    wifi_promiscuous_filter_t filter = { .filter_mask = WIFI_PROMIS_FILTER_MASK_DATA };
     bool enabled;
     unsigned int first, last;
     if (start == NULL || (start->esp_touch_v2_enable_crypt && start->esp_touch_v2_key == NULL)) return ESP_ERR_INVALID_ARG;
@@ -335,9 +509,6 @@ esp_err_t esp_smartconfig_internal_start(const smartconfig_start_config_t *start
     if (receiver.active) { leave_api(); return ESP_ERR_INVALID_STATE; }
     error = esp_wifi_get_mode(&mode); if (error != ESP_OK) goto done;
     if (mode != WIFI_MODE_STA && mode != WIFI_MODE_APSTA) { error = ESP_ERR_INVALID_STATE; goto done; }
-    error = esp_wifi_sta_get_ap_info(&associated);
-    if (error == ESP_OK) { error = ESP_ERR_INVALID_STATE; goto done; }
-    if (error != ESP_ERR_WIFI_NOT_CONNECT) goto done;
     error = esp_wifi_get_promiscuous(&enabled); if (error != ESP_OK) goto done;
     if (enabled) { error = ESP_ERR_INVALID_STATE; goto done; }
     error = esp_wifi_get_country(&country); if (error != ESP_OK) goto done;
@@ -347,9 +518,9 @@ esp_err_t esp_smartconfig_internal_start(const smartconfig_start_config_t *start
     if (country.nchan == 0 || first >= last) { error = ESP_ERR_INVALID_STATE; goto done; }
     error = esp_wifi_get_channel(&receiver.saved_channel, &receiver.saved_secondary); if (error != ESP_OK) goto done;
     error = esp_wifi_get_promiscuous_filter(&receiver.saved_filter); if (error != ESP_OK) goto done;
-    receiver.active = true; receiver.fixed_channel = mode == WIFI_MODE_APSTA;
+    receiver.active = true; receiver.logging = start->enable_log;
     receiver.first = (uint8_t)first; receiver.last = (uint8_t)(last - 1U);
-    receiver.channel = receiver.fixed_channel ? receiver.saved_channel : receiver.first;
+    receiver.channel = receiver.first;
     if (selected_type == SC_TYPE_ESPTOUCH || selected_type == SC_TYPE_ESPTOUCH_AIRKISS) {
         receiver.v1 = sc_capture_create(); if (receiver.v1 == NULL) { error = ESP_ERR_NO_MEM; goto fail; }
     }
@@ -365,14 +536,17 @@ esp_err_t esp_smartconfig_internal_start(const smartconfig_start_config_t *start
     receiver.filter_changed = true;
     error = esp_wifi_set_promiscuous_rx_cb(receive_frame); if (error != ESP_OK) goto fail;
     receiver.callback = true;
-    if (!receiver.fixed_channel) {
-        error = esp_wifi_set_channel(receiver.channel, WIFI_SECOND_CHAN_NONE); if (error != ESP_OK) goto fail;
-        receiver.channel_changed = true;
-    }
-    reset_attempt(now_ms());
-    error = esp_wifi_set_promiscuous(true); if (error != ESP_OK) goto fail;
-    receiver.promiscuous = true;
-    portENTER_CRITICAL(&mux); stop_requested = false; worker_running = true; portEXIT_CRITICAL(&mux);
+    portENTER_CRITICAL(&mux); stop_requested = false; portEXIT_CRITICAL(&mux);
+    error = esp_event_handler_instance_register(WIFI_EVENT, WIFI_EVENT_SCAN_DONE, discovery_event, NULL, &receiver.scan_instance);
+    if (error != ESP_OK) goto fail;
+    receiver.scan_handler = true;
+    error = esp_event_handler_instance_register(SC_DISCOVERY_EVENT, 0, discovery_event, NULL, &receiver.fence_instance);
+    if (error != ESP_OK) goto fail;
+    receiver.fence_handler = true;
+    report_error("disconnect", esp_wifi_disconnect());
+    vTaskDelay(pdMS_TO_TICKS(50));
+    begin_discovery(now_ms());
+    portENTER_CRITICAL(&mux); worker_running = true; portEXIT_CRITICAL(&mux);
     if (xTaskCreate(worker, "smartconfig", 4096, NULL, 3, &worker_handle) != pdPASS) {
         portENTER_CRITICAL(&mux); worker_running = false; portEXIT_CRITICAL(&mux);
         error = ESP_ERR_NO_MEM; goto fail;

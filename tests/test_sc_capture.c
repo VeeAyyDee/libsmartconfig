@@ -33,8 +33,8 @@ static int feed(sc_capture *c, uint8_t h[26], size_t n, uint16_t length, uint32_
 static void lock_context(sc_capture *c, uint8_t h[26], size_t n, uint16_t overhead, uint32_t time)
 {
     unsigned int i;
-    for (i = 0; i < 8; ++i)
-        CHECK(feed(c, h, n, (uint16_t)(515U + overhead - i % 4U), time) == (i == 7 ? 1 : 0));
+    for (i = 0; i < 4; ++i)
+        CHECK(feed(c, h, n, (uint16_t)(515U + overhead - i % 4U), time) == (i == 3 ? 1 : 0));
 }
 static void encode(uint8_t index, uint8_t value, uint16_t lengths[3])
 {
@@ -67,16 +67,32 @@ static void test_acquisition(void)
         unsigned int i;
         sc_capture_lock lock;
         CHECK(c != NULL);
-        for (i = phase; i < 12; ++i) {
+        for (i = phase; i < phase + 4; ++i) {
             int state = feed(c, h, n, (uint16_t)(515U + overhead - i % 4U), 10U + i);
-            if (state == 1) break;
-            CHECK(state == 0);
+            CHECK(state == (i - phase == 3 ? 1 : 0));
         }
         CHECK(sc_capture_get_lock(c, &lock) == 1);
         CHECK(lock.overhead == overhead && lock.channel == 6);
         CHECK(memcmp(lock.bssid, bssid, 6) == 0);
         CHECK(memcmp(lock.sender, sender, 6) == 0);
         sc_capture_destroy(c);
+    }
+}
+static void test_quartet_windows(void)
+{
+    unsigned int a,b,c,d;
+    for(a=0;a<4;++a)for(b=0;b<4;++b)for(c=0;c<4;++c)for(d=0;d<4;++d){
+        unsigned int values[4]={a,b,c,d},i;
+        int distinct=a!=b&&a!=c&&a!=d&&b!=c&&b!=d&&c!=d;
+        sc_capture *ctx=sc_capture_create();uint8_t h[26];size_t n=header_make(h,1,0,0);
+        for(i=0;i<4;++i)CHECK(feed(ctx,h,n,(uint16_t)(612U+values[i]),i)==(i==3&&distinct?1:0));
+        if(!distinct){
+            /* A bad or dropped quartet cannot poison a later full window. */
+            int state=0;
+            for(i=0;i<4;++i)state=feed(ctx,h,n,(uint16_t)(615U-i),10U+i);
+            CHECK(state==1);
+        }
+        sc_capture_destroy(ctx);
     }
 }
 static void test_invalid_and_other_keys(void)
@@ -116,11 +132,11 @@ static void test_invalid_and_other_keys(void)
         CHECK(sc_capture_feed(c, bad, available, wire, channel, 10) == 0);
     }
     CHECK(sc_capture_feed(c, NULL, 26, 614, 6, 10) == 0);
-    for (i = 1; i < 8; ++i) {
+    for (i = 1; i < 4; ++i) {
         /* Other source's unrelated lengths must not disturb acquisition. */
         memcpy(bad, h, 26); bad[10] = 6;
         CHECK(feed(c, bad, n, 621, 10) == 0);
-        CHECK(feed(c, h, n, (uint16_t)(615U - i % 4U), 10) == (i == 7 ? 1 : 0));
+        CHECK(feed(c, h, n, (uint16_t)(615U - i % 4U), 10) == (i == 3 ? 1 : 0));
     }
     sc_capture_destroy(c);
 }
@@ -133,10 +149,10 @@ static void test_expiry_and_duplicates(void)
     uint32_t start = UINT32_MAX - 1000U;
     CHECK(c != NULL);
     CHECK(feed(c, h, n, 615, start) == 0);
-    for (i = 0; i < 7; ++i)
+    for (i = 0; i < 3; ++i)
         CHECK(sc_capture_feed(c, h, n, 614, 6, start + 100U) == 0);
     CHECK(sc_capture_tick(c, start + 1500U) == 0);
-    for (i = 1; i < 8; ++i)
+    for (i = 1; i < 4; ++i)
         CHECK(feed(c, h, n, (uint16_t)(615U - i % 4U), start + 1501U) == 0);
     sc_capture_reset(c);
     lock_context(c, h, n, 100, start);
@@ -164,7 +180,7 @@ static void test_candidate_capacity(void)
         h[key][10] = (uint8_t)(2U + key * 2U);
     }
     /* Four interleaved keys keep independent progress. */
-    for (step = 0; step < 7; ++step)
+    for (step = 0; step < 3; ++step)
         for (key = 0; key < 4; ++key)
             CHECK(feed(c, h[key], n, (uint16_t)(615U - step % 4U), step) == 0);
     CHECK(feed(c, h[3], n, 612, 8) == 1);
@@ -173,13 +189,13 @@ static void test_candidate_capacity(void)
     /* A fifth key evicts the least recently updated slot deterministically. */
     for (key = 0; key < 5; ++key)
         CHECK(feed(c, h[key], n, 615, (uint32_t)key) == 0);
-    for (step = 1; step < 8; ++step)
+    for (step = 1; step < 4; ++step)
         CHECK(feed(c, h[0], n, (uint16_t)(615U - step % 4U), 5) == 0);
     sc_capture_reset(c);
     for (key = 0; key < 5; ++key)
         CHECK(feed(c, h[key], n, 615, (uint32_t)key) == 0);
-    for (step = 1; step < 8; ++step)
-        CHECK(feed(c, h[1], n, (uint16_t)(615U - step % 4U), 5) == (step == 7 ? 1 : 0));
+    for (step = 1; step < 4; ++step)
+        CHECK(feed(c, h[1], n, (uint16_t)(615U - step % 4U), 5) == (step == 3 ? 1 : 0));
     sc_capture_destroy(c);
 }
 static void test_result_conflict_ack(void)
@@ -228,6 +244,7 @@ static void test_result_conflict_ack(void)
 int main(void)
 {
     test_acquisition();
+    test_quartet_windows();
     test_invalid_and_other_keys();
     test_expiry_and_duplicates();
     test_candidate_capacity();

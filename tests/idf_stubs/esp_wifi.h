@@ -3,12 +3,24 @@
 #include "esp_err.h"
 #include <stdbool.h>
 #include <stdint.h>
-typedef enum { WIFI_MODE_NULL = 0, WIFI_MODE_STA = 1, WIFI_MODE_APSTA = 3 } wifi_mode_t;
+typedef enum { WIFI_MODE_NULL = 0, WIFI_MODE_STA = 1, WIFI_MODE_AP = 2, WIFI_MODE_APSTA = 3 } wifi_mode_t;
 typedef enum { WIFI_SECOND_CHAN_NONE = 0, WIFI_SECOND_CHAN_ABOVE = 1 } wifi_second_chan_t;
 typedef enum { WIFI_PKT_MGMT = 0, WIFI_PKT_DATA = 1 } wifi_promiscuous_pkt_type_t;
 typedef struct { unsigned int filter_mask; } wifi_promiscuous_filter_t;
 typedef struct { uint8_t schan, nchan; } wifi_country_t;
-typedef struct { int unused; } wifi_ap_record_t;
+#define WIFI_CIPHER_TYPE_NONE 0
+#define WIFI_CIPHER_TYPE_UNKNOWN 12
+typedef struct { uint8_t bssid[6], ssid[33], primary; wifi_second_chan_t second; int8_t rssi; int pairwise_cipher; } wifi_ap_record_t;
+typedef struct { bool show_hidden; } wifi_scan_config_t;
+typedef struct { uint32_t status; uint8_t number, scan_id; } wifi_event_sta_scan_done_t;
+#define WIFI_EVENT_SCAN_DONE 1
+extern const char *WIFI_EVENT;
+esp_err_t esp_wifi_disconnect(void);
+esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *config, bool block);
+esp_err_t esp_wifi_scan_stop(void);
+esp_err_t esp_wifi_scan_get_ap_num(uint16_t *number);
+esp_err_t esp_wifi_scan_get_ap_record(wifi_ap_record_t *record);
+esp_err_t esp_wifi_clear_ap_list(void);
 typedef struct { uint16_t sig_len; uint8_t channel, rx_state; } wifi_pkt_rx_ctrl_t;
 typedef struct { wifi_pkt_rx_ctrl_t rx_ctrl; uint8_t payload[26]; } wifi_promiscuous_pkt_t;
 typedef void (*wifi_promiscuous_cb_t)(void *, wifi_promiscuous_pkt_type_t);

@@ -94,6 +94,15 @@ void sc_touch2_capture_reset(sc_touch2_capture *ctx)
     ctx->decoder = decoder;
 }
 
+int sc_touch2_capture_set_ap(sc_touch2_capture *ctx, const sc_scan_ap *ap)
+{
+    if (ctx == NULL || ctx->state != 1 || ap == NULL || ap->ssid_len == 0 || ap->ssid_len > 32 ||
+        memcmp(ctx->lock.bssid, ap->bssid, 6) != 0 || ctx->lock.channel != ap->channel ||
+        ctx->selected.protected_frame != ap->protected_frame) return 0;
+    sc_touch2_set_ap(ctx->decoder, ap);
+    return 1;
+}
+
 void sc_touch2_capture_destroy(sc_touch2_capture *ctx)
 {
     if (ctx == NULL) return;

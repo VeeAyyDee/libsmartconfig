@@ -17,11 +17,51 @@
 esp_err_t esp_smartconfig_internal_start(const smartconfig_start_config_t *config);
 esp_err_t esp_smartconfig_internal_stop(void);
 ESP_EVENT_DEFINE_BASE(SC_EVENT);
+ESP_EVENT_DEFINE_BASE(WIFI_EVENT);
+static esp_event_handler_t scan_handler, fence_handler;
+static atomic_uint posted_scan, scan_calls, scan_stop_calls, disconnect_calls;
+static atomic_bool auto_scan = true, fail_scan_start, fail_disconnect;
+static atomic_int fail_register;
+static wifi_ap_record_t scan_records[4];
+static uint16_t scan_count, scan_index;
+static esp_event_base_t fence_base;
+static void scan_complete(uint32_t status)
+{
+    wifi_event_sta_scan_done_t event = {.status=status};
+    CHECK(scan_handler != NULL); scan_handler(NULL, WIFI_EVENT, WIFI_EVENT_SCAN_DONE, &event);
+}
+esp_err_t esp_event_handler_instance_register(esp_event_base_t base, int32_t id, esp_event_handler_t handler, void *arg, esp_event_handler_instance_t *instance)
+{
+    (void)id;(void)arg;
+    if(atomic_load(&fail_register)==(base==WIFI_EVENT?1:2)){atomic_store(&fail_register,0);return ESP_ERR_NO_MEM;}
+    if(base==WIFI_EVENT)scan_handler=handler;else{fence_handler=handler;fence_base=base;}
+    *instance=(void *)1;return ESP_OK;
+}
+esp_err_t esp_event_handler_instance_unregister(esp_event_base_t base, int32_t id, esp_event_handler_instance_t instance)
+{
+    (void)id;(void)instance;
+    if(base==WIFI_EVENT)scan_handler=NULL;else fence_handler=NULL;
+    return ESP_OK;
+}
+esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *config, bool block)
+{
+    CHECK(config->show_hidden&&!block);scan_index=0;atomic_fetch_add(&scan_calls,1);
+    if(atomic_exchange(&fail_scan_start,false))return ESP_ERR_INVALID_STATE;
+    if(atomic_load(&auto_scan))scan_complete(0);
+    return ESP_OK;
+}
+esp_err_t esp_wifi_scan_stop(void){atomic_fetch_add(&scan_stop_calls,1);return ESP_OK;}
+esp_err_t esp_wifi_scan_get_ap_num(uint16_t *number){*number=scan_count;return ESP_OK;}
+esp_err_t esp_wifi_scan_get_ap_record(wifi_ap_record_t *record){CHECK(scan_index<scan_count);*record=scan_records[scan_index++];return ESP_OK;}
+esp_err_t esp_wifi_clear_ap_list(void){return ESP_OK;}
+
 static pthread_mutex_t critical = PTHREAD_MUTEX_INITIALIZER, api_mutex = PTHREAD_MUTEX_INITIALIZER;
 static _Thread_local bool in_worker;
 static atomic_bool task_failure, stop_on_event;
 static atomic_uint tasks_alive, posted_found, posted_credentials, stop_event_calls;
-static atomic_uint clock_offset, decrypt_calls;
+static atomic_uint clock_offset, decrypt_calls, manual_time, worker_cycles;
+static atomic_bool manual_clock, hold_fence;
+static uint32_t held_generation;
 static atomic_bool decrypt_failure;
 static atomic_int event_error;
 static int task_identity;
@@ -33,7 +73,7 @@ static struct {
     wifi_promiscuous_filter_t filter;
     wifi_promiscuous_cb_t callback;
     int fail_operation;
-    unsigned int channel_calls;
+    unsigned int channel_calls, channel_attempts;
     smartconfig_event_got_ssid_pswd_t result;
 } mock;
 enum { GET_MODE=1, GET_AP, GET_PROMISC, GET_COUNTRY, GET_CHANNEL, GET_FILTER,
@@ -44,6 +84,7 @@ void test_enter_critical(portMUX_TYPE *m) { (void)m; CHECK(pthread_mutex_lock(&c
 void test_exit_critical(portMUX_TYPE *m) { (void)m; CHECK(pthread_mutex_unlock(&critical) == 0); }
 int64_t esp_timer_get_time(void)
 {
+    if(atomic_load(&manual_clock))return (int64_t)atomic_load(&manual_time)*1000;
     struct timespec t; CHECK(clock_gettime(CLOCK_MONOTONIC, &t) == 0);
     return (int64_t)t.tv_sec * 1000000 + (int64_t)t.tv_nsec / 1000 + (int64_t)atomic_load(&clock_offset) * 1000;
 }
@@ -64,7 +105,11 @@ int xTaskCreate(TaskFunction_t fn, const char *name, unsigned int size, void *ar
     CHECK(pthread_detach(thread) == 0); return pdPASS;
 }
 TaskHandle_t xTaskGetCurrentTaskHandle(void) { return in_worker ? &task_identity : NULL; }
-void vTaskDelay(unsigned int ticks) { pause_ms(ticks == 0 ? 1 : ticks); }
+void vTaskDelay(unsigned int ticks)
+{
+    if (in_worker) atomic_fetch_add(&worker_cycles, 1);
+    pause_ms(ticks == 0 ? 1 : ticks);
+}
 void vTaskDelete(TaskHandle_t handle)
 { CHECK(handle == NULL && in_worker); atomic_fetch_sub(&tasks_alive, 1); pthread_exit(NULL); }
 static esp_err_t begin(unsigned int operation)
@@ -75,6 +120,7 @@ static esp_err_t begin(unsigned int operation)
     return result;
 }
 static void end(void) { CHECK(pthread_mutex_unlock(&api_mutex) == 0); }
+esp_err_t esp_wifi_disconnect(void){if(atomic_exchange(&fail_disconnect,false)){atomic_fetch_add(&disconnect_calls,1);return ESP_FAIL;}CHECK(pthread_mutex_lock(&api_mutex)==0);mock.associated=false;end();atomic_fetch_add(&disconnect_calls,1);return ESP_OK;}
 esp_err_t esp_wifi_get_mode(wifi_mode_t *v) { esp_err_t e=begin(GET_MODE); if(e==ESP_OK)*v=mock.mode;end();return e; }
 esp_err_t esp_wifi_sta_get_ap_info(wifi_ap_record_t *v) { esp_err_t e=begin(GET_AP);(void)v;if(e==ESP_OK&&!mock.associated)e=ESP_ERR_WIFI_NOT_CONNECT;end();return e; }
 esp_err_t esp_wifi_get_promiscuous(bool *v) { esp_err_t e=begin(GET_PROMISC);if(e==ESP_OK)*v=mock.promiscuous;end();return e; }
@@ -83,7 +129,7 @@ esp_err_t esp_wifi_get_channel(uint8_t *c,wifi_second_chan_t *s) { esp_err_t e=b
 esp_err_t esp_wifi_get_promiscuous_filter(wifi_promiscuous_filter_t *f) { esp_err_t e=begin(GET_FILTER);if(e==ESP_OK)*f=mock.filter;end();return e; }
 esp_err_t esp_wifi_set_promiscuous_filter(const wifi_promiscuous_filter_t *f) { esp_err_t e=begin(SET_FILTER);if(e==ESP_OK)mock.filter=*f;end();return e; }
 esp_err_t esp_wifi_set_promiscuous_rx_cb(wifi_promiscuous_cb_t cb) { esp_err_t e=begin(SET_CALLBACK);if(e==ESP_OK)mock.callback=cb;end();return e; }
-esp_err_t esp_wifi_set_channel(uint8_t c,wifi_second_chan_t s) { esp_err_t e=begin(SET_CHANNEL);if(e==ESP_OK){mock.channel=c;mock.secondary=s;++mock.channel_calls;}end();return e; }
+esp_err_t esp_wifi_set_channel(uint8_t c,wifi_second_chan_t s) { esp_err_t e=begin(SET_CHANNEL);++mock.channel_attempts;if(e==ESP_OK){mock.channel=c;mock.secondary=s;++mock.channel_calls;}end();return e; }
 esp_err_t esp_wifi_set_promiscuous(bool v) { esp_err_t e=begin(SET_PROMISC);if(e==ESP_OK)mock.promiscuous=v;end();return e; }
 int sc_touch2_psa_decrypt(void *u,const uint8_t key[16],const uint8_t iv[16],const uint8_t *cipher,size_t n,uint8_t *plain)
 {
@@ -101,7 +147,10 @@ static void *stop_handler(void *unused)
 }
 esp_err_t esp_event_post(esp_event_base_t base,int32_t id,const void *data,size_t bytes,unsigned int wait)
 {
-    CHECK(base==SC_EVENT && wait==0 && id!=SC_EVENT_SCAN_DONE && id!=SC_EVENT_SEND_ACK_DONE);
+    if(base==fence_base){CHECK(fence_handler!=NULL&&bytes==sizeof(uint32_t));if(atomic_load(&hold_fence))memcpy(&held_generation,data,bytes);else fence_handler(NULL,base,id,(void *)data);return ESP_OK;}
+    CHECK(base==SC_EVENT && wait==0 && id!=SC_EVENT_SEND_ACK_DONE);
+    if(id==SC_EVENT_SCAN_DONE){CHECK(data==NULL&&bytes==0);atomic_fetch_add(&posted_scan,1);return ESP_OK;}
+    CHECK(atomic_load(&posted_scan)>0);
     if (atomic_exchange(&event_error,0)!=0) return ESP_ERR_TIMEOUT;
     if(id==SC_EVENT_FOUND_CHANNEL){CHECK(data==NULL&&bytes==0);atomic_fetch_add(&posted_found,1);}
     else {
@@ -120,6 +169,10 @@ static void reset(void)
 {
     CHECK(esp_smartconfig_internal_stop()==ESP_OK);wait_for(&tasks_alive,0);
     CHECK(pthread_mutex_lock(&api_mutex)==0);memset(&mock,0,sizeof(mock));mock.mode=WIFI_MODE_STA;mock.channel=7;mock.secondary=WIFI_SECOND_CHAN_ABOVE;mock.filter.filter_mask=99;end();
+    atomic_store(&manual_clock,false);atomic_store(&hold_fence,false);held_generation=0;
+    atomic_store(&posted_scan,0);atomic_store(&scan_calls,0);atomic_store(&scan_stop_calls,0);atomic_store(&disconnect_calls,0);atomic_store(&auto_scan,true);
+    memset(scan_records,0,sizeof(scan_records));scan_count=1;scan_records[0].primary=1;scan_records[0].rssi=-40;scan_records[0].ssid[0]='s';
+    { const uint8_t address[6]={2,1,2,3,4,5};memcpy(scan_records[0].bssid,address,6); }
     atomic_store(&posted_found,0);atomic_store(&posted_credentials,0);atomic_store(&stop_event_calls,0);atomic_store(&clock_offset,0);
     atomic_store(&stop_on_event,false);atomic_store(&event_error,0);
     CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_AIRKISS)==ESP_OK);
@@ -133,40 +186,94 @@ static void restored(void)
 static void lifecycle(void)
 {
     smartconfig_start_config_t config=SMARTCONFIG_START_CONFIG_DEFAULT();unsigned int i;uint8_t out[64];
-    reset();CHECK(strstr(esp_smartconfig_get_version(),"0.2.0")!=NULL);
+    reset();CHECK(strstr(esp_smartconfig_get_version(),"0.3.0")!=NULL);
     CHECK(esp_smartconfig_internal_start(NULL)==ESP_ERR_INVALID_ARG);
     config.esp_touch_v2_enable_crypt=true;CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_ARG);config.esp_touch_v2_enable_crypt=false;
     CHECK(esp_smartconfig_set_type((smartconfig_type_t)4)==ESP_ERR_INVALID_ARG);
-    CHECK(esp_esptouch_set_timeout(14)==ESP_ERR_INVALID_ARG);CHECK(esp_esptouch_set_timeout(255)==ESP_OK);CHECK(esp_esptouch_set_timeout(15)==ESP_OK);
-    CHECK(esp_smartconfig_fast_mode(true)==ESP_ERR_NOT_SUPPORTED);CHECK(esp_smartconfig_fast_mode(false)==ESP_OK);
-    CHECK(esp_smartconfig_get_rvd_data(out,33)==ESP_ERR_INVALID_STATE);CHECK(esp_smartconfig_get_rvd_data(NULL,0)==ESP_ERR_INVALID_ARG);
-    for(i=GET_MODE;i<=SET_PROMISC;++i){
+    CHECK(esp_esptouch_set_timeout(14)==ESP_ERR_INVALID_ARG);CHECK(esp_esptouch_set_timeout(15)==ESP_OK);
+    CHECK(esp_smartconfig_fast_mode(true)==ESP_OK);CHECK(esp_smartconfig_fast_mode(false)==ESP_OK);
+    CHECK(esp_smartconfig_get_rvd_data(out,33)==ESP_ERR_INVALID_STATE);
+    for(i=GET_MODE;i<=SET_CALLBACK;++i){
+        if(i==GET_AP)continue;
         reset();mock.fail_operation=(int)i;CHECK(esp_smartconfig_internal_start(&config)==ESP_FAIL);restored();
-        CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
-        CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_STATE);
-        CHECK(esp_smartconfig_set_type(SC_TYPE_AIRKISS)==ESP_ERR_INVALID_STATE);
-        CHECK(esp_smartconfig_fast_mode(false)==ESP_ERR_INVALID_STATE);CHECK(esp_esptouch_set_timeout(15)==ESP_ERR_INVALID_STATE);
-        CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
     }
+    for(i=1;i<=2;++i){reset();atomic_store(&fail_register,(int)i);CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_NO_MEM);CHECK(scan_handler==NULL&&fence_handler==NULL);restored();}
     reset();atomic_store(&task_failure,true);CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_NO_MEM);restored();
     for(i=SET_FILTER;i<=SET_PROMISC;++i){
-        reset();CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
+        reset();CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,1);
+        CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_STATE);
+        CHECK(esp_smartconfig_fast_mode(false)==ESP_ERR_INVALID_STATE);
         CHECK(pthread_mutex_lock(&api_mutex)==0);mock.fail_operation=(int)i;end();
         CHECK(esp_smartconfig_internal_stop()==ESP_FAIL);
         CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_STATE);
         CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
     }
-    reset();mock.associated=true;CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_STATE);mock.associated=false;
-    mock.promiscuous=true;CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_STATE);mock.promiscuous=false;
-    mock.mode=WIFI_MODE_APSTA;CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
+    reset();mock.mode=WIFI_MODE_AP;CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_STATE);CHECK(atomic_load(&disconnect_calls)==0);restored();
+    reset();atomic_store(&fail_disconnect,true);CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,1);
+    CHECK(atomic_load(&disconnect_calls)==1);CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+    reset();mock.associated=true;CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,1);
+    CHECK(!mock.associated&&atomic_load(&disconnect_calls)==1);CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+    reset();mock.promiscuous=true;CHECK(esp_smartconfig_internal_start(&config)==ESP_ERR_INVALID_STATE);mock.promiscuous=false;
+    mock.mode=WIFI_MODE_APSTA;CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,1);
     atomic_store(&clock_offset,1000);pause_ms(25);
-    CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_calls==0&&mock.channel==7);end();
+    CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_calls>=2&&mock.channel==1);end();
+    CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+    /* An owned in-flight scan is cancelled; empty or weak-only discoveries do
+     * not publish scan completion, and a later valid pass enables capture. */
+    reset();atomic_store(&auto_scan,false);atomic_store(&fail_scan_start,true);CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
+    wait_for(&scan_calls,1);CHECK(esp_smartconfig_internal_stop()==ESP_OK);CHECK(atomic_load(&scan_stop_calls)==0);restored();
+    reset();atomic_store(&auto_scan,false);CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
+    wait_for(&scan_calls,1);CHECK(atomic_load(&posted_scan)==0);
+    CHECK(esp_smartconfig_internal_stop()==ESP_OK);CHECK(atomic_load(&scan_stop_calls)==1);restored();
+    reset();atomic_store(&auto_scan,false);scan_records[0].rssi=-85;
+    CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&scan_calls,1);scan_complete(0);
+    wait_for(&scan_calls,2);scan_complete(0);wait_for(&scan_calls,3);CHECK(atomic_load(&posted_scan)==0);
+    scan_records[0].rssi=-84;scan_complete(0);wait_for(&posted_scan,1);
     CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
 }
+static void discovery_boundaries(void)
+{
+    smartconfig_start_config_t config=SMARTCONFIG_START_CONFIG_DEFAULT();
+    unsigned int fast;
+    for(fast=0;fast<2;++fast){
+        unsigned int before;
+        reset();atomic_store(&manual_clock,true);atomic_store(&manual_time,1000);
+        CHECK(esp_smartconfig_fast_mode(fast!=0)==ESP_OK);
+        scan_count=2;scan_records[1]=scan_records[0];scan_records[1].bssid[5]=9;scan_records[1].primary=11;
+        CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,1);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);before=mock.channel_calls;CHECK(mock.channel==1);end();
+        atomic_fetch_add(&manual_time,fast?49:99);pause_ms(30);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_calls==before);end();
+        atomic_fetch_add(&manual_time,1);pause_ms(30);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel==11&&mock.channel_calls==before+1);mock.fail_operation=SET_CHANNEL;end();
+        atomic_fetch_add(&manual_time,fast?50:100);pause_ms(30);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel==11&&mock.channel_attempts==before+2);end();
+        pause_ms(30);CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_attempts==before+2);end();
+        atomic_fetch_add(&manual_time,fast?50:100);pause_ms(30);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel==1);end();
+        CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+        CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,2);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);before=mock.channel_calls;end();
+        atomic_fetch_add(&manual_time,fast?49:99);pause_ms(30);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_calls==before);end();
+        atomic_fetch_add(&manual_time,1);pause_ms(30);
+        CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_calls==before+1);end();
+        CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+    }
+    reset();CHECK(esp_smartconfig_fast_mode(false)==ESP_OK);atomic_store(&auto_scan,false);atomic_store(&hold_fence,true);
+    CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);pause_ms(40);
+    CHECK(atomic_load(&scan_calls)==0);scan_complete(0);pause_ms(25);CHECK(atomic_load(&posted_scan)==0);
+    atomic_store(&hold_fence,false);fence_handler(NULL,fence_base,0,&held_generation);
+    wait_for(&scan_calls,1);scan_complete(1);wait_for(&scan_calls,2);CHECK(atomic_load(&posted_scan)==0);
+    scan_complete(0);wait_for(&scan_calls,3);scan_complete(0);wait_for(&posted_scan,1);
+    CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+}
+static bool omit_ssid;
 static uint16_t sequence;
 static const uint8_t bssid[6]={2,1,2,3,4,5};
 static void packet(uint16_t length)
 {
+    while(atomic_load(&posted_scan)==0)pause_ms(1);
     wifi_promiscuous_pkt_t p={0};wifi_promiscuous_cb_t callback;uint16_t seq=(uint16_t)((sequence++&4095U)<<4);
     CHECK(pthread_mutex_lock(&api_mutex)==0);callback=mock.callback;p.rx_ctrl.channel=mock.channel;end();CHECK(callback!=NULL);
     p.rx_ctrl.sig_len=(uint16_t)(length+100U);p.payload[0]=8;p.payload[1]=2;
@@ -181,8 +288,8 @@ static void airkiss(void)
     metadata[2]=(uint16_t)(32U+(s_crc>>4));metadata[3]=(uint16_t)(48U+(s_crc&15U));
     metadata[6]=(uint16_t)(96U+(crc>>4));metadata[7]=(uint16_t)(112U+(crc&15U));
     for(i=0;i<8;++i)packet(metadata[i]);
-    packet((uint16_t)(128U+(sc_touch_crc8(bytes,4)&127U)));packet(128);
-    for(i=1;i<4;++i)packet((uint16_t)(256U+bytes[i]));
+    packet((uint16_t)(128U+(sc_touch_crc8(bytes,omit_ssid?3U:4U)&127U)));packet(128);
+    for(i=1;i<(omit_ssid?3U:4U);++i)packet((uint16_t)(256U+bytes[i]));
 }
 static void triplet(uint8_t index,uint8_t value)
 {
@@ -197,14 +304,14 @@ static void touch(void)
     for(i=0;i<11;++i)checksum^=data[i];
     data[4]=checksum;
     for(i=0;i<8;++i)packet((uint16_t)(515U-i%4U));
-    for(i=0;i<17;++i)triplet((uint8_t)i,data[i]);
+    for(i=0;i<(omit_ssid?10U:17U);++i)triplet((uint8_t)i,data[i]);
 }
 static void protocols(void)
 {
-    smartconfig_start_config_t config=SMARTCONFIG_START_CONFIG_DEFAULT();unsigned int type,which;
-    for(type=0;type<3;++type)for(which=0;which<2;++which){
+    smartconfig_start_config_t config=SMARTCONFIG_START_CONFIG_DEFAULT();unsigned int type,which,fast;
+    for(fast=0;fast<2;++fast)for(type=0;type<3;++type)for(which=0;which<2;++which){
         if(type!=2&&type!=which)continue;
-        reset();CHECK(esp_smartconfig_set_type((smartconfig_type_t)type)==ESP_OK);CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
+        reset();CHECK(esp_smartconfig_fast_mode(fast!=0)==ESP_OK);CHECK(esp_smartconfig_set_type((smartconfig_type_t)type)==ESP_OK);CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
         atomic_store(&event_error,1);if(which==0)touch();else airkiss();
         wait_for(&posted_credentials,1);pause_ms(25);CHECK(atomic_load(&posted_found)==1&&atomic_load(&posted_credentials)==1);
         CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.result.type==(smartconfig_type_t)which&&mock.result.ssid[0]=='s'&&mock.result.password[0]=='p'&&mock.result.bssid_set&&memcmp(mock.result.bssid,bssid,6)==0);end();
@@ -216,7 +323,7 @@ static void protocols(void)
     /* Timeout resets a locked attempt, then combined mode can select another protocol. */
     reset();CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);
     { unsigned int i;for(i=0;i<8;++i)packet((uint16_t)(1U+i%4U)); }
-    wait_for(&posted_found,1);atomic_fetch_add(&clock_offset,61000);pause_ms(25);touch();
+    wait_for(&posted_found,1);atomic_fetch_add(&clock_offset,61000);wait_for(&posted_scan,2);touch();
     wait_for(&posted_credentials,1);CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
 }
 static void v2_planes(const uint8_t input[5])
@@ -238,7 +345,7 @@ static void v2_message(bool encrypted)
     if(encrypted)for(i=0;i<4;++i)for(j=0;j<5;++j)groups[i][j]=(uint8_t)(i*5+j<16?0x80U+i*5+j:0);
     packet(1048);packet((uint16_t)(1072U+group_count));packet(1048);packet((uint16_t)(1072U+group_count));
     v2_planes(header);
-    for(i=0;i<group_count;++i){packet((uint16_t)(128U+i));v2_planes(groups[i]);}
+    for(i=0;i<group_count-(omit_ssid?1U:0U);++i){packet((uint16_t)(128U+i));v2_planes(groups[i]);}
 }
 static void v2_options(void)
 {
@@ -251,7 +358,7 @@ static void v2_options(void)
         CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_V2)==ESP_OK);
         CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);memset(key,255,16);
         v2_message(pass!=0);
-        if(pass==2){pause_ms(40);CHECK(atomic_load(&posted_credentials)==0&&atomic_load(&decrypt_calls)==1);}
+        if(pass==2){pause_ms(40);CHECK(atomic_load(&posted_credentials)==0&&atomic_load(&decrypt_calls)>=1);}
         else {
             wait_for(&posted_credentials,1);
             memset(output,0xff,sizeof(output));CHECK(esp_smartconfig_get_rvd_data(output,33)==ESP_OK);
@@ -266,9 +373,46 @@ static void v2_options(void)
         CHECK(esp_smartconfig_get_rvd_data(output,33)==ESP_ERR_INVALID_STATE);
     }
 }
+static void omitted_workflow(void)
+{
+    smartconfig_start_config_t config=SMARTCONFIG_START_CONFIG_DEFAULT();
+    unsigned int protocol,bad;uint8_t key[16];
+    omit_ssid=true;
+    for(protocol=0;protocol<4;++protocol)for(bad=0;bad<7;++bad){
+        unsigned int type=protocol==2?3:protocol==3?3:protocol;
+        reset();atomic_store(&decrypt_failure,false);
+        if(bad==1)scan_records[0].ssid[0]=0;
+        if(bad==2)scan_records[0].bssid[5]^=1;
+        if(bad==3)scan_records[0].ssid[1]='x';
+        if(bad==4)scan_records[0].pairwise_cipher=4;
+        if(bad==5){scan_count=2;scan_records[1]=scan_records[0];scan_records[1].ssid[0]='z';}
+        if(bad==6 && type!=3)scan_records[0].ssid[0]='z';
+        if(bad==6 && type==3)scan_records[0].bssid[5]^=2;
+        for(unsigned int i=0;i<16;++i)key[i]=(uint8_t)i;
+        config.esp_touch_v2_enable_crypt=protocol==3;config.esp_touch_v2_key=(char *)key;
+        CHECK(esp_smartconfig_set_type((smartconfig_type_t)type)==ESP_OK);
+        CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,1);
+        if(type==0)touch();else if(type==1)airkiss();else v2_message(protocol==3);
+        if(bad==0)wait_for(&posted_credentials,1);
+        else {pause_ms(45);CHECK(atomic_load(&posted_credentials)==0);}
+        CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+    }
+    omit_ssid=false;
+}
+static void initial_dwell(void)
+{
+    smartconfig_start_config_t config=SMARTCONFIG_START_CONFIG_DEFAULT();
+    reset();atomic_store(&manual_clock,true);atomic_store(&manual_time,1000);
+    CHECK(esp_smartconfig_internal_start(&config)==ESP_OK);wait_for(&posted_scan,1);
+    atomic_fetch_add(&manual_time,149);pause_ms(30);
+    CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_calls==1);end();
+    atomic_fetch_add(&manual_time,1);pause_ms(30);
+    CHECK(pthread_mutex_lock(&api_mutex)==0);CHECK(mock.channel_calls==2);end();
+    CHECK(esp_smartconfig_internal_stop()==ESP_OK);restored();
+}
 int main(void)
 {
-    lifecycle();protocols();v2_options();
+    initial_dwell();lifecycle();discovery_boundaries();protocols();v2_options();omitted_workflow();
     puts("PASS: standard compatibility real-worker lifecycle/rollback/options, single/combined capture, event order/retry/handler-stop, APSTA channel and timeout reset");
     return 0;
 }

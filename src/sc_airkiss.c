@@ -7,6 +7,7 @@
 enum { MAX_TOTAL = 113, MAX_BLOCKS = 29, MAX_CIPHER = 80 };
 struct sc_airkiss {
     sc_airkiss_config config;
+    sc_scan_ap ap;
     uint8_t bytes[MAX_TOTAL], seen[MAX_BLOCKS];
     uint16_t metadata[4];
     size_t metadata_count, payload_count;
@@ -37,6 +38,15 @@ sc_airkiss *sc_airkiss_create_with_config(const sc_airkiss_config *config)
     return ctx;
 }
 sc_airkiss *sc_airkiss_create(void) { return sc_airkiss_create_with_config(NULL); }
+void sc_airkiss_set_ap(sc_airkiss *ctx, const sc_scan_ap *ap)
+{ if (ctx != NULL && !ctx->complete) { memset(&ctx->ap, 0, sizeof(ctx->ap)); if (ap != NULL && ap->ssid_len <= 32) ctx->ap = *ap; } }
+static int recover_ssid(const sc_airkiss *ctx)
+{
+    return ctx->config.key_len == 0 && ctx->have_magic && ctx->have_prefix && ctx->ap.ssid_len != 0 &&
+        ctx->ap.ssid_len == ctx->total - ctx->password_length - 1U &&
+        sc_touch_crc8(ctx->ap.ssid, ctx->ap.ssid_len) == ctx->ssid_crc;
+}
+
 void sc_airkiss_reset(sc_airkiss *ctx)
 {
     sc_airkiss_config config;
@@ -96,14 +106,27 @@ static void read_metadata(sc_airkiss *ctx, uint16_t length)
 
 static void try_complete(sc_airkiss *ctx)
 {
-    size_t i, blocks = ((size_t)ctx->total + 3U) / 4U;
+    int recovered = recover_ssid(ctx);
+    size_t i, required = recovered ? (size_t)ctx->password_length + 1U : ctx->total;
+    size_t blocks = (required + 3U) / 4U;
     size_t password = ctx->password_length;
     size_t ssid = (size_t)ctx->total - password - 1U;
     size_t decoded_length = password;
     uint8_t plain[MAX_CIPHER] = {0};
     if (ctx->crypto_failed) return;
     for (i = 0; i < blocks; ++i) if (!ctx->seen[i]) return;
-    if (sc_touch_crc8(ctx->bytes + password + 1U, ssid) != ctx->ssid_crc) return;
+    if (recovered) {
+        size_t block;
+        for (block = 0; block < MAX_BLOCKS; ++block) {
+            size_t j;
+            for (j = 0; j < ctx->seen[block]; ++j) {
+                size_t offset = block * 4U + j;
+                if (offset >= required && offset < ctx->total &&
+                    ctx->bytes[offset] != ctx->ap.ssid[offset - required]) return;
+            }
+        }
+    }
+    if (!recovered && sc_touch_crc8(ctx->bytes + password + 1U, ssid) != ctx->ssid_crc) return;
     if (ctx->config.key_len != 0 && password != 0) {
         uint8_t padding;
         if (ctx->config.decrypt(ctx->config.user, ctx->config.key, ctx->config.key,
@@ -117,7 +140,7 @@ static void try_complete(sc_airkiss *ctx)
             if (plain[i] != padding) goto crypto_failure;
         memcpy(ctx->result.password, plain, decoded_length);
     } else memcpy(ctx->result.password, ctx->bytes, password);
-    memcpy(ctx->result.ssid, ctx->bytes + password + 1U, ssid);
+    memcpy(ctx->result.ssid, recovered ? ctx->ap.ssid : ctx->bytes + password + 1U, ssid);
     ctx->result.password_len = (uint8_t)decoded_length;
     ctx->result.ssid_len = (uint8_t)ssid;
     ctx->result.token = ctx->bytes[password];
@@ -131,7 +154,7 @@ crypto_failure:
 
 static void read_data(sc_airkiss *ctx, uint16_t length)
 {
-    size_t offset, count;
+    size_t offset, count, full_count, required;
     uint8_t crc_input[5];
     if (length < 128 || length > 511 || !ctx->have_prefix) {
         ctx->header_count = 0;
@@ -157,21 +180,32 @@ static void read_data(sc_airkiss *ctx, uint16_t length)
     if (ctx->header_count != 2) return;
     offset = 4U * ctx->block_index;
     if (offset >= ctx->total) { ctx->header_count = 0; return; }
-    count = (size_t)ctx->total - offset;
-    if (count > 4) count = 4;
+    full_count = (size_t)ctx->total - offset;
+    if (full_count > 4) full_count = 4;
+    required = recover_ssid(ctx) ? (size_t)ctx->password_length + 1U : ctx->total;
+    count = offset < required ? required - offset : full_count;
+    if (count > full_count) count = full_count;
     ctx->payload[ctx->payload_count++] = (uint8_t)(length & 255U);
-    if (ctx->payload_count != count) return;
-    ctx->header_count = 0;
-    ctx->payload_count = 0;
+    if (ctx->payload_count != count && ctx->payload_count != full_count) return;
+    count = ctx->payload_count;
     crc_input[0] = ctx->block_index;
     memcpy(crc_input + 1, ctx->payload, count);
-    if ((sc_touch_crc8(crc_input, count + 1U) & 127U) != ctx->block_crc) return;
+    if ((sc_touch_crc8(crc_input, count + 1U) & 127U) != ctx->block_crc) {
+        if (count < full_count) return;
+        ctx->header_count = 0; ctx->payload_count = 0; return;
+    }
+    ctx->header_count = 0; ctx->payload_count = 0;
+    if (recover_ssid(ctx)) {
+        size_t i;
+        for (i = 0; i < count; ++i) if (offset + i >= required &&
+            ctx->payload[i] != ctx->ap.ssid[offset + i - required]) { ctx->poisoned = 1; return; }
+    }
     if (ctx->seen[ctx->block_index]) {
         if (memcmp(ctx->bytes + offset, ctx->payload, count) != 0) ctx->poisoned = 1;
         return;
     }
     memcpy(ctx->bytes + offset, ctx->payload, count);
-    ctx->seen[ctx->block_index] = 1;
+    ctx->seen[ctx->block_index] = (uint8_t)count;
     try_complete(ctx);
 }
 

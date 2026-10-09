@@ -1,0 +1,36 @@
+v0.3.0 parity validation — supervisor,2026-10-08
+
+Implemented: persistent150ms untouched/100ms explicit normal/50ms fast dwell;
+public asynchronous two-pass discovery; owned AP metadata; SCAN_DONE after
+usable discovery/capture setup; connected-STA disconnect and APSTA discovery;
+omitted-SSID recovery in v1, plaintext AirKiss and plaintext/encrypted v2.
+
+Independent checks pass97 protocol/capture cases and23 real-worker assertions.
+Packet vectors/CRCs/edge assertions were independently authored; lifecycle tests
+reuse SDK mock plumbing but replace the implementation's main/assertions. The
+same23 worker checks pass ASan/UBSan. LeakSanitizer is unavailable in the traced
+environment, so there is no LeakSanitizer claim. Implementation-owned host,
+crypto and link-audit suites pass. Staged source-only package tests also pass.
+
+These tests cover the stated contract under deterministic mocks, not full vendor
+or RF equivalence. A composed original discovery/recovery oracle was not run.
+Active-session setters remain restricted; public documented usage sets options
+before start. Ambiguous/cross-band and hidden-SSID recovery are deliberately not
+guessed. Async public scans differ internally from vendor private discovery.
+
+A controlled hardware run exposed acquisition starvation: old capture required
+eight ordered guides, incompatible with some50ms channel visits. Original-only
+probes confirmed one sliding quartet for v1 and AirKiss. After the correction,
+independent1680 acquisition and1260 complete provisioning timelines pass, with
+off-channel frames discarded. Earlier tests had missed this coupled behavior.
+The97 recovery/capture and23 worker assertions pass again, including unchanged
+v2 regressions. Controlled two-board regression passed6 rounds/12boots: vendor/vendor, all5
+fresh/fresh, and fresh/vendor, cold and warm. There were60 public SmartConfig
+lifecycle checks and6 v1 provisioning/association/DHCP/UDP rounds. Warm rounds
+use fast mode, an open test AP with empty password, omitted on-airSSID and an
+already-associated receiver; cold rounds use fullSSID and WPA2. The previously
+failing fast case now passes. Scan/found/credentials/IP ordering was checked.
+Both full16MiB original images restored and verified; calibration saved/reused.
+This new on-air coverage is v1 only; new AirKiss/v2 scan recovery is host-tested,
+not newly proven with a real phone or over the air. Earlier dated OTA results elsewhere
+apply to their recorded revisions and do not establish all new recovery paths.

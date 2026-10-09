@@ -236,16 +236,15 @@ static void test_capture(void)
         uint16_t symbols[6];
         uint32_t time = UINT32_MAX - 1000U;
         CHECK(c != NULL); capture_header(h, direction, qos, protected_frame);
-        for (i = phase; i < 12; ++i) {
+        for (i = phase; i < phase + 4; ++i) {
             int state = capture_symbol(c, h, bytes, (uint16_t)(1U + i % 4U), time);
-            if (state == 1) break;
-            CHECK(state == 0);
+            CHECK(state == (i - phase == 3 ? 1 : 0));
         }
         CHECK(sc_airkiss_capture_get_lock(c, &lock) == 1 && lock.overhead == 64 && lock.channel == 6);
         CHECK(sc_airkiss_capture_tick(c, time + 2499U) == 1);
         CHECK(sc_airkiss_capture_feed(c, h, bytes, 68, 6, time + 2499U) == 1); /* duplicate */
         CHECK(sc_airkiss_capture_tick(c, time + 2500U) == 0);
-        for (i = 0; i < 8; ++i) CHECK(capture_symbol(c, h, bytes, (uint16_t)(1U + i % 4U), 2000) == (i == 7 ? 1 : 0));
+        for (i = 0; i < 4; ++i) CHECK(capture_symbol(c, h, bytes, (uint16_t)(1U + i % 4U), 2000) == (i == 3 ? 1 : 0));
         make_fixture(&f, 5, 3);
         memcpy(other, h, 26); other[direction == 1 ? 10 : 16] = 6;
         for (j = 0; j < 4; ++j) {
@@ -261,14 +260,25 @@ static void test_capture(void)
         CHECK(sc_airkiss_capture_get_result(c, &result) == 1 && result.token == f.expected.token);
         CHECK(sc_airkiss_capture_tick(c, 999999) == 2);
         sc_airkiss_capture_reset(c);
-        for (i = 0; i < 8; ++i) CHECK(capture_symbol(c, h, bytes, (uint16_t)(1U + i % 4U), 0) == (i == 7 ? 1 : 0));
+        for (i = 0; i < 4; ++i) CHECK(capture_symbol(c, h, bytes, (uint16_t)(1U + i % 4U), 0) == (i == 3 ? 1 : 0));
         for (i = 1; i < 30; ++i) CHECK(capture_symbol(c, h, bytes, 1, i * 1000U) == 1);
         CHECK(sc_airkiss_capture_tick(c, 30000) == 0);
-        for (i = 0; i < 8; ++i) CHECK(capture_symbol(c, h, bytes, (uint16_t)(1U + i % 4U), 31000) == (i == 7 ? 1 : 0));
+        for (i = 0; i < 4; ++i) CHECK(capture_symbol(c, h, bytes, (uint16_t)(1U + i % 4U), 31000) == (i == 3 ? 1 : 0));
         for (j = 0; j < 4; ++j) CHECK(capture_symbol(c, h, bytes, f.magic[j], 31001) == 1);
         f.magic[3] ^= 1U;
         for (j = 0; j < 4; ++j) CHECK(capture_symbol(c, h, bytes, f.magic[j], 31001) == (j == 3 ? 0 : 1));
         sc_airkiss_capture_destroy(c);
+    }
+}
+static void test_guide_permutations(void)
+{
+    unsigned int a,b,c,d;
+    for(a=0;a<4;++a)for(b=0;b<4;++b)for(c=0;c<4;++c)for(d=0;d<4;++d){
+        unsigned int values[4]={a,b,c,d},i;int distinct=a!=b&&a!=c&&a!=d&&b!=c&&b!=d&&c!=d;
+        sc_airkiss_capture *ctx=sc_airkiss_capture_create();uint8_t h[26];capture_header(h,1,0,0);
+        for(i=0;i<4;++i)CHECK(capture_symbol(ctx,h,24,(uint16_t)(1U+values[i]),i)==(i==3&&distinct?1:0));
+        if(!distinct){int state=0;for(i=0;i<4;++i)state=capture_symbol(ctx,h,24,(uint16_t)(1U+i),10U+i);CHECK(state==1);}
+        sc_airkiss_capture_destroy(ctx);
     }
 }
 static void test_null_and_ack(void)
@@ -289,7 +299,7 @@ static void test_null_and_ack(void)
 }
 int main(void)
 {
-    test_all_lengths(); test_recovery(); test_conflicts_and_integrity(); test_invalid_metadata_bounds(); test_capture(); test_null_and_ack();
+    test_all_lengths(); test_recovery(); test_conflicts_and_integrity(); test_invalid_metadata_bounds(); test_capture(); test_guide_permutations(); test_null_and_ack();
     puts("PASS: AirKiss all field lengths/tails, reorder/repeat/drop/recovery, integrity/conflicts, independent contexts, capture framing/sources/timeouts, ack");
     return 0;
 }

@@ -9,6 +9,8 @@ typedef struct sc_airkiss_capture sc_airkiss_capture;
 
 sc_airkiss_capture *sc_airkiss_capture_create(void);
 sc_airkiss_capture *sc_airkiss_capture_create_with_config(const sc_airkiss_config *config);
+/* Returns 1 only for an exact locked identity/channel/security match. */
+int sc_airkiss_capture_set_ap(sc_airkiss_capture *ctx, const sc_scan_ap *ap);
 void sc_airkiss_capture_destroy(sc_airkiss_capture *ctx);
 void sc_airkiss_capture_reset(sc_airkiss_capture *ctx);
 int sc_airkiss_capture_feed(sc_airkiss_capture *ctx, const uint8_t *header,

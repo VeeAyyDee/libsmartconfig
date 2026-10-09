@@ -1,7 +1,7 @@
 # libsmartconfig
 
 Original C receivers for ESPTouch v1, ESPTouch v2 and AirKiss, packaged as an
-ESP-IDF component. Version **0.2.0** adds the standard `esp_smartconfig.h` API
+ESP-IDF component. Version **0.3.0** extends the standard `esp_smartconfig.h` API
 workflow: start, receive `SC_EVENT` events, connect, and stop after acknowledgement.
 Existing applications do not need the earlier `sc_*` polling API.
 
@@ -51,11 +51,26 @@ have host tests. Target integration is tested on **ESP32-S3 / ESP-IDF 6.0.3**.
 This is a source/API-compatible replacement for the tested workflows, **not a
 claim of complete vendor behavior equivalence**:
 
-- `esp_smartconfig_fast_mode(true)` returns `ESP_ERR_NOT_SUPPORTED`.
-- Scan-assisted SSID recovery and the vendor's full discovery lifecycle are
-  absent; `SC_EVENT_SCAN_DONE` is not fabricated.
-- Start requires disconnected STA or APSTA. APSTA reception stays on the AP's
-  current channel; it does not hop an active AP through channels.
+- Discovery uses public asynchronous scans, two successful passes, a bounded
+  64-BSSID cache and discovered channels within the country range. Empty or
+  weak-only scans keep discovering. `SC_EVENT_SCAN_DONE` follows real discovery
+  and capture enablement; timeouts start a fresh discovery attempt.
+- Untouched channel dwell is 150ms. Explicit `fast_mode(false)` requests 100ms;
+  `fast_mode(true)` requests 50ms. The option persists across sessions. Set it
+  while inactive; active setters remain deliberately rejected.
+- ESPTouch v1 and AirKiss acquire from one sliding quartet of distinct
+  consecutive lengths in any order or phase. Their previous eight-packet gate
+  could starve during50ms channel visits. Partial quartets do not hold a channel;
+  original weak-signal FromDS survey preferences remain outside this scope.
+- Start disconnects an associated STA and supports channel hopping in APSTA.
+  Applications must suspend automatic reconnect and unrelated scans while
+  provisioning. APSTA client service can be disrupted; driver retune errors
+  are retried and reported when logging is enabled.
+- Scan-assisted omitted SSIDs are supported for v1, plaintext AirKiss and v2,
+  including encrypted v2 password/reserved fields. Recovery requires an exact
+  locked BSSID, channel and protected-frame match plus protocol length/CRC
+  checks. Hidden SSIDs, conflicting duplicate records and ambiguous identities
+  are not guessed. Broader vendor cross-band/HT40 heuristics are unimplemented.
 - The receiver needs exclusive promiscuous reception. Stop it before using the
   optional protocol-specific adapters or another promiscuous consumer.
 - The standard SDK start structure has no AirKiss encryption key field. Keyed

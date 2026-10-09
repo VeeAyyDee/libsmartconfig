@@ -148,7 +148,7 @@ static void test_capture_reset(void)
         for (i = 0; i < count + 8; ++i) {
             uint16_t sequence = (uint16_t)((number++ & 4095U) << 4);
             uint16_t length = i < 8 ? (uint16_t)(1U + i % 4U) : lengths[i - 8];
-            int expected = i < 7 ? 0 : i + 1 == count + 8 ? 2 : 1;
+            int expected = i < 3 ? 0 : i + 1 == count + 8 ? 2 : 1;
             h[22] = (uint8_t)sequence; h[23] = (uint8_t)(sequence >> 8);
             CHECK(sc_airkiss_capture_feed(ctx, h, 24, (uint16_t)(length + 64U), 6, (uint32_t)i) == expected);
         }
